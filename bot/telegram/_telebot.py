@@ -1,5 +1,13 @@
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.constants import ParseMode
+from telegram.ext import (
+    Application, CommandHandler, ContextTypes, ConversationHandler,
+    MessageHandler
+)
+from telegram.ext import filters
+from .conservations import ConservationController
+
+NOTE_TEXT, REMIND_TEXT = range(2)
 
 class Telebot:
     def __init__(self) -> None:
@@ -10,8 +18,14 @@ class Telebot:
         TELEBOT_TOKEN = os.getenv('TELEBOT_TOKEN')
         self.application = Application.builder().token(TELEBOT_TOKEN).build()
 
+        self.init_conversation_controller()
         self.init_start_command()
         self.init_help_command()
+
+    def init_conversation_controller(self) -> None:
+        self.conservation_controller = ConservationController()
+        self.conservation_controller.add_conversation_handler(self.application)
+
 
     def init_start_command(self) -> None:
         async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -31,12 +45,8 @@ class Telebot:
 
         self.application.add_handler(CommandHandler('help', help_command))
 
+
+
     def run_polling(self) -> None:
+        print('Bot is running...')
         self.application.run_polling()
-
-def main() -> None:
-    telebot = Telebot()
-    telebot.run_polling()
-
-if __name__ == '__main__':
-    main()

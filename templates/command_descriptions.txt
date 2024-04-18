@@ -1,2 +1,4 @@
 start - Start the bot and get a welcome message
 help - Get help and see available commands
+note - Add a note
+remind - Set a reminder
