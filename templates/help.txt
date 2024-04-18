@@ -1,0 +1,2 @@
+/start - Start interacting with the bot
+/help - Get help about using the bot
