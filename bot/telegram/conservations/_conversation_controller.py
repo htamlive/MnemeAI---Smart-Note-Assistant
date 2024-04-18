@@ -11,10 +11,11 @@ NOTE_TEXT, REMIND_TEXT = range(2)
 
 
 class ConservationController:
-    def __init__(self) -> None:
+    def __init__(self, client) -> None:
+        self.client = client
 
-        self.note_conversation = NoteConversation(NOTE_TEXT)
-        self.remind_conversation = RemindConversation(REMIND_TEXT)
+        self.note_conversation = NoteConversation(NOTE_TEXT, self.client)
+        self.remind_conversation = RemindConversation(REMIND_TEXT, self.client)
         
         self.conversation_handler = ConversationHandler(
             entry_points=[

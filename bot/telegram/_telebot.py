@@ -6,11 +6,12 @@ from telegram.ext import (
 )
 from telegram.ext import filters
 from .conservations import ConservationController
+from client import DefaultClient
 
 NOTE_TEXT, REMIND_TEXT = range(2)
 
 class Telebot:
-    def __init__(self) -> None:
+    def __init__(self, client: DefaultClient) -> None:
         from dotenv import load_dotenv
         import os
 
@@ -18,12 +19,12 @@ class Telebot:
         TELEBOT_TOKEN = os.getenv('TELEBOT_TOKEN')
         self.application = Application.builder().token(TELEBOT_TOKEN).build()
 
-        self.init_conversation_controller()
+        self.init_conversation_controller(client)
         self.init_start_command()
         self.init_help_command()
 
-    def init_conversation_controller(self) -> None:
-        self.conservation_controller = ConservationController()
+    def init_conversation_controller(self, client: DefaultClient) -> None:
+        self.conservation_controller = ConservationController(client)
         self.conservation_controller.add_conversation_handler(self.application)
 
 
