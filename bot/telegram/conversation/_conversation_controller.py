@@ -10,7 +10,7 @@ from ._remind_conversation import RemindConversation
 NOTE_TEXT, REMIND_TEXT = range(2)
 
 
-class ConservationController:
+class ConversationController:
     def __init__(self, client) -> None:
         self.client = client
 

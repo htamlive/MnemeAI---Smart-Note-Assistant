@@ -1,11 +1,9 @@
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.constants import ParseMode
 from telegram.ext import (
-    Application, CommandHandler, ContextTypes, ConversationHandler,
-    MessageHandler
+    Application, CommandHandler, ContextTypes
 )
 from telegram.ext import filters
-from .conservations import ConservationController
+from .conversation import ConversationController
 from client import DefaultClient
 
 NOTE_TEXT, REMIND_TEXT = range(2)
@@ -24,7 +22,7 @@ class Telebot:
         self.init_help_command()
 
     def init_conversation_controller(self, client: DefaultClient) -> None:
-        self.conservation_controller = ConservationController(client)
+        self.conservation_controller = ConversationController(client)
         self.conservation_controller.add_conversation_handler(self.application)
 
 
