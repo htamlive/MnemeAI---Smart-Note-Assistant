@@ -1,6 +1,6 @@
 from telegram.ext import CallbackContext
 from telegram import Update
-
+from test import pagination_test_data
 
 class DefaultClient:
     def __init__(self) -> None:
@@ -12,6 +12,8 @@ class DefaultClient:
 
         self.api_url = f'https://api.telegram.org/bot{self.TELEBOT_TOKEN}/'
         # https://core.telegram.org/bots/api
+
+
 
 
     async def save_note(self, note_text) -> str:
@@ -34,3 +36,9 @@ class DefaultClient:
         return [
             # (notify_assignees, 5)
         ]
+    
+    def get_note_content_at_page(self, page) -> str:
+        title = pagination_test_data[page]['title']
+        description = pagination_test_data[page]['description']
+
+        return f'{title}\n\n{description}'

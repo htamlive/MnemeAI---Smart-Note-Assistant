@@ -1,11 +1,13 @@
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import (
-    Application, CommandHandler, ContextTypes, Updater
+from telegram import (
+    InlineKeyboardButton, Update, CallbackQuery, ReplyKeyboardMarkup    
 )
-from telegram.ext import filters
+from telegram.ext import (
+    Application, CommandHandler, ContextTypes, CallbackQueryHandler, CallbackContext
+)
 from .conversation import ConversationController
+from .telegram_pages import NotePages
 from client import DefaultClient
-from telegram.ext import CallbackContext
+from telegram_bot_pagination import InlineKeyboardPaginator
 
 NOTE_TEXT, REMIND_TEXT = range(2)
 
@@ -23,6 +25,7 @@ class Telebot:
         self.init_start_command()
         self.init_help_command()
         self.init_test_routine_notification()
+        self.init_pagination()
 
 
     def init_test_routine_notification(self) -> None:
@@ -35,8 +38,6 @@ class Telebot:
             await context.job_queue.run_repeating(notify_assignees, interval=5)
 
         self.application.add_handler(CommandHandler('test', daily_job))
-
-
 
     def init_conversation_controller(self, client: DefaultClient) -> None:
         self.conservation_controller = ConversationController(client)
@@ -52,11 +53,14 @@ class Telebot:
             
             for job, interval in self.client.get_jobs_from_start(update):
                 try:
-                    context.job_queue.run_repeating(job, interval)
+                    await context.job_queue.run_repeating(job, interval)
                 except TypeError as _:
                     continue
 
         self.application.add_handler(CommandHandler('start', start))
+
+    def init_pagination(self) -> None:
+        self.note_pages = NotePages(self.application, self.client)
 
     def init_help_command(self) -> None:
         help_text = open('templates/help.txt', 'r').read()
