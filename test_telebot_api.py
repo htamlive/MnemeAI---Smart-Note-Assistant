@@ -1,8 +1,11 @@
-from flask import Flask
+from flask import Flask, request
 import dotenv
 import os
 import requests
 import time
+from config import *
+from server import show_note_pages
+from test import pagination_test_data
 
 dotenv.load_dotenv()
 
@@ -43,15 +46,51 @@ def delete_message(chat_id: str, message_id: int) -> requests.Response:
     
     return requests.post(url, json=payload)
 
-response = send_message(CHAT_ID, 'Hello, World!').json()
+# response = send_message(CHAT_ID, 'Hello, World!').json()
 
-message_id = response['result']['message_id']
-chat_id = response['result']['chat']['id']
+# message_id = response['result']['message_id']
+# chat_id = response['result']['chat']['id']
 
-time.sleep(5)
+# time.sleep(5)
 
-response = delete_message(chat_id, message_id).json()
-print(response)
+# response = delete_message(chat_id, message_id).json()
+# print(response)
 
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return 'Hello, World!'
+
+@app.route('/prompt', methods=['POST'])
+def prompt():
+    data = request.json
+
+    chat_id = data['chat_id']
+    prompt_text = data['prompt_text']
+
+    if('show note' in prompt_text):
+
+        initial_text = f'{pagination_test_data[0]["title"]}\n{pagination_test_data[0]["description"]}'
+
+        response, ret_response = show_note_pages(chat_id, initial_text, len(pagination_test_data), 0)
+
+        print(f'{response=}')
+
+    else:
+        ret_response = {
+            "ok": True,
+            'result': {
+                'response_text': 'Prompt received',
+                'next_state': None,
+            }
+        }
+
+    return ret_response
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 

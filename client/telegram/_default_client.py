@@ -3,6 +3,7 @@ from telegram.ext import (
 )
 from telegram import Update
 from test import pagination_test_data
+import requests
 from config import *
 
 class DefaultClient:
@@ -12,6 +13,7 @@ class DefaultClient:
 
         dotenv.load_dotenv()
         self.TELEBOT_TOKEN = os.getenv
+        self.SERVER_URL = os.getenv('SERVER_URL')
 
         self.api_url = f'https://api.telegram.org/bot{self.TELEBOT_TOKEN}/'
         # https://core.telegram.org/bots/api
@@ -34,7 +36,11 @@ class DefaultClient:
     
 
     async def process_prompt(self, chat_id, prompt_text) -> str:
-        return f'Prompt processed: {prompt_text}', ConversationHandler.END
+        response = requests.post(f'{self.SERVER_URL}/prompt', json={'chat_id': chat_id, 'prompt_text': prompt_text}).json()
+
+        print(response)
+
+        return response['result']['response_text'], response['result']['next_state']
     
     def get_jobs_from_start(self, update: Update) -> list:
 
@@ -47,8 +53,8 @@ class DefaultClient:
             # (notify_assignees, 5)
         ]
     
-    def get_note_content_at_page(self, page) -> str:
-        return self.get_note_content(page)
+    def get_note_content_at_page(self, chat_id, page) -> str:
+        return self.get_note_content(chat_id, page)
     
     def extract_note_idx(self, note_idx_text) -> int:
         '''
@@ -58,7 +64,7 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
     
-    def get_note_content(self, note_idx_text) -> str:
+    def get_note_content(self, chat_id, note_idx_text) -> str:
 
         # Remember to convert to 0-based index
         note_idx = self.extract_note_idx(note_idx_text)

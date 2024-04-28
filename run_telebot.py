@@ -1,4 +1,4 @@
-from bot import Telebot
+from bot.telegram import Telebot
 from client import Client
 import logging
 

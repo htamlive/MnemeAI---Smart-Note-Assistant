@@ -15,7 +15,8 @@ from client import Client
 
 
 class ViewNotesConversation(CommandConversation):
-    def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: Client) -> None:
+    def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: Client, debug: bool = True) -> None:
+        super().__init__(debug)
         self.client = client
         self.VIEW_NOTES = VIEW_NOTES
         self.EDIT_TITLE = EDIT_TITLE
@@ -29,7 +30,7 @@ class ViewNotesConversation(CommandConversation):
         
         self.note_pages = NotePages(self.client)
 
-    async def start_conservation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         
         await self.note_pages.view_note_page_command(update, context)
 
@@ -74,8 +75,9 @@ class ViewNotesConversation(CommandConversation):
         context.user_data['prev_review_note_message_id'] = message.message_id
 
     async def handle_view_a_note(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_idx: str = None) -> None:
+        chat_id = update.message.chat_id
         try:
-            note_content = self.client.get_note_content(note_idx)
+            note_content = self.client.get_note_content(chat_id, note_idx)
         except Exception as e:
             note_content = str(e)
             await update.message.reply_text(note_content)
@@ -102,7 +104,8 @@ class ViewNotesConversation(CommandConversation):
             await query.edit_message_text('Operation canceled.')
 
     async def restore_note_content(self, query: CallbackQuery, note_idx: str) -> None:
-        note_content = await self.client.get_note_content(note_idx)
+        chat_id = query.message.chat_id
+        note_content = await self.client.get_note_content(chat_id, note_idx)
         keyboard = self.get_modifying_option_keyboard(note_idx)
         await query.edit_message_text(
             text=note_content,

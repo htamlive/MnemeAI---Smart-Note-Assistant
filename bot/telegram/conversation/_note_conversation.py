@@ -6,12 +6,13 @@ from ._command_conversation import CommandConversation
 from client import Client
 
 class NoteConversation(CommandConversation):
-    def __init__(self, NOTE_TEXT: int, client: Client) -> None:
+    def __init__(self, NOTE_TEXT: int, client: Client, debug: bool = True) -> None:
+        super().__init__(debug)
         self.client = client
         self.NOTE_TEXT = NOTE_TEXT
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_note_text)]
         
-    async def start_conservation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         if(context.args):
             note_text = ' '.join(context.args)
             await self.handle_receive_note_text(update, context, note_text)

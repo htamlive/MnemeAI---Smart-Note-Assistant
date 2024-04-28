@@ -11,6 +11,6 @@ class CommandConversation:
     def states(self) -> list[MessageHandler]:
         return self._states
     
-    async def start_conservation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         raise NotImplementedError
     

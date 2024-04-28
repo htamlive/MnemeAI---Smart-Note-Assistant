@@ -6,13 +6,14 @@ from ._command_conversation import CommandConversation
 from client import Client
 
 class RemindConversation(CommandConversation):
-    def __init__(self, REMIND_TEXT: int, client: Client) -> None:
+    def __init__(self, REMIND_TEXT: int, client: Client, debug: bool = True) -> None:
+        super().__init__(debug)
         self.client = client
         self.REMIND_TEXT = REMIND_TEXT
 
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_remind_text)]
 
-    async def start_conservation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         if(context.args):
             remind_text = ' '.join(context.args)
             await self.handle_receive_remind_text(update, context, remind_text)

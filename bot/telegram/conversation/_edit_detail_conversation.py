@@ -6,12 +6,13 @@ from ._edit_note_conversation import EditNoteConversation
 from client import Client
 
 class EditDetailConversation(EditNoteConversation):
-    def __init__(self, EDIT_DETAIL: int, client: Client) -> None:
+    def __init__(self, EDIT_DETAIL: int, client: Client, debug: bool = True) -> None:
+        super().__init__(debug)
         self.client = client
         self.EDIT_DETAIL = EDIT_DETAIL
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_detail_text)]
         
-    async def start_conservation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
 

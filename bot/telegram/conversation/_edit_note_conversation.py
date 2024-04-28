@@ -10,6 +10,9 @@ from telegram.ext import (
 
 class EditNoteConversation(CommandConversation):
 
+    def __init__(self, debug=True) -> None:
+        super().__init__(debug)
+
     async def on_finish_edit(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         if('note_pages_message_id' in context.user_data):

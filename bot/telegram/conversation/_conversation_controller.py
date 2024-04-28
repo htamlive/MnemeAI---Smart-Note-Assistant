@@ -29,20 +29,21 @@ class ConversationController:
         
         self.conversation_handler = ConversationHandler(
             entry_points=[
-                CommandHandler('note', self.note_conversation.start_conservation),
-                CommandHandler('remind', self.remind_conversation.start_conservation),
-                CommandHandler('view_notes', self.view_notes_conversation.start_conservation),
+                CommandHandler('note', self.note_conversation.start_conversation),
+                CommandHandler('remind', self.remind_conversation.start_conversation),
+                CommandHandler('view_notes', self.view_notes_conversation.start_conversation),
+                CommandHandler('ah', self.prompting_conversation.start_conversation),
 
-                CallbackQueryHandler(self.edit_title_conversation.start_conservation, pattern='^editTitle@'),
-                CallbackQueryHandler(self.edit_detail_conversation.start_conservation, pattern='^editDetail@'),
+                CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^editTitle@'),
+                CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^editDetail@'),
             ],
             states={
                 NOTE_TEXT: [MessageHandler(filters.COMMAND, self.check_command)] + self.note_conversation.states,
                 REMIND_TEXT: [MessageHandler(filters.COMMAND, self.check_command)] + self.remind_conversation.states,
                 VIEW_NOTES: [
                     MessageHandler(filters.COMMAND, self.check_command),
-                    CallbackQueryHandler(self.edit_title_conversation.start_conservation, pattern='^editTitle@'),
-                    CallbackQueryHandler(self.edit_detail_conversation.start_conservation, pattern='^editDetail@'),
+                    CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^editTitle@'),
+                    CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^editDetail@'),
                 ] + self.view_notes_conversation.states,
                 EDIT_TITLE: 
                     [MessageHandler(filters.COMMAND, self.check_command)] + self.edit_title_conversation.states + self.view_notes_conversation.states,
@@ -63,13 +64,13 @@ class ConversationController:
     async def check_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         command = update.message.text
         if command.startswith('/note'):
-            return await self.note_conversation.start_conservation(update, context)
+            return await self.note_conversation.start_conversation(update, context)
         elif command.startswith('/remind'):
-            return await self.remind_conversation.start_conservation(update, context)
+            return await self.remind_conversation.start_conversation(update, context)
         elif command.startswith('/view_notes'):
-            return await self.view_notes_conversation.start_conservation(update, context)
+            return await self.view_notes_conversation.start_conversation(update, context)
         elif command.startswith('/ah'):
-            return await self.prompting_conversation.start_conservation(update, context)
+            return await self.prompting_conversation.start_conversation(update, context)
         
         return ConversationHandler.END
 
