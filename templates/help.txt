@@ -3,3 +3,4 @@
 /note - Add a note
 /remind - Set a reminder
 /view_notes - View all notes
+/cancel - Cancel the current operation

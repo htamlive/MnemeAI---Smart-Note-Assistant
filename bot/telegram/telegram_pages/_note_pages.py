@@ -18,7 +18,7 @@ class NotePages:
         # self.init_note_pages()
 
     async def view_note_page_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        paginator = self.init_pagination(1)
+        paginator: InlineKeyboardPaginator = self.init_pagination(1)
         message = await update.message.reply_text(
             text=self.client.get_note_content_at_page(1),
             reply_markup=paginator.markup,
@@ -35,9 +35,9 @@ class NotePages:
                 data_pattern='p#{page}'
             )
         
-        paginator.add_after(
-            InlineKeyboardButton('Back', callback_data='back')                
-            )
+        # paginator.add_after(
+        #     InlineKeyboardButton('Back', callback_data='back')                
+        #     )
         
         return paginator
 

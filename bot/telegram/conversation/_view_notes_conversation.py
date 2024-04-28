@@ -38,8 +38,8 @@ class ViewNotesConversation(CommandConversation):
         return self.VIEW_NOTES
     
     async def receive_view_a_note(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        note_idx = update.message.text
-        await self.handle_view_a_note(update, context, note_idx)
+        received_text = update.message.text
+        await self.handle_view_a_note(update, context, received_text)
         return self.VIEW_NOTES
         # return ConversationHandler.END
     

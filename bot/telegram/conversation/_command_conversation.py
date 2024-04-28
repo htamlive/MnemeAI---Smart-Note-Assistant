@@ -3,8 +3,9 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 class CommandConversation:
-    def __init__(self) -> None:
+    def __init__(self, debug = True) -> None:
         self._states : list[MessageHandler] = []
+        self.debug = debug
 
     @property
     def states(self) -> list[MessageHandler]:

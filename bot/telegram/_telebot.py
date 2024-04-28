@@ -58,6 +58,9 @@ class Telebot:
                 except TypeError as _:
                     continue
 
+            # print chat_id
+            print(f'Chat ID: {update.effective_chat.id}')
+
         self.application.add_handler(CommandHandler('start', start))
 
     def init_pagination(self) -> None:

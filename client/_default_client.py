@@ -1,6 +1,9 @@
-from telegram.ext import CallbackContext
+from telegram.ext import (
+    CallbackContext, ConversationHandler
+)
 from telegram import Update
 from test import pagination_test_data
+from config import *
 
 class DefaultClient:
     def __init__(self) -> None:
@@ -28,6 +31,10 @@ class DefaultClient:
     
     async def save_detail(self, chat_id, note_idx, detail_text):
         return f'Detail saved: {detail_text}'
+    
+
+    async def process_prompt(self, chat_id, prompt_text) -> str:
+        return f'Prompt processed: {prompt_text}', ConversationHandler.END
     
     def get_jobs_from_start(self, update: Update) -> list:
 

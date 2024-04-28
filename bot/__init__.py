@@ -1,5 +1,5 @@
 __all__ = [
-    'Telebot'
+    'Telebot',
 ]
 
 from .telegram._telebot import Telebot
