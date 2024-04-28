@@ -4,12 +4,12 @@ from telegram import (
 from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
-from ._edit_note_conversation import EditNoteConversation
+from ._modify_note_conversation import ModifyNoteConversation
 
 from client import Client
 
 
-class EditTileConversation(EditNoteConversation):
+class EditTitleConversation(ModifyNoteConversation):
     def __init__(self, EDIT_TITLE: int, client: Client, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client

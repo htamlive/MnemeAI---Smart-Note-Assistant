@@ -8,12 +8,12 @@ from telegram.ext import (
 from telegram import (
     InlineKeyboardMarkup, InlineKeyboardButton
 )
-from ._edit_note_conversation import EditNoteConversation
+from ._modify_note_conversation import ModifyNoteConversation
 
 from client import Client
 
 
-class DeleteNoteConversation(EditNoteConversation):
+class DeleteNoteConversation(ModifyNoteConversation):
     def __init__(self, DELETE_NOTE: int, VIEW_NOTES, client: Client, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client

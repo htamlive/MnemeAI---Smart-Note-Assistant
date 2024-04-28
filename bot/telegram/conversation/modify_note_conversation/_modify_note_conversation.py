@@ -1,4 +1,4 @@
-from ._command_conversation import (
+from .._command_conversation import (
     CommandConversation
 )
 from telegram import (
@@ -8,7 +8,7 @@ from telegram.ext import (
     ContextTypes
 )
 
-class EditNoteConversation(CommandConversation):
+class ModifyNoteConversation(CommandConversation):
 
     def __init__(self, debug=True) -> None:
         super().__init__(debug)

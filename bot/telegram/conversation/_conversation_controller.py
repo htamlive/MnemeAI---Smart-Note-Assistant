@@ -7,10 +7,12 @@ from telegram.ext import filters
 from ._note_conversation import NoteConversation
 from ._remind_conversation import RemindConversation
 from ._view_notes_conversation import ViewNotesConversation
-from ._edit_title_conversation import EditTileConversation
-from ._edit_detail_conversation import EditDetailConversation
+
+from .modify_note_conversation import EditTitleConversation
+from .modify_note_conversation import DeleteNoteConversation
+from .modify_note_conversation import EditDetailConversation
+
 from ._prompting_conversation import PromptingConversation
-from ._delete_note_conversation import DeleteNoteConversation
 
 from client import Client
 
@@ -24,7 +26,7 @@ class ConversationController:
         self.note_conversation = NoteConversation(NOTE_TEXT, self.client)
         self.remind_conversation = RemindConversation(REMIND_TEXT, self.client)
         self.view_notes_conversation = ViewNotesConversation(VIEW_NOTES, EDIT_NOTE_TITLE, EDIT_NOTE_DETAIL, self.client)
-        self.edit_title_conversation = EditTileConversation(EDIT_NOTE_TITLE, self.client)
+        self.edit_title_conversation = EditTitleConversation(EDIT_NOTE_TITLE, self.client)
         self.edit_detail_conversation = EditDetailConversation(EDIT_NOTE_DETAIL, self.client)
         self.prompting_conversation = PromptingConversation(PROMPTING, self.client)
         self.delete_note_conversation = DeleteNoteConversation(DELETE_NOTE, VIEW_NOTES, self.client)
@@ -34,6 +36,7 @@ class ConversationController:
                 CommandHandler('note', self.note_conversation.start_conversation),
                 CommandHandler('remind', self.remind_conversation.start_conversation),
                 CommandHandler('view_notes', self.view_notes_conversation.start_conversation),
+                
                 CommandHandler('ah', self.prompting_conversation.start_conversation),
 
                 CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^edit_note_title@'),
