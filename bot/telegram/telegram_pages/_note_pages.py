@@ -19,7 +19,7 @@ class NotePages:
         # self.init_note_pages()
 
     async def view_note_page_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        paginator: InlineKeyboardPaginator = create_note_pages(len(pagination_test_data), page=1)
+        paginator: InlineKeyboardPaginator = create_note_pages(len(pagination_test_data), 1)
         chat_id = update.effective_chat.id
         message = await update.message.reply_text(
             text=self.client.get_note_content_at_page(chat_id, 1),

@@ -43,14 +43,13 @@ class ViewNotesConversation(CommandConversation):
         await self.handle_view_a_note(update, context, received_text)
         return self.VIEW_NOTES
         # return ConversationHandler.END
-    
-
+        
     def get_modifying_option_keyboard(self, note_idx: str) -> list:
         keyboard = [
             [
-                InlineKeyboardButton('Edit Title', callback_data=f'editTitle@{note_idx}'),
-                InlineKeyboardButton('Edit Detail', callback_data=f'editDetail@{note_idx}'),
-                InlineKeyboardButton('Delete', callback_data=f'delete@{note_idx}')
+                InlineKeyboardButton('Edit Title', callback_data=f'edit_note_title@{note_idx}'),
+                InlineKeyboardButton('Edit Detail', callback_data=f'edit_note_detail@{note_idx}'),
+                InlineKeyboardButton('Delete', callback_data=f'delete_note@{note_idx}')
             ],
             [InlineKeyboardButton('Back', callback_data='back')]
         ]
@@ -84,49 +83,17 @@ class ViewNotesConversation(CommandConversation):
             return
         
         await self.response_modifying_options(update, context, note_content, note_idx)
-    
-    async def handle_delete_note(self, query: CallbackQuery) -> None:
-        
-        note_idx = query.data.split('@')[1]
-        keyboard = [
-                [InlineKeyboardButton("Yes, delete it", callback_data=f'confirm_delete@{note_idx}')],
-                [InlineKeyboardButton("No, go back", callback_data='cancel_delete')]
-            ]
-        await query.edit_message_text(text="Are you really sure you want to delete?", reply_markup=InlineKeyboardMarkup(keyboard))
-
-    async def handle_confirmation(self, query: CallbackQuery) -> None:
-        if query.data.startswith('confirm_delete@'):
-            note_idx = query.data.split('@')[1]
-            await self.client.delete_note(note_idx)
-            await query.edit_message_text('Note deleted!')
-        elif query.data.startswith('cancel_delete@'):
-            note_idx = query.data.split('@')[1]
-            await query.edit_message_text('Operation canceled.')
-
-    async def restore_note_content(self, query: CallbackQuery, note_idx: str) -> None:
-        chat_id = query.message.chat_id
-        note_content = await self.client.get_note_content(chat_id, note_idx)
-        keyboard = self.get_modifying_option_keyboard(note_idx)
-        await query.edit_message_text(
-            text=note_content,
-            reply_markup=keyboard,
-            parse_mode='Markdown'
-        )
 
     async def handle_option_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
 
-        await self.note_pages.note_page_callback(query=query)
+        await self.note_pages.note_page_callback(query)
 
-        if query.data.startswith('delete@'):
-            await self.handle_delete_note(query)
-        elif query.data == 'back':
+        if query.data == 'back':
             await query.edit_message_text('Done editing!')
-        else:
-            await self.handle_confirmation(query)
+
+        return None
 
         
-
-
         

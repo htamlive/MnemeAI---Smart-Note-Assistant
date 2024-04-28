@@ -1,11 +1,12 @@
 __all__=[
-    'EDIT_DETAIL',
-    'EDIT_TITLE',
+    'EDIT_NOTE_DETAIL',
+    'EDIT_NOTE_TITLE',
     'NOTE_TEXT',
     'PROMPTING',
     'REMIND_TEXT',
     'VIEW_NOTES',
-    'END'
+    'END',
+    'DELETE_NOTE'
 ]
 
-from ._conversation_config import EDIT_DETAIL, EDIT_TITLE, NOTE_TEXT, PROMPTING, REMIND_TEXT, VIEW_NOTES, END
+from ._conversation_config import EDIT_NOTE_DETAIL, EDIT_NOTE_TITLE, NOTE_TEXT, PROMPTING, REMIND_TEXT, VIEW_NOTES, END, DELETE_NOTE

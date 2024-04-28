@@ -10,6 +10,7 @@ from ._view_notes_conversation import ViewNotesConversation
 from ._edit_title_conversation import EditTileConversation
 from ._edit_detail_conversation import EditDetailConversation
 from ._prompting_conversation import PromptingConversation
+from ._delete_note_conversation import DeleteNoteConversation
 
 from client import Client
 
@@ -22,10 +23,11 @@ class ConversationController:
 
         self.note_conversation = NoteConversation(NOTE_TEXT, self.client)
         self.remind_conversation = RemindConversation(REMIND_TEXT, self.client)
-        self.view_notes_conversation = ViewNotesConversation(VIEW_NOTES, EDIT_TITLE, EDIT_DETAIL, self.client)
-        self.edit_title_conversation = EditTileConversation(EDIT_TITLE, self.client)
-        self.edit_detail_conversation = EditDetailConversation(EDIT_DETAIL, self.client)
+        self.view_notes_conversation = ViewNotesConversation(VIEW_NOTES, EDIT_NOTE_TITLE, EDIT_NOTE_DETAIL, self.client)
+        self.edit_title_conversation = EditTileConversation(EDIT_NOTE_TITLE, self.client)
+        self.edit_detail_conversation = EditDetailConversation(EDIT_NOTE_DETAIL, self.client)
         self.prompting_conversation = PromptingConversation(PROMPTING, self.client)
+        self.delete_note_conversation = DeleteNoteConversation(DELETE_NOTE, VIEW_NOTES, self.client)
         
         self.conversation_handler = ConversationHandler(
             entry_points=[
@@ -34,21 +36,25 @@ class ConversationController:
                 CommandHandler('view_notes', self.view_notes_conversation.start_conversation),
                 CommandHandler('ah', self.prompting_conversation.start_conversation),
 
-                CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^editTitle@'),
-                CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^editDetail@'),
+                CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^edit_note_title@'),
+                CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^edit_note_detail@'),
+                CallbackQueryHandler(self.delete_note_conversation.start_conversation, pattern='^delete_note@'),
             ],
             states={
                 NOTE_TEXT: [MessageHandler(filters.COMMAND, self.check_command)] + self.note_conversation.states,
                 REMIND_TEXT: [MessageHandler(filters.COMMAND, self.check_command)] + self.remind_conversation.states,
                 VIEW_NOTES: [
                     MessageHandler(filters.COMMAND, self.check_command),
-                    CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^editTitle@'),
-                    CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^editDetail@'),
+                    CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^edit_note_title@'),
+                    CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^edit_note_detail@'),
+                    CallbackQueryHandler(self.delete_note_conversation.start_conversation, pattern='^delete_note@'),
                 ] + self.view_notes_conversation.states,
-                EDIT_TITLE: 
+                EDIT_NOTE_TITLE: 
                     [MessageHandler(filters.COMMAND, self.check_command)] + self.edit_title_conversation.states + self.view_notes_conversation.states,
-                EDIT_DETAIL:
+                EDIT_NOTE_DETAIL:
                     [MessageHandler(filters.COMMAND, self.check_command)] + self.edit_detail_conversation.states + self.view_notes_conversation.states,
+                DELETE_NOTE:
+                    [MessageHandler(filters.COMMAND, self.check_command)] + self.delete_note_conversation.states + self.view_notes_conversation.states,
             },
             fallbacks=[
                 CommandHandler('cancel', self.cancel)

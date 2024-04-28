@@ -35,6 +35,10 @@ class DefaultClient:
         return f'Detail saved: {detail_text}'
     
 
+    async def delete_note(self, chat_id, page) -> str:
+        return f'Note deleted at page {page}'
+    
+
     async def process_prompt(self, chat_id, prompt_text) -> str:
         response = requests.post(f'{self.SERVER_URL}/prompt', json={'chat_id': chat_id, 'prompt_text': prompt_text}).json()
 
