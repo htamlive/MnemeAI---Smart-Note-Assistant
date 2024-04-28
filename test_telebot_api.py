@@ -70,6 +70,7 @@ def prompt():
     chat_id = data['chat_id']
     prompt_text = data['prompt_text']
 
+    # This is a very simple way to handle the prompt
     if('show note' in prompt_text):
 
         initial_text = f'{pagination_test_data[0]["title"]}\n{pagination_test_data[0]["description"]}'
@@ -83,6 +84,7 @@ def prompt():
             "ok": True,
             'result': {
                 'response_text': 'Prompt received',
+                # This means that the next state is the same as the current state
                 'next_state': None,
             }
         }
