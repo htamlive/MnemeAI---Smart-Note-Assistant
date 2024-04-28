@@ -1,11 +1,12 @@
 from telegram import Update
-from telegram.ext import MessageHandler
-from telegram.ext import filters
-from telegram.ext import ContextTypes, ConversationHandler
+from telegram.ext import (
+    ContextTypes, ConversationHandler, MessageHandler, filters
+)
 from ._command_conversation import CommandConversation
+from client import Client
 
 class RemindConversation(CommandConversation):
-    def __init__(self, REMIND_TEXT: int, client) -> None:
+    def __init__(self, REMIND_TEXT: int, client: Client) -> None:
         self.client = client
         self.REMIND_TEXT = REMIND_TEXT
 
@@ -26,5 +27,6 @@ class RemindConversation(CommandConversation):
     
 
     async def handle_receive_remind_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, remind_text: str) -> None:
-        response_text = await self.client.save_remind(remind_text)
+        chat_id = update.message.chat_id
+        response_text = await self.client.save_remind(chat_id, remind_text)
         await update.message.reply_text(response_text)

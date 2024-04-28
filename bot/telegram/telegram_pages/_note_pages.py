@@ -8,25 +8,25 @@ from telegram.ext import (
 )
 from telegram_bot_pagination import InlineKeyboardPaginator
 from test import pagination_test_data
+from client import Client
 import re
 
 class NotePages:
-    def __init__(self, application, client) -> None:
-        self.application = application
+    def __init__(self, client: Client) -> None:
         self.client = client
-        self.init_view_note_page_command()
-        self.init_note_pages()
+        # self.init_view_note_page_command()
+        # self.init_note_pages()
 
-    def init_view_note_page_command(self) -> None:
-        async def view_note_page_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-            paginator = self.init_pagination(1)
-            await update.message.reply_text(
-                text=self.client.get_note_content_at_page(0),
-                reply_markup=paginator.markup,
-                parse_mode='Markdown'
-            )
+    async def view_note_page_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        paginator = self.init_pagination(1)
+        message = await update.message.reply_text(
+            text=self.client.get_note_content_at_page(1),
+            reply_markup=paginator.markup,
+            parse_mode='Markdown'
+        )
 
-        self.application.add_handler(CommandHandler('view_notes', view_note_page_command))
+        context.user_data['note_pages_message_id'] = message.message_id
+
 
     def init_pagination(self, page) -> InlineKeyboardPaginator:
         paginator = InlineKeyboardPaginator(
@@ -42,31 +42,25 @@ class NotePages:
         return paginator
 
     
-    def init_note_pages(self) -> None:
-        async def note_page_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-            query: CallbackQuery = update.callback_query
+    async def note_page_callback(self, query) -> None:        
+        if re.match(r'p#(\d+)', query.data):
+            page = int(query.data.split('#')[1])
 
-            await query.answer()
-            
-            if re.match(r'p#(\d+)', query.data):
-                page = int(query.data.split('#')[1])
+            paginator = self.init_pagination(page)
 
-                paginator = self.init_pagination(page)
+            await query.edit_message_text(
+                text=self.client.get_note_content_at_page(page),
+                reply_markup=paginator.markup,
+                parse_mode='Markdown'
+            )
 
-                await query.edit_message_text(
-                    text=self.client.get_note_content_at_page(page - 1),
-                    reply_markup=paginator.markup,
-                    parse_mode='Markdown'
-                )
-
-                return
-            elif(query.data == 'back'):
-                await query.edit_message_text(
-                    text='Done reviewing!',
-                    parse_mode='Markdown'
-                )
-                return
+            return
+        elif(query.data == 'back'):
+            await query.edit_message_text(
+                text='Done reviewing!',
+                parse_mode='Markdown'
+            )
+            return
 
 
 
-        self.application.add_handler(CallbackQueryHandler(note_page_callback))

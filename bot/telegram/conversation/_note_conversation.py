@@ -1,13 +1,12 @@
 from telegram import Update
-from telegram.ext import MessageHandler
-from telegram.ext import filters
-from telegram.ext import ContextTypes, ConversationHandler
-
+from telegram.ext import (
+    ContextTypes, ConversationHandler, MessageHandler, filters
+)
 from ._command_conversation import CommandConversation
-
+from client import Client
 
 class NoteConversation(CommandConversation):
-    def __init__(self, NOTE_TEXT: int, client) -> None:
+    def __init__(self, NOTE_TEXT: int, client: Client) -> None:
         self.client = client
         self.NOTE_TEXT = NOTE_TEXT
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_note_text)]
@@ -27,5 +26,6 @@ class NoteConversation(CommandConversation):
         return ConversationHandler.END
     
     async def handle_receive_note_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_text: str) -> None:
-        response_text = await self.client.save_note(note_text)
+        chat_id = update.message.chat_id
+        response_text = await self.client.save_note(chat_id, note_text)
         await update.message.reply_text(response_text)

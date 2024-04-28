@@ -1,5 +1,5 @@
 from bot import Telebot
-from client import DefaultClient
+from client import Client
 import logging
 
 
@@ -16,7 +16,7 @@ def main() -> None:
     logger.info('Starting telebot')
 
 
-    client = DefaultClient()
+    client = Client()
     telebot = Telebot(client)
     telebot.run_polling()
 

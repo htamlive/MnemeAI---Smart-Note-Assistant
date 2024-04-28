@@ -1,5 +1,5 @@
 __all__ = [
-    'DefaultClient'
+    'Client'
 ]
 
-from ._default_client import DefaultClient
+from ._default_client import DefaultClient as Client
