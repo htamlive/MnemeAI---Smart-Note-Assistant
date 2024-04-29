@@ -1,6 +1,8 @@
 start - Start the bot and get a welcome message
 help - Get help and see available commands
+ah - Tell me what to do
 note - Add a note
 remind - Set a reminder
 view_notes - View all notes
+view_reminders - View all reminders
 cancel - Cancel the current operation

@@ -72,7 +72,11 @@ class Telebot:
         async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             keyboard = [['/start']]
             reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
-            await update.message.reply_text(help_text, reply_markup=reply_markup)
+            await update.message.reply_text(
+                help_text, 
+                reply_markup=reply_markup,
+                parse_mode='HTML'
+                )
 
         self.application.add_handler(CommandHandler('help', help_command))
 

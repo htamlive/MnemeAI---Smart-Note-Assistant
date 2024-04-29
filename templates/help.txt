@@ -1,6 +1,17 @@
-/start - Start the bot and get a welcome message
-/help - Get help and see available commands
-/note - Add a note
-/remind - Set a reminder
-/view_notes - View all notes
-/cancel - Cancel the current operation
+Basic commands:
+/start - <i>Start the bot and get a welcome message</i>
+/help - <i>Get help and see available commands</i>
+
+Add note and reminder commands:
+/note - <i>Add a note</i>
+/remind - <i>Set a reminder</i>
+
+View and edit notes and reminders commands:
+/view_notes - <i>View all notes and edit</i>
+/view_reminders - <i>View all reminders and edit</i>
+
+<b>Let me be your assistant! (Prompting)</b>
+/ah - <i>Tell me to do</i>
+
+Cancel command:
+/cancel - <i>Cancel the current operation</i>
