@@ -1,14 +1,14 @@
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-def create_preview_pages(num_pages: int, page_idx: int) -> InlineKeyboardPaginator:
+def create_preview_pages(num_pages: int, page_idx: int, pattern = 'n#{page}') -> InlineKeyboardPaginator:
     return InlineKeyboardPaginator(
                 num_pages,
                 current_page=page_idx,
-                data_pattern='p#{page}'
+                data_pattern=pattern
             )
 
-def create_preview_pages_json(chat_id: int, inital_text: str, num_pages: int, page_idx: int) -> str:
+def create_preview_note_pages_json(chat_id: int, inital_text: str, num_pages: int, page_idx: int) -> str:
     return {
         'chat_id': chat_id,
         'text': inital_text,
@@ -16,6 +16,13 @@ def create_preview_pages_json(chat_id: int, inital_text: str, num_pages: int, pa
         'parse_mode': 'HTML'
     }
 
+def create_preview_reminder_pages_json(chat_id: int, inital_text: str, num_pages: int, page_idx: int) -> str:
+    return {
+        'chat_id': chat_id,
+        'text': inital_text,
+        'reply_markup': create_preview_pages(num_pages, page_idx, pattern='r#{page}').markup,
+        'parse_mode': 'HTML'
+    }
 
 def get_note_option_keyboard(note_idx: str) -> list:
     keyboard = [

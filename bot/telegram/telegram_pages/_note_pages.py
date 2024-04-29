@@ -35,11 +35,21 @@ class NotePages:
         return self.client.get_total_note_pages()
     
     def init_preview_pages(self, page: int = 1) -> InlineKeyboardPaginator:
-        return create_preview_pages(self.client_get_total_pages(), page)
-
+        return create_preview_pages(self.client_get_total_pages(), page, pattern='n#{page}')
     
-    async def note_page_callback(self, query: CallbackQuery) -> None:       
-        if re.match(r'p#(\d+)', query.data):
+    def check_match_pattern(self, query: CallbackQuery) -> bool:
+        exp = r'n#(\d+)'
+
+        return re.match(r'n#(\d+)', query.data)
+    
+    async def preview_page_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        query = update.callback_query
+        await query.answer()
+
+        await self.preview_page_query_callback(query) 
+    
+    async def preview_page_query_callback(self, query: CallbackQuery) -> None:       
+        if self.check_match_pattern(query):
             page = int(query.data.split('#')[1])
             chat_id = query.message.chat_id
 
@@ -69,12 +79,7 @@ class NotePages:
 
 
             return
-        elif(query.data == 'back'):
-            await query.edit_message_text(
-                text='Done reviewing!',
-                parse_mode='HTML'
-            )
-            return
+
 
 
 

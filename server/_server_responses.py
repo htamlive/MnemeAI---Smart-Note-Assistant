@@ -1,6 +1,6 @@
 import dotenv
 import os
-from bot.telegram.ui_templates import create_preview_pages_json, create_review_note_json, create_review_reminder_json
+from bot.telegram.ui_templates import create_preview_note_pages_json, create_review_note_json, create_review_reminder_json
 import requests
 from config import *
 
@@ -48,7 +48,7 @@ def show_note_pages(chat_id: str, text: str, num_pages: int, page_idx: int):
     '''
     url = f'{base_url}sendMessage'
     
-    payload = create_preview_pages_json(chat_id, text, num_pages, page_idx)
+    payload = create_preview_note_pages_json(chat_id, text, num_pages, page_idx)
 
     response = requests.post(url, json=payload)
 

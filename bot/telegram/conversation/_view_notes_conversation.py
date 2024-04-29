@@ -25,18 +25,25 @@ class ViewNotesConversation(CommandConversation):
 
         self._states = [
             MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_preview),
-            CallbackQueryHandler(self.handle_option_callback)
-            
             ]
         
-        self.reviewing_pages = self.init_reviewing_pages()
+        self.previewing_pages = self.init_reviewing_pages()
+
+    def add_preview_pages_callback(self, application) -> None:
+        application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern='^n#'))
+
+    def share_preview_page_callback(self) -> CallbackQueryHandler:
+        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern='^n#')
+
+    def handle_preview_page_callback(self, callbacks: list) -> None:
+        self._states += callbacks
         
     def init_reviewing_pages(self) -> NotePages:
         return NotePages(self.client)
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         
-        await self.reviewing_pages.view_note_page_command(update, context)
+        await self.previewing_pages.view_note_page_command(update, context)
 
         await update.message.reply_text("Please send me the note index.")
 
@@ -81,16 +88,7 @@ class ViewNotesConversation(CommandConversation):
         
         await self.response_modifying_options(update, context, note_content, note_idx)
 
-    async def handle_option_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        query = update.callback_query
-        await query.answer()
 
-        await self.reviewing_pages.note_page_callback(query)
-
-        if query.data == 'back':
-            await query.edit_message_text('Done editing!')
-
-        return None
     
     def client_get_content(self, chat_id: int, idx: int) -> str:
         return self.client.get_note_content(chat_id, idx)

@@ -59,7 +59,7 @@ class DefaultClient:
         title = pagination_test_data[note_idx]['title']
         description = pagination_test_data[note_idx]['description']
 
-        return f'<b>{title}</b>\n\n{description}'
+        return f'<b>YOUR NOTES</b>\n\n\n<b><i>{title}</i></b>\n\n{description}'
     
     def get_total_note_pages(self) -> int:
         return len(pagination_test_data)
@@ -81,7 +81,7 @@ class DefaultClient:
         description = pagination_test_data[reminder_indx]['description']
         time = pagination_test_data[reminder_indx]['time']
 
-        html_render = f"<b>{title}</b> \n{time}\n\n{description}"
+        html_render = f"<b>YOUR REMINDERS:</b>\n\n\n<b><i>{title}</i></b>\n{time}\n\n{description}"
 
         return html_render
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'

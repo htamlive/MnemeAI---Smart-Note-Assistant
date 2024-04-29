@@ -1,6 +1,7 @@
 
 from client import TelegramClient
 from telegram import InlineKeyboardButton
+from telegram.ext import CallbackQueryHandler
 
 from ._view_notes_conversation import ViewNotesConversation
 from bot.telegram.telegram_pages import NotePages, ReminderPages
@@ -28,6 +29,9 @@ class ViewRemindersConversation(ViewNotesConversation):
     
     def get_option_keyboard(self, note_idx: str) -> list:
         return get_reminder_option_keyboard(note_idx)
+    
+    def share_preview_page_callback(self) -> CallbackQueryHandler:
+        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern='^r#')
     
     def client_get_content(self, chat_id: int, idx: int) -> str:
         return self.client.get_reminder_content(chat_id, idx)
