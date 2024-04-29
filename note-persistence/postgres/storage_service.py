@@ -1,46 +1,15 @@
-from datetime import datetime
 import psycopg2
 
 from typing import List
 
 import psycopg2.errors
-from reminder import Reminder
-from persistent_service import ReminderPersistentService
+from models.reminder import Reminder
+from models.configuration import Configuration
+from services.reminder_service import ReminderPersistentService
 
-
-class PostgresConfig:
-    def __init__(
-        self, username: str, password: str, host: str, port: int, dbname: str
-    ) -> None:
-        self.username = username
-        self.password = password
-        self.host = host
-        self.port = port
-        self.dbname = dbname
-
-    def connection_str(self) -> str:
-        return f"postgresql://{self.username}:{self.password}@{self.host}:{self.port}/{self.dbname}"
-
-    @staticmethod
-    def from_env() -> "PostgresConfig":
-        return PostgresConfig(
-            username="postgres",
-            password="postgres",
-            host="localhost",
-            port=5432,
-            dbname="note_persistence",
-        )
-
-
-class PostgresDbService(ReminderPersistentService):
-    def __init__(self, config: PostgresConfig) -> None:
-        self.__conn = psycopg2.connect(
-            user=config.username,
-            password=config.password,
-            host=config.host,
-            port=config.port,
-            dbname=config.dbname,
-        )
+class PostgresStorageService(ReminderPersistentService):
+    def __init__(self, config: Configuration) -> None:
+        self.__conn = psycopg2.connect(**config.db_config.to_dict())
 
     def close(self):
         self.__conn.close()
@@ -48,7 +17,7 @@ class PostgresDbService(ReminderPersistentService):
     def store_reminder(self, reminder: Reminder):
         try:
             query_str: str = """
-            INSERT INTO reminders (id, gmail, title, description, due_date)
+            INSERT INTO reminders (id, chat_id, title, description, due_date)
             VALUES (%s, %s, %s, %s, %s)
             """
             cursor = self.__conn.cursor()
@@ -56,7 +25,7 @@ class PostgresDbService(ReminderPersistentService):
                 query_str,
                 (
                     reminder.id,
-                    reminder.gmail,
+                    reminder.chat_id,
                     reminder.title,
                     reminder.description,
                     reminder.due_date,
@@ -71,16 +40,18 @@ class PostgresDbService(ReminderPersistentService):
             if self.__conn:
                 cursor.close()
 
-    def get_reminders(self, gmail: str) -> List[Reminder]:
+    def get_reminders(self, chat_id: str) -> List[Reminder]:
         try:
             query_str: str = """
-            SELECT * FROM reminders WHERE gmail = %s
+            SELECT chat_id, id, title, description, due_date
+            FROM reminders
+            WHERE chat_id = %s
             """
             cursor = self.__conn.cursor()
-            cursor.execute(query_str, (gmail,))
+            cursor.execute(query_str, (chat_id,))
             reminders = [
                 Reminder(
-                    gmail=row[1],
+                    chat_id=row[1],
                     id=row[0],
                     title=row[2],
                     description=row[3],
@@ -94,13 +65,14 @@ class PostgresDbService(ReminderPersistentService):
             print(e)
             return []
 
-    def delete_reminder(self, gmail: str, id: str):
+    def delete_reminder(self, chat_id: str, id: str):
         try:
             query_str: str = """
-            DELETE FROM reminders WHERE gmail = %s AND id = %s
+            DELETE FROM reminders
+            WHERE chat_id = %s AND id = %s
             """
             cursor = self.__conn.cursor()
-            cursor.execute(query_str, (gmail, id))
+            cursor.execute(query_str, (chat_id, id))
             cursor.close()
             self.__conn.commit()
         except Exception as e:
@@ -110,8 +82,9 @@ class PostgresDbService(ReminderPersistentService):
     def update_reminder(self, reminder: Reminder):
         try:
             query_str: str = """
-            UPDATE reminders SET title = %s, description = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
-            WHERE gmail = %s AND id = %s
+            UPDATE reminders
+            SET title = %s, description = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE chat_id = %s AND id = %s
             """
             cursor = self.__conn.cursor()
             cursor.execute(
@@ -120,7 +93,7 @@ class PostgresDbService(ReminderPersistentService):
                     reminder.title,
                     reminder.description,
                     reminder.due_date,
-                    reminder.gmail,
+                    reminder.chat_id,
                     reminder.id,
                 ),
             )

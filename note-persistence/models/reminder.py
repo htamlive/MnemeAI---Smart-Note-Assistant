@@ -3,9 +3,9 @@ from datetime import datetime
 
 class Reminder:
     def __init__(
-        self, gmail: str, id: int, title: str, description: str, due_date: datetime
+        self, chat_id: str, id: int, title: str, description: str, due_date: datetime
     ) -> None:
-        self.gmail = gmail
+        self.chat_id = chat_id
         self.id = id
         self.title = title
         self.description = description
@@ -13,7 +13,7 @@ class Reminder:
 
     def to_json(self) -> dict:
         return {
-            "gmail": self.gmail,
+            "chat_id": self.chat_id,
             "id": self.id,
             "title": self.title,
             "description": self.description,
@@ -26,7 +26,7 @@ class Reminder:
     @staticmethod
     def from_json(json: dict) -> "Reminder":
         return Reminder(
-            json["gmail"],
+            json["chat_id"],
             json["id"],
             json["title"],
             json["description"],

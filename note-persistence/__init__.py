@@ -1,25 +1,27 @@
-from storage_injector import PostgresInjectorImpl, StorageInjector
-from storage_consumer import StorageConsumer
-from reminder import Reminder
+import threading
+
+from models.reminder import Reminder
 from typing import List
+from models.configuration import Configuration
+from postgres.factory import PostgresServiceFactory
 
 mock_reminders: List[Reminder] = [
     Reminder(
-        gmail="testA@gmail.com",
+        chat_id="jdbsvbjvdfhvacsdhsv",
         id=1,
         title="TestA",
         description="TestA",
         due_date="2022-01-01T00:00:00",
     ),
     Reminder(
-        gmail="testB@gmail.com",
+        chat_id="dshdcbsvbshjvdsvhsdvsvsvbdsvsvhdsv",
         id=1,
         title="TestB",
         description="TestB",
         due_date="2022-01-01T00:00:00",
     ),
     Reminder(
-        gmail="testA@gmail.com",
+        chat_id="jdbsvbjvdfhvacsdhsv",
         id=2,
         title="TestA",
         description="TestA",
@@ -27,36 +29,30 @@ mock_reminders: List[Reminder] = [
     ),
 ]
 
-
+flag = threading.Event()
 def main():
-    injector: StorageInjector = PostgresInjectorImpl()  # Using default PostgresConfig
-    storage_consumer: StorageConsumer = injector.build()
+    postgres_factory = PostgresServiceFactory(flag=flag, config=Configuration.default())
+
+    (storage_consumer, movement_consumer, delivery_consumer) = (
+        postgres_factory.storage_service(),
+        postgres_factory.movement_service(),
+        postgres_factory.delivery_service(),
+    )
+
+    # Run the movement service and delivery service in separate threads
+    movement_consumer.start()
+    delivery_consumer.start()
+
     # Insertion works fine
     for reminder in mock_reminders:
         storage_consumer.store_reminder(reminder)
 
-    # Retrieval works fine
-    current_reminders: List[Reminder] = storage_consumer.get_reminders("testA@gmail.com")
-    for reminder in current_reminders:
-        print(reminder.to_json())
+    # Sleep for 1 minute
+    import time
 
-    # Deletion works fine
-    storage_consumer.delete_reminder("testB@gmail.com", 1)
-    current_reminders: List[Reminder] = storage_consumer.get_reminders("testB@gmail.com")
-    assert len(current_reminders) == 0
+    time.sleep(60)
 
-    # Update works fine
-    storage_consumer.update_reminder(
-        Reminder(
-            gmail="testA@gmail.com",
-            id=1,
-            title="TestA",
-            description="Wow, this is updated!",
-            due_date="2022-01-01T00:00:00",
-        ),
-    )
-    current_reminders: List[Reminder] = storage_consumer.get_reminders("testA@gmail.com")
-    for reminder in current_reminders:
-        print(reminder.to_json())
+    flag.set()
+
 
 main()
