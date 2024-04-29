@@ -31,7 +31,7 @@ class ModifyNoteConversation(CommandConversation):
             await context.bot.edit_message_text(
                 chat_id=update.effective_chat.id,
                 message_id=message_id,
-                text=f"<i>You have changed this content</i>"#"\n<blockquote>{text_html}</blockquote>",
+                text=f"<i>You have changed this content</i>",#"\n<blockquote>{text_html}</blockquote>",
                 parse_mode='HTML'
             )
             context.user_data.pop('prev_review_message')
