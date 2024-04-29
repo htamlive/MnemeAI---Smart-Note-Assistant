@@ -34,9 +34,6 @@ class ViewNotesConversation(CommandConversation):
 
     def share_preview_page_callback(self) -> CallbackQueryHandler:
         return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern='^n#')
-
-    def handle_preview_page_callback(self, callbacks: list) -> None:
-        self._states += callbacks
         
     def init_reviewing_pages(self) -> NotePages:
         return NotePages(self.client)

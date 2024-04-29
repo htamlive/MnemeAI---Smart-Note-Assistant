@@ -119,15 +119,6 @@ class ConversationController:
             ]
         )
 
-    def init_preview_page_callbacks(self) -> None:
-        preview_page_callbacks = [
-            self.view_notes_conversation.share_preview_page_callback(),
-            self.view_reminders_conversation.share_preview_page_callback()
-        ]
-
-        self.view_notes_conversation.handle_preview_page_callback(preview_page_callbacks)
-        self.view_reminders_conversation.handle_preview_page_callback(preview_page_callbacks)
-
         
     def init_note_conversation(self) -> None:
         self.view_notes_conversation = ViewNotesConversation(VIEW_NOTES, EDIT_NOTE_TITLE, EDIT_NOTE_DETAIL, self.client)
@@ -145,8 +136,9 @@ class ConversationController:
     
     def add_conversation_handler(self, application) -> None:
         application.add_handler(self.conversation_handler)
-        # self.view_notes_conversation.add_preview_pages_callback(application)
-        # self.view_reminders_conversation.add_preview_pages_callback(application)
+        application.add_handler(self.view_notes_conversation.share_preview_page_callback())
+        application.add_handler(self.view_reminders_conversation.share_preview_page_callback())
+
 
     async def check_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         command = update.message.text
