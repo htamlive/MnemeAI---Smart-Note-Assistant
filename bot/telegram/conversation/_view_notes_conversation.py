@@ -11,12 +11,12 @@ from telegram.ext import (
 import re
 
 from ..telegram_pages import NotePages
-from client import Client
+from client import TelegramClient
 
 from bot.telegram.ui_templates import get_note_option_keyboard
 
 class ViewNotesConversation(CommandConversation):
-    def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: Client, debug: bool = True) -> None:
+    def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
         self.VIEW_NOTES = VIEW_NOTES

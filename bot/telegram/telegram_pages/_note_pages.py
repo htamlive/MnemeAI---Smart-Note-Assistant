@@ -8,11 +8,11 @@ from telegram.ext import (
 )
 from bot.telegram.ui_templates import create_preview_pages
 from telegram_bot_pagination import InlineKeyboardPaginator
-from client import Client
+from client import TelegramClient
 import re
 
 class NotePages:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: TelegramClient) -> None:
         self.client = client
         # self.init_view_note_page_command()
         # self.init_note_pages()

@@ -1,15 +1,15 @@
 
 
-from client import Client
+from client import TelegramClient
 from ..modify_note_conversation._delete_note_conversation import DeleteNoteConversation
-from client import Client
+from client import TelegramClient
 from telegram import Update, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from bot.telegram.ui_templates import get_reminder_option_keyboard, get_delete_reminder_confirmation_keyboard
 
 class DeleteReminderConversation(DeleteNoteConversation):
-    def __init__(self, DELETE_REMINDER: int, VIEW_REMINDERS, client: Client, debug: bool = True) -> None:
+    def __init__(self, DELETE_REMINDER: int, VIEW_REMINDERS, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(DELETE_REMINDER, VIEW_REMINDERS, client, debug)
 
     async def client_delete(self, chat_id: int, idx: int) -> None:

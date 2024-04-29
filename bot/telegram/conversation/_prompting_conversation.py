@@ -3,10 +3,10 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
 from ._command_conversation import CommandConversation
-from client import Client
+from client import TelegramClient
 
 class PromptingConversation(CommandConversation):
-    def __init__(self, PROMPTING: int, client: Client, debug: bool = True) -> None:
+    def __init__(self, PROMPTING: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
         self.PROMPTING = PROMPTING

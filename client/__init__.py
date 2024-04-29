@@ -1,5 +1,5 @@
 __all__ = [
-    'Client'
+    'TelegramClient'
 ]
 
-from .telegram import TelegramClient as Client
+from .telegram import TelegramClient

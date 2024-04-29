@@ -10,13 +10,13 @@ from telegram import (
 )
 from ._modify_note_conversation import ModifyNoteConversation
 
-from client import Client
+from client import TelegramClient
 
 from bot.telegram.ui_templates import get_note_option_keyboard, get_delete_note_confirmation_keyboard
 
 
 class DeleteNoteConversation(ModifyNoteConversation):
-    def __init__(self, DELETE_NOTE: int, VIEW_NOTES, client: Client, debug: bool = True) -> None:
+    def __init__(self, DELETE_NOTE: int, VIEW_NOTES, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
         self.DELETE_NOTE = DELETE_NOTE

@@ -6,13 +6,13 @@ from telegram.ext import (
 )
 from .conversation import ConversationController
 from .telegram_pages import NotePages
-from client import Client
+from client import TelegramClient
 from telegram_bot_pagination import InlineKeyboardPaginator
 
 NOTE_TEXT, REMIND_TEXT = range(2)
 
 class Telebot:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: TelegramClient) -> None:
         from dotenv import load_dotenv
         import os
 
@@ -40,7 +40,7 @@ class Telebot:
 
         self.application.add_handler(CommandHandler('test', daily_job))
 
-    def init_conversation_controller(self, client: Client) -> None:
+    def init_conversation_controller(self, client: TelegramClient) -> None:
         self.conservation_controller = ConversationController(client)
         self.conservation_controller.add_conversation_handler(self.application)
 

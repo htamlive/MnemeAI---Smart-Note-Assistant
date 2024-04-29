@@ -20,13 +20,13 @@ from .modify_reminder_conversation import EditReminderTimeConversation
 
 from ._prompting_conversation import PromptingConversation
 
-from client import Client
+from client import TelegramClient
 
 from config import *
 
 
 class ConversationController:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: TelegramClient) -> None:
         self.client = client
 
         self.note_conversation = NoteConversation(NOTE_TEXT, self.client)

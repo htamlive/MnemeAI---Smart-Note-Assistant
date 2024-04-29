@@ -1,5 +1,5 @@
 from bot.telegram import Telebot
-from client import Client
+from client import TelegramClient
 import logging
 
 
@@ -16,7 +16,7 @@ def main() -> None:
     logger.info('Starting telebot')
 
 
-    client = Client()
+    client = TelegramClient()
     telebot = Telebot(client)
     telebot.run_polling()
 

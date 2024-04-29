@@ -3,10 +3,10 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
 from ._modify_note_conversation import ModifyNoteConversation
-from client import Client
+from client import TelegramClient
 
 class EditNoteDetailConversation(ModifyNoteConversation):
-    def __init__(self, EDIT_DETAIL: int, client: Client, debug: bool = True) -> None:
+    def __init__(self, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
         self.EDIT_DETAIL = EDIT_DETAIL
