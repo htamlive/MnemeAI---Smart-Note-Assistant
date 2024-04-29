@@ -29,7 +29,10 @@ class DeleteNoteConversation(ModifyNoteConversation):
 
         note_idx = query.data.split('@')[1]
         keyboard = self.get_confirmation_keyboard(note_idx)
-        await query.edit_message_text(text="Are you really sure you want to delete?", reply_markup=InlineKeyboardMarkup(keyboard))
+
+        current_text = query.message.text
+        await query.edit_message_text(text=current_text, reply_markup=InlineKeyboardMarkup(keyboard))
+        await query.message.reply_text("Are you really sure you want to delete?\n""Becareful, this action is irreversible.")
 
         return self.DELETE_NOTE
     
@@ -59,10 +62,11 @@ class DeleteNoteConversation(ModifyNoteConversation):
         chat_id = query.message.chat_id
         note_content = self.client_get_content(chat_id, note_idx)
         keyboard = self.get_option_keyboard(note_idx)
+        print(note_content)
         await query.edit_message_text(
             text=note_content,
             reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
 
     def get_option_keyboard(self, idx: int) -> list[list[InlineKeyboardButton]]:
@@ -71,7 +75,7 @@ class DeleteNoteConversation(ModifyNoteConversation):
     def get_confirmation_keyboard(self, idx: int) -> list[list[InlineKeyboardButton]]:
         return get_delete_note_confirmation_keyboard(idx)
 
-    async def client_get_content(self, chat_id: int, idx: int) -> str:
-        return await self.client.get_note_content(chat_id, idx)
+    def client_get_content(self, chat_id: int, idx: int) -> str:
+        return self.client.get_note_content(chat_id, idx)
 
         

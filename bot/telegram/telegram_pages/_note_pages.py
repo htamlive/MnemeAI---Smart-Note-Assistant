@@ -45,11 +45,28 @@ class NotePages:
 
             paginator = self.init_preview_pages(page)
 
-            await query.edit_message_text(
-                text=self.client_get_content(chat_id, page),
-                reply_markup=paginator.markup,
-                parse_mode='HTML'
-            )
+            try:
+                text = self.client_get_content(chat_id, page)
+                await query.edit_message_text(
+                    text=text,
+                    reply_markup=paginator.markup,
+                    parse_mode='HTML'
+                )
+            except Exception as e:
+                print(f'Error in note_page_callback: {e}')
+                await query.edit_message_text(
+                    text='There is some error, please view the latest version',
+                    parse_mode='HTML'
+                )
+
+                # send new message
+                paginator = self.init_preview_pages()
+                await query.message.reply_text(
+                    text=self.client_get_content(chat_id, 1),
+                    reply_markup=paginator.markup,
+                    parse_mode='HTML'
+                )
+
 
             return
         elif(query.data == 'back'):

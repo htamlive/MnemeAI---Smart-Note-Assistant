@@ -1,7 +1,10 @@
 from ..modify_note_conversation import ModifyNoteConversation
 from client import Client
-from telegram import Update, CallbackQuery, MessageHandler, filters
-from telegram.ext import ContextTypes, ConversationHandler
+from telegram import Update, CallbackQuery
+
+from telegram.ext import (
+    ContextTypes, ConversationHandler, MessageHandler, filters
+)
 
 class EditReminderTimeConversation(ModifyNoteConversation):
     def __init__(self, EDIT_TITLE: int, client: Client, debug: bool = True) -> None:

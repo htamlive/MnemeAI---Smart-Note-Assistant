@@ -36,24 +36,30 @@ class ConversationController:
         self.init_reminder_conversation()
 
         self.prompting_conversation = PromptingConversation(PROMPTING, self.client)
+
+        modify_note_callbacks = [
+            CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^edit_note_title@'),
+            CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^edit_note_detail@'),
+            CallbackQueryHandler(self.delete_note_conversation.start_conversation, pattern='^delete_note@'),
+        ]
+
+        modify_reminder_callbacks = [
+            CallbackQueryHandler(self.edit_reminder_title_conversation.start_conversation, pattern='^edit_reminder_title@'),
+            CallbackQueryHandler(self.edit_reminder_detail_conversation.start_conversation, pattern='^edit_reminder_detail@'),  
+            CallbackQueryHandler(self.delete_reminder_conversation.start_conversation, pattern='^delete_reminder@'),
+            CallbackQueryHandler(self.edit_reminder_time_conversation.start_conversation, pattern='^edit_reminder_time@'),
+        ]
         
         self.conversation_handler = ConversationHandler(
             entry_points=[
                 CommandHandler('note', self.note_conversation.start_conversation),
                 CommandHandler('remind', self.remind_conversation.start_conversation),
+
                 CommandHandler('view_notes', self.view_notes_conversation.start_conversation),
+                CommandHandler('view_reminders', self.view_reminders_conversation.start_conversation),
 
                 CommandHandler('ah', self.prompting_conversation.start_conversation),
-
-                CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^edit_note_title@'),
-                CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^edit_note_detail@'),
-                CallbackQueryHandler(self.delete_note_conversation.start_conversation, pattern='^delete_note@'),
-
-                CommandHandler('view_reminders', self.view_reminders_conversation.start_conversation),
-                CallbackQueryHandler(self.edit_reminder_title_conversation.start_conversation, pattern='^edit_reminder_title@'),
-                CallbackQueryHandler(self.edit_reminder_detail_conversation.start_conversation, pattern='^edit_reminder_detail@'),
-                CallbackQueryHandler(self.delete_reminder_conversation.start_conversation, pattern='^delete_reminder@'),
-            ],
+            ] + modify_note_callbacks + modify_reminder_callbacks,
             states={
                 NOTE_TEXT: [MessageHandler(filters.COMMAND, self.check_command)] + self.note_conversation.states,
                 REMIND_TEXT: [MessageHandler(filters.COMMAND, self.check_command)] + self.remind_conversation.states,
@@ -61,33 +67,50 @@ class ConversationController:
 
                 VIEW_NOTES: [
                     MessageHandler(filters.COMMAND, self.check_command),
-                    CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^edit_note_title@'),
-                    CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^edit_note_detail@'),
-                    CallbackQueryHandler(self.delete_note_conversation.start_conversation, pattern='^delete_note@'),
-                ] + self.view_notes_conversation.states,
+                ] + modify_note_callbacks + self.view_notes_conversation.states,
                 EDIT_NOTE_TITLE: 
-                    [MessageHandler(filters.COMMAND, self.check_command)] + self.edit_title_conversation.states + self.view_notes_conversation.states,
+                    [MessageHandler(filters.COMMAND, self.check_command)] 
+                    + modify_note_callbacks
+                    + self.edit_title_conversation.states 
+                    + self.view_notes_conversation.states,
                 EDIT_NOTE_DETAIL:
-                    [MessageHandler(filters.COMMAND, self.check_command)] + self.edit_detail_conversation.states + self.view_notes_conversation.states,
+                    [MessageHandler(filters.COMMAND, self.check_command)] 
+                    + modify_note_callbacks
+                    + self.edit_detail_conversation.states 
+                    + self.view_notes_conversation.states,
                 DELETE_NOTE:
-                    [MessageHandler(filters.COMMAND, self.check_command)] + self.delete_note_conversation.states + self.view_notes_conversation.states,
+                    [MessageHandler(filters.COMMAND, self.check_command)] 
+                    + modify_note_callbacks
+                    + self.delete_note_conversation.states 
+                    + self.view_notes_conversation.states,
             
 
                 VIEW_REMINDERS: [
                     MessageHandler(filters.COMMAND, self.check_command),
-                    CallbackQueryHandler(self.edit_reminder_title_conversation.start_conversation, pattern='^edit_reminder_title@'),
-                    CallbackQueryHandler(self.edit_reminder_detail_conversation.start_conversation, pattern='^edit_reminder_detail@'),
-                    CallbackQueryHandler(self.delete_reminder_conversation.start_conversation, pattern='^delete_reminder@'),
-                    CallbackQueryHandler(self.edit_reminder_time_conversation.start_conversation, pattern='^edit_reminder_time@'),
-                ] + self.view_reminders_conversation.states,
+                ] + modify_reminder_callbacks + self.view_reminders_conversation.states,
+
                 EDIT_REMINDER_TITLE:
-                    [MessageHandler(filters.COMMAND, self.check_command)] + self.edit_reminder_title_conversation.states + self.view_reminders_conversation.states,
+                    [MessageHandler(filters.COMMAND, self.check_command)] 
+                    + modify_reminder_callbacks 
+                    + self.edit_reminder_title_conversation.states 
+                    + self.view_reminders_conversation.states,
+
                 EDIT_REMINDER_DETAIL:
-                    [MessageHandler(filters.COMMAND, self.check_command)] + self.edit_reminder_detail_conversation.states + self.view_reminders_conversation.states,
+                    [MessageHandler(filters.COMMAND, self.check_command)] 
+                    + modify_reminder_callbacks 
+                    + self.edit_reminder_detail_conversation.states 
+                    + self.view_reminders_conversation.states,
+
                 DELETE_REMINDER:
-                    [MessageHandler(filters.COMMAND, self.check_command)] + self.delete_reminder_conversation.states + self.view_reminders_conversation.states,
+                    [MessageHandler(filters.COMMAND, self.check_command)] 
+                    + modify_reminder_callbacks 
+                    + self.delete_reminder_conversation.states 
+                    + self.view_reminders_conversation.states,
+
                 EDIT_REMINDER_TIME:
-                    [MessageHandler(filters.COMMAND, self.check_command)] + self.view_reminders_conversation.states,            
+                    [MessageHandler(filters.COMMAND, self.check_command)] 
+                    + modify_reminder_callbacks 
+                    + self.view_reminders_conversation.states,            
             },
             fallbacks=[
                 CommandHandler('cancel', self.cancel)
@@ -120,6 +143,8 @@ class ConversationController:
             return await self.remind_conversation.start_conversation(update, context)
         elif command.startswith('/view_notes'):
             return await self.view_notes_conversation.start_conversation(update, context)
+        elif command.startswith('/view_reminders'):
+            return await self.view_reminders_conversation.start_conversation(update, context)
         elif command.startswith('/ah'):
             return await self.prompting_conversation.start_conversation(update, context)
         

@@ -52,10 +52,10 @@ class ViewNotesConversation(CommandConversation):
     async def response_modifying_options(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_content, note_idx) -> None:
         keyboard = self.get_option_keyboard(note_idx)
 
-        if('prev_review_message_id' in context.user_data):
+        if('prev_review_message' in context.user_data):
                 await context.bot.delete_message(
                     chat_id=update.effective_chat.id,
-                    message_id=context.user_data['prev_review_message_id']
+                    message_id=context.user_data['prev_review_message'][0]
                 )
 
 
@@ -65,7 +65,7 @@ class ViewNotesConversation(CommandConversation):
             parse_mode='HTML'
         )
 
-        context.user_data['prev_review_message_id'] = message.message_id
+        context.user_data['prev_review_message'] = (message.message_id, message.text_html)
 
     def get_option_keyboard(self, note_idx: str) -> list:
         return get_note_option_keyboard(note_idx)

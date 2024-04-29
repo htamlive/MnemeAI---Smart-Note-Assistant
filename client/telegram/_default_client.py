@@ -59,7 +59,7 @@ class DefaultClient:
         title = pagination_test_data[note_idx]['title']
         description = pagination_test_data[note_idx]['description']
 
-        return f'{title}\n\n{description}'
+        return f'<b>{title}</b>\n\n{description}'
     
     def get_total_note_pages(self) -> int:
         return len(pagination_test_data)

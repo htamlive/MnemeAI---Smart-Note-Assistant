@@ -1,5 +1,5 @@
 from telegram_bot_pagination import InlineKeyboardPaginator
-from telegram import InlineKeyboardButton
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 def create_preview_pages(num_pages: int, page_idx: int) -> InlineKeyboardPaginator:
     return InlineKeyboardPaginator(
@@ -13,7 +13,7 @@ def create_preview_pages_json(chat_id: int, inital_text: str, num_pages: int, pa
         'chat_id': chat_id,
         'text': inital_text,
         'reply_markup': create_preview_pages(num_pages, page_idx).markup,
-        'parse_mode': 'Markdown'
+        'parse_mode': 'HTML'
     }
 
 
@@ -40,6 +40,7 @@ def get_reminder_option_keyboard(reminder_idx: str) -> list:
     ]
     return keyboard
 
+
 def get_delete_note_confirmation_keyboard(note_idx: str) -> list:
     keyboard = [
         [InlineKeyboardButton("Yes, delete it", callback_data=f'confirm_delete_note@{note_idx}')],
@@ -53,3 +54,19 @@ def get_delete_reminder_confirmation_keyboard(reminder_idx: str) -> list:
         [InlineKeyboardButton("No, go back", callback_data=f'cancel_delete_reminder@{reminder_idx}')]
     ]
     return keyboard
+
+def create_review_note_json(chat_id: int, note_text: str, note_idx: int) -> str:
+    return {
+        'chat_id': chat_id,
+        'text': note_text,
+        'reply_markup': InlineKeyboardMarkup(get_note_option_keyboard(note_idx)),
+        'parse_mode': 'HTML'
+    }
+
+def create_review_reminder_json(chat_id: int, reminder_text: str, reminder_idx: int) -> str:
+    return {
+        'chat_id': chat_id,
+        'text': reminder_text,
+        'reply_markup': InlineKeyboardMarkup(get_reminder_option_keyboard(reminder_idx)),
+        'parse_mode': 'HTML'
+    }

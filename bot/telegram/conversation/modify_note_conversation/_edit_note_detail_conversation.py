@@ -19,7 +19,7 @@ class EditNoteDetailConversation(ModifyNoteConversation):
         note_idx = query.data.split('@')[1]
         context.user_data['item_idx'] = note_idx
 
-        await update.message.reply_text("Please send me the new detail of your note.")
+        await query.message.reply_text("Please send me the new detail of your note.")
         return self.EDIT_DETAIL
     
     async def receive_detail_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
