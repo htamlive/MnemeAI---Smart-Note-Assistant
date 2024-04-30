@@ -19,6 +19,7 @@ class DefaultClient:
 
         self.api_url = f'https://api.telegram.org/bot{self.TELEBOT_TOKEN}/'
         # https://core.telegram.org/bots/api
+        
 
     async def user_subscribe(self, chat_id):
         pass
@@ -113,6 +114,9 @@ class DefaultClient:
         print(response)
 
         return response['result']['response_text'], response['result']['next_state']
+    
+        # ở state Note_text nhưng muốn view note
+        # /ah cho tôi xem note -> gửi một message mà chứa bảng note, VIEW_NOTE
     
     def get_jobs_from_start(self, update: Update) -> list:
 

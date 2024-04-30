@@ -21,8 +21,8 @@ def get_modifying_option_keyboard(note_idx: str) -> list:
     return keyboard
 
 class ViewRemindersConversation(ViewNotesConversation):
-    def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
-        super().__init__(VIEW_NOTES, EDIT_TITLE, EDIT_DETAIL, client, debug)
+    def __init__(self, VIEW_REMINDER: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
+        super().__init__(VIEW_REMINDER, EDIT_TITLE, EDIT_DETAIL, client, debug)
 
     def init_reviewing_pages(self) -> NotePages:
         return ReminderPages(self.client)

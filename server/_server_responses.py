@@ -19,15 +19,15 @@ def example_send_message(chat_id: str, text: str) -> requests.Response:
     payload = {
         'chat_id': chat_id,
         'text': text,
-        'reply_markup': {
-            'inline_keyboard': [
-                [{
-                    'text': 'Button 1', 
-                    'callback_data': '1'
-                    }], 
-                [{'text': 'Button 2', 'callback_data': '2'}]  
-            ]
-        }
+        # 'reply_markup': {
+        #     'inline_keyboard': [
+        #         [{
+        #             'text': 'Button 1', 
+        #             'callback_data': '1'
+        #             }], 
+        #         [{'text': 'Button 2', 'callback_data': '2'}]  
+        #     ]
+        # }
     }
 
     return requests.post(url, json=payload)
