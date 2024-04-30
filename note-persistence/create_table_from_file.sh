@@ -1,0 +1,1 @@
+sudo cat script.sql | docker exec -i smart-note-assistant psql -U postgres -d note_persistence
