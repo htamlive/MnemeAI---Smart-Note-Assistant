@@ -2,11 +2,12 @@ from config import config
 
 from pkg.model import Authz, ServiceType
 import google_auth_oauthlib.flow
+import google.oauth2.credentials
 from .utils import decode_json_base64
 
 SCOPES = ['https://www.googleapis.com/auth/tasks']
 
-class Client:
+class Authorization_client:
     def __init__(self):
         self.service_type = ServiceType.GOOGLE_TASK_API
         self.flow = self.create_flow()
@@ -31,3 +32,16 @@ class Client:
         )
 
         return authorization_url
+
+    def get_credentials(self, chat_id: int) -> google.oauth2.credentials.Credentials | None:
+        authz = Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value)
+        if authz:
+            return google.oauth2.credentials.Credentials(
+                token=authz.token,
+                refresh_token=authz.refresh_token,
+                client_id=authz.client_id,
+                client_secret=authz.client_secret,
+                token_uri=self.flow.client_config['token_uri'],
+                scopes=SCOPES
+            )
+        return None

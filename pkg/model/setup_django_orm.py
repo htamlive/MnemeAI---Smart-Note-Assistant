@@ -4,7 +4,6 @@ from django.conf import settings
 from config import config
 
 def setup_django_orm():
-    print("Setting up Django ORM")
     settings.configure( 
         DATABASES = {
             'default': {
