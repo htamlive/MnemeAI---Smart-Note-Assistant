@@ -1,8 +1,5 @@
-from dotenv import load_dotenv
-load_dotenv()
-
-from pkg.google_task_api.client import Client
+from pkg.google_task_api.api_client import Client
 
 client = Client()
 
-print(client.get_auth_url(2))
+print(client.get_auth_url(3))

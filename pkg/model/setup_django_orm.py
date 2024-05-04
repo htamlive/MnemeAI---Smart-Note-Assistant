@@ -1,7 +1,7 @@
 import django
 from django.conf import settings
 
-import os
+from config import config
 
 def setup_django_orm():
     print("Setting up Django ORM")
@@ -9,18 +9,16 @@ def setup_django_orm():
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv("DATABASE_NAME"),
-                'USER': os.getenv("DATABASE_USER"),
-                'PASSWORD': os.getenv("DATABASE_PASSWORD"),
-                'HOST': os.getenv("DATABASE_HOST"),
-                'PORT': os.getenv("DATABASE_PORT"),
+                'NAME': config.DB_NAME,
+                'USER': config.DB_USER,
+                'PASSWORD': config.DB_PASS,
+                'HOST': config.DB_HOST,
+                'PORT': config.DB_PORT,
             }
         },
         INSTALLED_APPS = [
             'pkg',
         ]
     )
-
-    print("DATABASE_NAME: ", os.getenv("DATABASE_NAME"))
 
     django.setup()

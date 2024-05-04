@@ -1,19 +1,10 @@
-from ..database.setup_django_orm import setup_django_orm
-setup_django_orm()
+from config import config
 
 from pkg.model import Authz, ServiceType
-import google.oauth2.credentials
 import google_auth_oauthlib.flow
-import googleapiclient.discovery
-
-import os
-import json
-import base64
 from .utils import decode_json_base64
 
 SCOPES = ['https://www.googleapis.com/auth/tasks']
-encoded_key = os.getenv("GOOGLE_CLIENT_SECRET")
-call_back_url = os.getenv("CALL_BACK_URL") # 'http://localhost:8080/oauth2callback'
 
 class Client:
     def __init__(self):
@@ -21,11 +12,11 @@ class Client:
         self.flow = self.create_flow()
 
     def create_flow(self) -> google_auth_oauthlib.flow.Flow:
-        key = decode_json_base64(encoded_key)
+        key = decode_json_base64(config.GOOGLE_APP_CREDENTIAL)
         return google_auth_oauthlib.flow.Flow.from_client_config(key, scopes=SCOPES)
 
     def get_auth_url(self, chat_id: int) -> str:
-        self.flow.redirect_uri = call_back_url
+        self.flow.redirect_uri = config.OAUTH2_CALLBACK_URL
 
         authorization_url, state = self.flow.authorization_url(
             access_type='offline',
