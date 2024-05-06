@@ -1,14 +1,16 @@
-from datetime import timezone
+from datetime import datetime, timezone
+
 # import datetime
+from pkg.model.reminder_cele_task import ReminderCeleryTask
+from pkg.msg_brokers.tasks import send_notification
 from telegram.ext import CallbackContext, ConversationHandler
 from telegram import Update
 from test import pagination_test_data
 import requests
 from config import *
 from urllib.parse import quote
-
-from pkg.reminder.model import Reminder
 from pkg.google_task_api.client import Client as GoogleTaskClient, Task
+
 # from pkg.reminder.task_queues import queue_task
 
 
@@ -96,56 +98,83 @@ class DefaultClient:
     async def delete_reminder(self, chat_id, page) -> str:
         return self.delete_note(chat_id, page)
 
-    def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
-        reminder, has_created = Reminder.objects.get_or_create(chat_id=chat_id, id=idx)
-        if has_created:
-            reminder.updated_at = timezone.now()
-        reminder.save()
+    # def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
+    #     reminder, has_created = Reminder.objects.get_or_create(chat_id=chat_id, id=idx)
+    #     if has_created:
+    #         reminder.updated_at = timezone.now()
+    #     reminder.save()
 
-        return reminder
+    #     return reminder
 
-    async def save_reminder_title(self, chat_id: str, idx: int, title_text: str) -> str:
-        reminder = self._get_or_create_reminder(chat_id, idx)
+    # async def save_reminder_title(self, chat_id: str, idx: int, title_text: str) -> str:
+    #     reminder = self._get_or_create_reminder(chat_id, idx)
 
+    #     client = GoogleTaskClient()
+    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
+    #     if task is None:
+    #         task = Task(chat_id=chat_id, id=id, title=title_text)
+    #     else:
+    #         task.title = title_text
+    #     client.insert_task(chat_id, task)
+
+    #     return f"Title saved: {title_text}"
+
+    # async def save_reminder_detail(
+    #     self, chat_id: str, idx: int, detail_text: str
+    # ) -> str:
+    #     reminder = self._get_or_create_reminder(chat_id, idx)
+
+    #     client = GoogleTaskClient()
+    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
+    #     if task is None:
+    #         task = Task(chat_id=chat_id, id=id, notes=detail_text)
+    #     else:
+    #         task.notes = detail_text
+    #     client.insert_task(chat_id, task)
+
+    #     return f"Detail saved: {detail_text}"
+
+    # async def save_reminder_time(self, chat_id: str, idx: int, time) -> str:
+    #     reminder = self._get_or_create_reminder(chat_id, idx)
+
+    #     client = GoogleTaskClient()
+    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
+    #     if task is None:
+    #         task = Task(chat_id=chat_id, id=id, due=time)
+    #     else:
+    #         task.due = time
+
+    #     # Schedule a task to celery here
+    #     # reminded_time is before 10 minutes
+    #     # reminded_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%fZ") - datetime.timedelta(minutes=10)
+    #     # queue_task.apply_async(args=(chat_id, idx), eta=reminded_time)
+
+    #     return f"Time edited: {time}"
+
+    async def save_reminder(
+        self, chat_id: int, idx: int, title: str, details: str, due: datetime
+    ) -> str:
+        # Save the reminder by calling the Google Task API
         client = GoogleTaskClient()
-        task: Task | None = client.get_task(chat_id, reminder.task_id)
-        if task is None:
-            task = Task(chat_id=chat_id, id=id, title=title_text)
-        else:
-            task.title = title_text
-        client.insert_task(chat_id, task)
-
-        return f"Title saved: {title_text}"
-
-    async def save_reminder_detail(self, chat_id: str, idx: int, detail_text: str) -> str:
-        reminder = self._get_or_create_reminder(chat_id, idx)
-
-        client = GoogleTaskClient()
-        task: Task | None = client.get_task(chat_id, reminder.task_id)
-        if task is None:
-            task = Task(chat_id=chat_id, id=id, notes=detail_text)
-        else:
-            task.notes = detail_text
-        client.insert_task(chat_id, task)
-
-        return f"Detail saved: {detail_text}"
-
-    async def save_reminder_time(self, chat_id: str, idx: int, time) -> str:
-        reminder = self._get_or_create_reminder(chat_id, idx)
-
-        client = GoogleTaskClient()
-        task: Task | None = client.get_task(chat_id, reminder.task_id)
-        if task is None:
-            task = Task(chat_id=chat_id, id=id, due=time)
-        else:
-            task.due = time
-
-        # Schedule a task to celery here
-        # reminded_time is before 10 minutes
-        # reminded_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%fZ") - datetime.timedelta(minutes=10)
-        # queue_task.apply_async(args=(chat_id, idx), eta=reminded_time)
-
-        return f"Time edited: {time}"
+        task = Task(title=title, notes=details, due=due.isoformat())
+        result = client.insert_task(chat_id, task)
+        if result is None:
+            return "Task cannot be created"
+        # Inserting the Celery task
+        try:
+            new_cele_task = ReminderCeleryTask(
+            chat_id=chat_id, id=idx, state=ReminderCeleryTask.PENDING
+            )
+            new_cele_task.save()
+        except Exception as e:
+            print(e)
+            return "Task has been created but cannot be scheduled"
+        # Setting up the Celery task
+        send_notification.apply_async(
+            args=(chat_id, idx),
+            eta=due - datetime.timedelta(minutes=5),
+        )
+        return f"Reminder saved: {title}"
 
     def get_total_reminder_pages(self) -> int:
         return len(pagination_test_data)
