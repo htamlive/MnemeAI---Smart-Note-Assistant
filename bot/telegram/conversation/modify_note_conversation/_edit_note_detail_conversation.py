@@ -4,6 +4,7 @@ from telegram.ext import (
 )
 from ._modify_note_conversation import ModifyNoteConversation
 from client import TelegramClient
+from config import PATTERN_DELIMITER
 
 class EditNoteDetailConversation(ModifyNoteConversation):
     def __init__(self, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
@@ -16,7 +17,7 @@ class EditNoteDetailConversation(ModifyNoteConversation):
         query = update.callback_query
         await query.answer()
 
-        note_idx = query.data.split('@')[1]
+        note_idx = query.data.split(PATTERN_DELIMITER)[1]
         context.user_data['item_idx'] = note_idx
 
         await query.message.reply_text("Please send me the new detail of your note.")

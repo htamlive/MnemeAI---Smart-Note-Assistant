@@ -19,3 +19,4 @@ secrets.txt
 
 # ignore env files
 .env
+duy.env

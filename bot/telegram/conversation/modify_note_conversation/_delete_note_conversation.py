@@ -14,6 +14,7 @@ from client import TelegramClient
 
 from bot.telegram.ui_templates import get_note_option_keyboard, get_delete_note_confirmation_keyboard
 
+from config import PATTERN_DELIMITER, Patterns
 
 class DeleteNoteConversation(ModifyNoteConversation):
     def __init__(self, DELETE_NOTE: int, VIEW_NOTES, client: TelegramClient, debug: bool = True) -> None:
@@ -27,7 +28,7 @@ class DeleteNoteConversation(ModifyNoteConversation):
         query: CallbackQuery = update.callback_query
         await query.answer()
 
-        note_idx = query.data.split('@')[1]
+        note_idx = query.data.split(PATTERN_DELIMITER)[1]
         keyboard = self.get_confirmation_keyboard(note_idx)
 
         current_text = query.message.text
@@ -41,16 +42,16 @@ class DeleteNoteConversation(ModifyNoteConversation):
         query: CallbackQuery = update.callback_query
         await query.answer()
 
-        if query.data.startswith('confirm_delete_note@'):
+        if query.data.startswith(Patterns.CONFIRM_DELETE_NOTE.value):
             chat_id = query.message.chat_id
 
-            note_idx = query.data.split('@')[1]
+            note_idx = query.data.split(PATTERN_DELIMITER)[1]
             await self.client_delete(chat_id, note_idx)
             await self.on_finish_edit(update, context)
 
             return ConversationHandler.END
-        elif query.data.startswith('cancel_delete_note@'):
-            note_idx = query.data.split('@')[1]
+        elif query.data.startswith(Patterns.CANCEL_DELETE_NOTE.value):
+            note_idx = query.data.split(PATTERN_DELIMITER)[1]
             await self.restore_note_content(query, note_idx)
 
             return self.VIEW_NOTES

@@ -1,6 +1,8 @@
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+from config import PATTERN_DELIMITER, Patterns
+
 def create_preview_pages(num_pages: int, page_idx: int, pattern = 'n#{page}') -> InlineKeyboardPaginator:
     return InlineKeyboardPaginator(
                 num_pages,
@@ -27,9 +29,9 @@ def create_preview_reminder_pages_json(chat_id: int, inital_text: str, num_pages
 def get_note_option_keyboard(note_idx: str) -> list:
     keyboard = [
         [
-            InlineKeyboardButton('Edit Title', callback_data=f'edit_note_title@{note_idx}'),
-            InlineKeyboardButton('Edit Detail', callback_data=f'edit_note_detail@{note_idx}'),
-            InlineKeyboardButton('Delete', callback_data=f'delete_note@{note_idx}')
+            InlineKeyboardButton('Edit Title', callback_data=f'{Patterns.EDIT_NOTE_TITLE.value}{note_idx}'),
+            InlineKeyboardButton('Edit Detail', callback_data=f'{Patterns.EDIT_NOTE_DETAIL.value}{note_idx}'),
+            InlineKeyboardButton('Delete', callback_data=f'{Patterns.DELETE_NOTE.value}{note_idx}')
         ],
         [InlineKeyboardButton('Back', callback_data='back')]
     ]
@@ -38,10 +40,10 @@ def get_note_option_keyboard(note_idx: str) -> list:
 def get_reminder_option_keyboard(reminder_idx: str) -> list:
     keyboard = [
         [
-            InlineKeyboardButton('Edit Title', callback_data=f'edit_reminder_title@{reminder_idx}'),
-            InlineKeyboardButton('Edit Detail', callback_data=f'edit_reminder_detail@{reminder_idx}'),
-            InlineKeyboardButton('Edit Time', callback_data=f'edit_reminder_time@{reminder_idx}'),
-            InlineKeyboardButton('Delete', callback_data=f'delete_reminder@{reminder_idx}')
+            InlineKeyboardButton('Edit Title', callback_data=f'{Patterns.EDIT_REMINDER_TITLE.value}{reminder_idx}'),
+            InlineKeyboardButton('Edit Detail', callback_data=f'{Patterns.EDIT_REMINDER_DETAIL.value}{reminder_idx}'),
+            InlineKeyboardButton('Edit Time', callback_data=f'{Patterns.EDIT_REMINDER_TIME.value}{reminder_idx}'),
+            InlineKeyboardButton('Delete', callback_data=f'{Patterns.DELETE_REMINDER.value}{reminder_idx}')
         ],
         [InlineKeyboardButton('Back', callback_data='back')]
     ]
@@ -50,15 +52,15 @@ def get_reminder_option_keyboard(reminder_idx: str) -> list:
 
 def get_delete_note_confirmation_keyboard(note_idx: str) -> list:
     keyboard = [
-        [InlineKeyboardButton("Yes, delete it", callback_data=f'confirm_delete_note@{note_idx}')],
-        [InlineKeyboardButton("No, go back", callback_data=f'cancel_delete_note@{note_idx}')]
+        [InlineKeyboardButton("Yes, delete it", callback_data=f'{Patterns.CONFIRM_DELETE_NOTE.value}{note_idx}')],
+        [InlineKeyboardButton("No, go back", callback_data=f'{Patterns.CANCEL_DELETE_NOTE.value}{note_idx}')]
     ]
     return keyboard
 
 def get_delete_reminder_confirmation_keyboard(reminder_idx: str) -> list:
     keyboard = [
-        [InlineKeyboardButton("Yes, delete it", callback_data=f'confirm_delete_reminder@{reminder_idx}')],
-        [InlineKeyboardButton("No, go back", callback_data=f'cancel_delete_reminder@{reminder_idx}')]
+        [InlineKeyboardButton("Yes, delete it", callback_data=f'{Patterns.CONFIRM_DELETE_REMINDER.value}{reminder_idx}')],
+        [InlineKeyboardButton("No, go back", callback_data=f'{Patterns.CANCEL_DELETE_REMINDER.value}{reminder_idx}')]
     ]
     return keyboard
 

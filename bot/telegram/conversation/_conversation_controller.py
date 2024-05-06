@@ -38,29 +38,29 @@ class ConversationController:
         self.prompting_conversation = PromptingConversation(PROMPTING, self.client)
 
         modify_note_callbacks = [
-            CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern='^edit_note_title@'),
-            CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern='^edit_note_detail@'),
-            CallbackQueryHandler(self.delete_note_conversation.start_conversation, pattern='^delete_note@'),
+            CallbackQueryHandler(self.edit_title_conversation.start_conversation, pattern=f'^{Patterns.EDIT_NOTE_TITLE.value}'),
+            CallbackQueryHandler(self.edit_detail_conversation.start_conversation, pattern=f'^{Patterns.EDIT_NOTE_DETAIL.value}'),
+            CallbackQueryHandler(self.delete_note_conversation.start_conversation, pattern=f'^{Patterns.DELETE_NOTE.value}'),
         ]
 
         modify_reminder_callbacks = [
-            CallbackQueryHandler(self.edit_reminder_title_conversation.start_conversation, pattern='^edit_reminder_title@'),
-            CallbackQueryHandler(self.edit_reminder_detail_conversation.start_conversation, pattern='^edit_reminder_detail@'),  
-            CallbackQueryHandler(self.delete_reminder_conversation.start_conversation, pattern='^delete_reminder@'),
-            CallbackQueryHandler(self.edit_reminder_time_conversation.start_conversation, pattern='^edit_reminder_time@'),
+            CallbackQueryHandler(self.edit_reminder_title_conversation.start_conversation, pattern=f'^{Patterns.EDIT_REMINDER_TITLE.value}'),
+            CallbackQueryHandler(self.edit_reminder_detail_conversation.start_conversation, pattern=f'^{Patterns.EDIT_REMINDER_DETAIL.value}'),
+            CallbackQueryHandler(self.delete_reminder_conversation.start_conversation, pattern=f'^{Patterns.DELETE_REMINDER.value}'),
+            CallbackQueryHandler(self.edit_reminder_time_conversation.start_conversation, pattern=f'^{Patterns.EDIT_REMINDER_TIME.value}'),
         ]
 
-        self.init_preview_page_callbacks()
+        # self.init_preview_page_callbacks()
         
         self.conversation_handler = ConversationHandler(
             entry_points=[
-                CommandHandler('note', self.note_conversation.start_conversation),
-                CommandHandler('remind', self.remind_conversation.start_conversation),
+                CommandHandler(str(Commands.NOTE.value), self.note_conversation.start_conversation),
+                CommandHandler(Commands.REMIND.value, self.remind_conversation.start_conversation),
 
-                CommandHandler('view_notes', self.view_notes_conversation.start_conversation),
-                CommandHandler('view_reminders', self.view_reminders_conversation.start_conversation),
+                CommandHandler(Commands.VIEW_NOTES.value, self.view_notes_conversation.start_conversation),
+                CommandHandler(Commands.VIEW_REMINDERS.value, self.view_reminders_conversation.start_conversation),
 
-                CommandHandler('ah', self.prompting_conversation.start_conversation),
+                CommandHandler(Commands.PROMPTING.value, self.prompting_conversation.start_conversation),
             ] + modify_note_callbacks + modify_reminder_callbacks,
             states={
                 NOTE_TEXT: [MessageHandler(filters.COMMAND, self.check_command)] + self.note_conversation.states,
@@ -142,15 +142,19 @@ class ConversationController:
 
     async def check_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         command = update.message.text
-        if command.startswith('/note'):
+        if command.startswith('/'+Commands.NOTE.value):
             return await self.note_conversation.start_conversation(update, context)
-        elif command.startswith('/remind'):
+        
+        if command.startswith('/'+Commands.REMIND.value):
             return await self.remind_conversation.start_conversation(update, context)
-        elif command.startswith('/view_notes'):
+        
+        if command.startswith('/'+Commands.VIEW_NOTES.value):
             return await self.view_notes_conversation.start_conversation(update, context)
-        elif command.startswith('/view_reminders'):
+        
+        if command.startswith('/'+Commands.VIEW_REMINDERS.value):
             return await self.view_reminders_conversation.start_conversation(update, context)
-        elif command.startswith('/ah'):
+        
+        if command.startswith('/'+Commands.PROMPTING.value):
             return await self.prompting_conversation.start_conversation(update, context)
         
         return ConversationHandler.END

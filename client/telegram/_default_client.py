@@ -68,7 +68,7 @@ class DefaultClient:
     def get_total_note_pages(self) -> int:
         return len(pagination_test_data)
 
-    # ================= Reminder =================
+    # ================= Reminder/Task =================
 
     def extract_reminder_idx(self, reminder_idx_text) -> int:
         """

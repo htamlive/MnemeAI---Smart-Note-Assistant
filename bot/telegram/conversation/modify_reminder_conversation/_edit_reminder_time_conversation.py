@@ -6,6 +6,8 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
 
+from config import PATTERN_DELIMITER
+
 class EditReminderTimeConversation(ModifyNoteConversation):
     def __init__(self, EDIT_TITLE: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
@@ -16,7 +18,7 @@ class EditReminderTimeConversation(ModifyNoteConversation):
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query: CallbackQuery = update.callback_query
         await query.answer()
-        reminder_idx = query.data.split('@')[1]
+        reminder_idx = query.data.split(PATTERN_DELIMITER)[1]
         
         context.user_data['item_idx'] = reminder_idx
         await query.message.reply_text("Please send me the new time of your note.")
