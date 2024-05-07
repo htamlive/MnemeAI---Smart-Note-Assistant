@@ -1,4 +1,6 @@
 from django.db import models
+from . import setup_django_orm
+
 
 from enum import Enum
 

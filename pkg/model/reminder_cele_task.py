@@ -1,10 +1,6 @@
 from typing import Any
 from django.db import models
 
-from pkg.model import setup_django_orm
-
-setup_django_orm()
-
 
 class ReminderCeleryTask(models.Model):
     REVOKED = "revoked"
