@@ -9,8 +9,12 @@ from .utils import decode_json_base64
 
 from pkg.model import Authz
 
+from notion_api.client import NotionClient
+
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+
 
 encoded_key = config.GOOGLE_APP_CREDENTIAL
 app_credential = decode_json_base64(encoded_key)
@@ -25,7 +29,8 @@ class App:
     def __init__(self):
         self.app = flask.Flask(__name__)
         self.app.secret_key = 'REPLACE ME - this value is here as a placeholder.'
-
+        self.notion_client = NotionClient()
+        
         @self.app.route('/')
         def index():
             return 'oauth2callback'
@@ -57,7 +62,9 @@ class App:
                 print("Authorization not found")
 
             return flask.Response('Credentials have been stored.', mimetype='text/plain')
-    
+
+        self.app.register_blueprint(self.notion_client.notion_blueprint)
+            
     def run(self, host: str='localhost', port: int=8080, debug: bool=True):
         self.app.run(host=host, port=port, debug=debug)
 
