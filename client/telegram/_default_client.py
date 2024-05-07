@@ -23,11 +23,14 @@ class DefaultClient:
         import os
 
         dotenv.load_dotenv()
-        self.TELEBOT_TOKEN = os.getenv
+        self.TELEBOT_TOKEN = os.getenv("TELEBOT_TOKEN")
         self.SERVER_URL = os.getenv("SERVER_URL")
+        self.NOTION_AUTH_URL = os.getenv("NOTION_AUTH_URL")
 
-        self.api_url = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
+        self.api_base_url = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api
+
+        
 
     async def user_subscribe(self, chat_id):
         pass
@@ -159,9 +162,10 @@ class DefaultClient:
     ) -> str:
         try:
             # Save the reminder by calling the Google Task API
-            client = GoogleTaskClient()
+            google_task_client = GoogleTaskClient()
+
             task = Task(title=title, notes=details, due=due.isoformat())
-            result = client.insert_task(chat_id, task)
+            result = google_task_client.insert_task(chat_id, task)
             if result is None:
                 return "Task cannot be created"
             # Inserting the Celery task
@@ -173,10 +177,9 @@ class DefaultClient:
                 state=ReminderCeleryTask.PENDING,
             )
             new_cele_task.save()
-            dotenv.load_dotenv()
-            TOKEN = os.getenv("TELEBOT_TOKEN")
-            base_url = f"https://api.telegram.org/bot{TOKEN}/"
-            url = f"{base_url}sendMessage"
+
+
+            url = f"{self.api_base_url}sendMessage"
             # Setting up the Celery task
             send_notification.apply_async(
                 args=(url, chat_id, idx),
@@ -207,7 +210,6 @@ class DefaultClient:
         # /ah cho tôi xem note -> gửi một message mà chứa bảng note, VIEW_NOTE
 
     def get_jobs_from_start(self, update: Update) -> list:
-
         async def notify_assignees(context: CallbackContext) -> None:
             # await context.bot.send_message(chat_id=update.effective_chat.id, text='Hello')
             print("sent message")
@@ -216,3 +218,9 @@ class DefaultClient:
         return [
             # (notify_assignees, 5)
         ]
+
+    def get_notion_authorization_url(self, chat_id: int) -> str:
+        return self.NOTION_AUTH_URL
+    
+    def check_notion_authorization(self, chat_id: int) -> bool:
+        return False

@@ -1,0 +1,5 @@
+Welcome to the <b>MnemeAI bot</b>! Enjoy fast note taking empowered by LLM. 
+
+Here is what to do first!
+Type /notion_authorization to connect your Notion account.
+Type /help to see available commands.
