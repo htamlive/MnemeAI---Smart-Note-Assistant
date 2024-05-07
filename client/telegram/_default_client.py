@@ -1,4 +1,7 @@
 from datetime import datetime, timezone
+import os
+
+import dotenv
 
 # import datetime
 from pkg.model.reminder_cele_task import ReminderCeleryTask
@@ -154,26 +157,35 @@ class DefaultClient:
     async def save_reminder(
         self, chat_id: int, idx: int, title: str, details: str, due: datetime
     ) -> str:
-        # Save the reminder by calling the Google Task API
-        client = GoogleTaskClient()
-        task = Task(title=title, notes=details, due=due.isoformat())
-        result = client.insert_task(chat_id, task)
-        if result is None:
-            return "Task cannot be created"
-        # Inserting the Celery task
         try:
+            # Save the reminder by calling the Google Task API
+            client = GoogleTaskClient()
+            task = Task(title=title, notes=details, due=due.isoformat())
+            result = client.insert_task(chat_id, task)
+            if result is None:
+                return "Task cannot be created"
+            # Inserting the Celery task
             new_cele_task = ReminderCeleryTask(
-            chat_id=chat_id, id=idx, state=ReminderCeleryTask.PENDING
+                title=title,
+                description=details,
+                chat_id=chat_id,
+                id=idx,
+                state=ReminderCeleryTask.PENDING,
             )
             new_cele_task.save()
+            dotenv.load_dotenv()
+            TOKEN = os.getenv("TELEBOT_TOKEN")
+            base_url = f"https://api.telegram.org/bot{TOKEN}/"
+            url = f"{base_url}sendMessage"
+            # Setting up the Celery task
+            send_notification.apply_async(
+                args=(url, chat_id, idx),
+                eta=due - datetime.timedelta(minutes=5),
+                expires=due + datetime.timedelta(minutes=5),
+            )
         except Exception as e:
             print(e)
             return "Task has been created but cannot be scheduled"
-        # Setting up the Celery task
-        send_notification.apply_async(
-            args=(chat_id, idx),
-            eta=due - datetime.timedelta(minutes=5),
-        )
         return f"Reminder saved: {title}"
 
     def get_total_reminder_pages(self) -> int:

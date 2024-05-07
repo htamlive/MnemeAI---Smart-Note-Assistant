@@ -14,6 +14,8 @@ class ReminderCeleryTask(models.Model):
 
     chat_id = models.IntegerField()
     id = models.IntegerField()
+    title = models.TextField()
+    description = models.TextField()
     state = models.CharField(choices=choices, null=True)
     completed = models.BooleanField(default=False)
 
