@@ -1,6 +1,5 @@
-from ._command_conversation import (
-    CommandConversation, MessageHandler
-)
+from .._command_conversation import CommandConversation
+from telegram.ext import MessageHandler
 from telegram import (
     Update, InlineKeyboardButton, CallbackQuery, InlineKeyboardMarkup
 )
@@ -8,9 +7,8 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, filters, CallbackQueryHandler
 )
 
-import re
-
-from ..telegram_pages import NotePages
+from config import NOTE_PAGE_CHAR
+from ...telegram_pages import NotePages
 from client import TelegramClient
 
 from bot.telegram.ui_templates import get_note_option_keyboard
@@ -30,10 +28,11 @@ class ViewNotesConversation(CommandConversation):
         self.previewing_pages = self.init_reviewing_pages()
 
     def add_preview_pages_callback(self, application) -> None:
-        application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern='^n#'))
+        application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#'))
 
     def share_preview_page_callback(self) -> CallbackQueryHandler:
-        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern='^n#')
+        print(f'^{NOTE_PAGE_CHAR}#')
+        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#')
         
     def init_reviewing_pages(self) -> NotePages:
         return NotePages(self.client)
@@ -88,6 +87,7 @@ class ViewNotesConversation(CommandConversation):
 
     
     def client_get_content(self, chat_id: int, idx: int) -> str:
+        
         return self.client.get_note_content(chat_id, idx)
 
         

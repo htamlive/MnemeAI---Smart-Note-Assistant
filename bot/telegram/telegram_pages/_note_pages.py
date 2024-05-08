@@ -10,6 +10,7 @@ from bot.telegram.ui_templates import create_preview_pages
 from telegram_bot_pagination import InlineKeyboardPaginator
 from client import TelegramClient
 import re
+from config import NOTE_PAGE_CHAR
 
 class NotePages:
     def __init__(self, client: TelegramClient) -> None:
@@ -35,12 +36,12 @@ class NotePages:
         return self.client.get_total_note_pages()
     
     def init_preview_pages(self, page: int = 1) -> InlineKeyboardPaginator:
-        return create_preview_pages(self.client_get_total_pages(), page, pattern='n#{page}')
+        return create_preview_pages(self.client_get_total_pages(), page, pattern=NOTE_PAGE_CHAR + '#{page}')
     
     def check_match_pattern(self, query: CallbackQuery) -> bool:
-        exp = r'n#(\d+)'
+        exp = NOTE_PAGE_CHAR + r'#(\d+)'
 
-        return re.match(r'n#(\d+)', query.data)
+        return re.match(exp, query.data)
     
     async def preview_page_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query
@@ -48,7 +49,8 @@ class NotePages:
 
         await self.preview_page_query_callback(query) 
     
-    async def preview_page_query_callback(self, query: CallbackQuery) -> None:       
+    async def preview_page_query_callback(self, query: CallbackQuery) -> None:     
+
         if self.check_match_pattern(query):
             page = int(query.data.split('#')[1])
             chat_id = query.message.chat_id

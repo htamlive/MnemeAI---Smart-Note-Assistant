@@ -1,5 +1,5 @@
 from client import TelegramClient
-from ..modify_note_conversation import EditNoteDetailConversation
+from ...note_conversation.modify_note_conversation._edit_note_detail_conversation import EditNoteDetailConversation
 
 class EditReminderDetailConversation(EditNoteDetailConversation):
     def __init__(self, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:

@@ -4,7 +4,7 @@ from telegram import (
 from telegram.ext import (
     Application, CommandHandler, ContextTypes, CallbackQueryHandler, CallbackContext
 )
-from .conversation import ConversationController
+from .conversation import ConversationCenterController
 from .telegram_pages import NotePages
 from client import TelegramClient
 from telegram_bot_pagination import InlineKeyboardPaginator
@@ -26,8 +26,6 @@ class Telebot:
         self.init_notion_authorization_command()
         self.init_help_command()
         self.init_test_routine_notification()
-        self.init_pagination()
-
 
 
     def init_test_routine_notification(self) -> None:
@@ -42,7 +40,7 @@ class Telebot:
         self.application.add_handler(CommandHandler('test', daily_job))
 
     def init_conversation_controller(self, client: TelegramClient) -> None:
-        self.conservation_controller = ConversationController(client)
+        self.conservation_controller = ConversationCenterController(client)
         self.conservation_controller.add_conversation_handler(self.application)
 
 
@@ -71,8 +69,6 @@ class Telebot:
 
         self.application.add_handler(CommandHandler('start', start))
 
-    def init_pagination(self) -> None:
-        self.note_pages = NotePages(self.client)
 
     def init_help_command(self) -> None:
         help_text = open('templates/help.txt', 'r').read()

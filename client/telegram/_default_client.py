@@ -6,7 +6,7 @@ import dotenv
 # import datetime
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 from pkg.msg_brokers.tasks import send_notification
-from telegram.ext import CallbackContext, ConversationHandler
+from telegram.ext import CallbackContext
 from telegram import Update
 from test import pagination_test_data
 import requests

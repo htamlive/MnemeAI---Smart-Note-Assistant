@@ -1,7 +1,7 @@
 
 
 from client import TelegramClient
-from ..modify_note_conversation._delete_note_conversation import DeleteNoteConversation
+from ...note_conversation.modify_note_conversation._delete_note_conversation import DeleteNoteConversation
 from client import TelegramClient
 from telegram import Update, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes

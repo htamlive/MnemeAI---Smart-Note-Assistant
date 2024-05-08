@@ -12,12 +12,14 @@ from enum import Enum
 
 class Commands(Enum):
     NOTE = "note"
-    REMIND = "remind"
+    REMINDER = "remind"
     VIEW_NOTES = "view_notes"
     VIEW_REMINDERS = "view_reminders"
     PROMPTING = "ah"
 
 PATTERN_DELIMITER = "@"
+REMINDER_PAGE_CHAR = "r"
+NOTE_PAGE_CHAR = "n"
 
 class Patterns(Enum):
     EDIT_NOTE_TITLE = "edit_note_title" + PATTERN_DELIMITER
