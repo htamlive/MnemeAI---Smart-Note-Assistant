@@ -25,7 +25,9 @@ class DefaultClient:
         dotenv.load_dotenv()
         self.TELEBOT_TOKEN = os.getenv("TELEBOT_TOKEN")
         self.SERVER_URL = os.getenv("SERVER_URL")
-        self.NOTION_AUTH_URL = os.getenv("NOTION_AUTH_URL")
+
+        redirected_url = quote(f"{self.SERVER_URL}/login/notion/authorized")
+        self.NOTION_AUTH_URL = f'{os.getenv("NOTION_AUTH_PREF")}&redirect_uri={redirected_url}'
 
         self.api_base_url = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api
