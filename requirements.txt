@@ -21,6 +21,7 @@ colorama==0.4.6
 dacite==1.8.1
 dataclasses-json==0.6.5
 deprecation==2.1.0
+distro==1.9.0
 Django==5.0.4
 dotenv-python==0.0.1
 exceptiongroup==1.2.0
@@ -53,6 +54,7 @@ kombu==5.3.7
 langchain==0.1.19
 langchain-community==0.0.38
 langchain-core==0.1.52
+langchain-openai==0.1.6
 langchain-text-splitters==0.0.1
 langsmith==0.1.56
 MarkupSafe==2.1.5
@@ -64,6 +66,7 @@ mypy-extensions==1.0.0
 networkx==3.3
 numpy==1.26.4
 oauthlib==3.2.2
+openai==1.27.0
 orjson==3.10.3
 packaging==23.2
 postgrest==0.16.4
@@ -99,6 +102,7 @@ supafunc==0.4.5
 sympy==1.12
 tbb==2021.12.0
 tenacity==8.3.0
+tiktoken==0.6.0
 tokenizers==0.19.1
 torch==2.3.0
 tqdm==4.66.4
