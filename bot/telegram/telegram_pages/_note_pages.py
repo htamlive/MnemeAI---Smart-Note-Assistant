@@ -1,5 +1,5 @@
 from telegram import (
-    Update, 
+    Update,
     InlineKeyboardButton,
     CallbackQuery
     )
@@ -23,7 +23,7 @@ class NotePages:
         paginator: InlineKeyboardPaginator = self.init_preview_pages(chat_id)
         chat_id = update.effective_chat.id
         message = await update.message.reply_text(
-            text=self.client_get_content(chat_id, 1),
+            text= await self.client_get_content(chat_id, 1),
             reply_markup=paginator.markup,
             parse_mode='HTML'
         )
@@ -43,14 +43,14 @@ class NotePages:
         exp = NOTE_PAGE_CHAR + r'#(\d+)'
 
         return re.match(exp, query.data)
-    
+
     async def preview_page_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query
         await query.answer()
 
-        await self.preview_page_query_callback(query) 
-    
-    async def preview_page_query_callback(self, query: CallbackQuery) -> None:     
+        await self.preview_page_query_callback(query)
+
+    async def preview_page_query_callback(self, query: CallbackQuery) -> None:
 
         if self.check_match_pattern(query):
             page = int(query.data.split('#')[1])
@@ -59,7 +59,7 @@ class NotePages:
             paginator = self.init_preview_pages(page)
 
             try:
-                text = self.client_get_content(chat_id, page)
+                text = await self.client_get_content(chat_id, page)
                 await query.edit_message_text(
                     text=text,
                     reply_markup=paginator.markup,
@@ -75,7 +75,7 @@ class NotePages:
                 # send new message
                 paginator = self.init_preview_pages()
                 await query.message.reply_text(
-                    text=self.client_get_content(chat_id, 1),
+                    text= await self.client_get_content(chat_id, 1),
                     reply_markup=paginator.markup,
                     parse_mode='HTML'
                 )

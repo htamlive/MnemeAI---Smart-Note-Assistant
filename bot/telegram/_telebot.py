@@ -1,5 +1,5 @@
 from telegram import (
-    InlineKeyboardButton, Update, CallbackQuery, ReplyKeyboardMarkup    
+    InlineKeyboardButton, Update, CallbackQuery, ReplyKeyboardMarkup
 )
 from telegram.ext import (
     Application, CommandHandler, ContextTypes, CallbackQueryHandler, CallbackContext
@@ -52,13 +52,13 @@ class Telebot:
 
             welcome_text = open('templates/welcome.txt', 'r').read()
             await context.bot.send_message(
-                chat_id=update.effective_chat.id, 
-                text= welcome_text, 
+                chat_id=update.effective_chat.id,
+                text= welcome_text,
                 reply_markup=reply_markup,
                 parse_mode='HTML'
                 )
             await self.client.user_subscribe(update.effective_chat.id)
-            
+
             for job, interval in self.client.get_jobs_from_start(update):
                 try:
                     await context.job_queue.run_repeating(job, interval)
@@ -78,7 +78,7 @@ class Telebot:
             keyboard = [['/start']]
             reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
             await update.message.reply_text(
-                help_text, 
+                help_text,
                 reply_markup=reply_markup,
                 parse_mode='HTML'
                 )
@@ -88,7 +88,7 @@ class Telebot:
     def init_notion_authorization_command(self) -> None:
 
         async def notion_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-            
+
             url = self.client.get_notion_authorization_url(update.effective_chat.id)
             is_authorized = self.client.check_notion_authorization(update.effective_chat.id)
 
@@ -98,25 +98,25 @@ class Telebot:
                 text = f'Click the button to authorize with Notion'
                 reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Authorize', url=url)]])
             else:
-                text = 'You have already authorized the bot to access your Notion account.'    
+                text = 'You have already authorized the bot to access your Notion account.'
 
-            
-        
+
+
             await context.bot.send_message(
-                chat_id=update.effective_chat.id, 
+                chat_id=update.effective_chat.id,
                 text=text,
                 # use button url
                 reply_markup=reply_markup,
                 parse_mode='HTML'
                 )
-        
+
 
         self.application.add_handler(CommandHandler('notion_authorization', notion_authorization))
 
     def init_google_authorization_command(self) -> None:
 
         async def google_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-            
+
             url = await self.client.get_google_authorization_url(update.effective_chat.id)
             is_authorized = await self.client.check_google_authorization(update.effective_chat.id)
 
@@ -126,18 +126,18 @@ class Telebot:
                 text = f'Click the button to authorize with Google'
                 reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Authorize', url=url)]])
             else:
-                text = 'You have already authorized the bot to access your Google account.'    
+                text = 'You have already authorized the bot to access your Google account.'
 
-            
-        
+
+
             await context.bot.send_message(
-                chat_id=update.effective_chat.id, 
+                chat_id=update.effective_chat.id,
                 text=text,
                 # use button url
                 reply_markup=reply_markup,
                 parse_mode='HTML'
                 )
-        
+
 
         self.application.add_handler(CommandHandler('google_authorization', google_authorization))
 

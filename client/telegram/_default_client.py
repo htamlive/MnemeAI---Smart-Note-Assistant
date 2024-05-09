@@ -30,15 +30,15 @@ class DefaultClient:
         self.SERVER_URL = os.getenv("SERVER_URL")
 
         redirected_url = quote(f"{self.SERVER_URL}/login/notion/authorized")
-        self.NOTION_AUTH_URL = f'{os.getenv("NOTION_AUTH_PREF")}&redirect_uri={redirected_url}'
+        self.NOTION_AUTH_URL = (
+            f'{os.getenv("NOTION_AUTH_PREF")}&redirect_uri={redirected_url}'
+        )
 
         self.API_BASE_URL = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api
         self.google_task_client = GoogleTaskClient()
         self.authorization_client = Authorization_client()
 
-
-        
 
     async def user_subscribe(self, chat_id):
         pass
@@ -94,23 +94,32 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    def get_reminder_content(self, chat_id: int, idx_text : str) -> str:
-        reminder_indx = self._extract_reminder_idx(idx_text)
-
-        title = pagination_test_data[reminder_indx]["title"]
-        description = pagination_test_data[reminder_indx]["description"]
-        time = pagination_test_data[reminder_indx]["time"]
-
+    async def get_reminder_content(self, chat_id, idx) -> str:
+        reminder_indx = self._extract_reminder_idx(idx)
+        client = self.google_task_client
+        tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
+        if tasks is None:
+            return "No reminder found"
+        if len(tasks.items) <= reminder_indx:
+            return "Reminder not found"
+        title, description, time = (
+            tasks.items[reminder_indx].title,
+            tasks.items[reminder_indx].notes,
+            tasks.items[reminder_indx].due,
+        )
+        # title = pagination_test_data[reminder_indx]["title"]
+        # description = pagination_test_data[reminder_indx]["description"]
+        # time = pagination_test_data[reminder_indx]["time"]
         html_render = f"<b>YOUR REMINDERS:</b>\n\n\n<b><i>{title}</i></b>\n{time}\n\n{description}"
-
         return html_render
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'
 
     async def get_reminder_content_at_page(self, chat_id, page) -> str:
-        return self.get_reminder_content(chat_id, page)
+        return await self.get_reminder_content(chat_id, page)
 
-    async def delete_reminder(self, chat_id, idx) -> str:
-        return self.delete_note(chat_id, idx)
+    async def delete_reminder(self, chat_id, page) -> str:
+        self.remove_task(chat_id, page)
+        return self.delete_note(chat_id, page)
 
     # def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
     #     reminder, has_created = Reminder.objects.get_or_create(chat_id=chat_id, id=idx)
@@ -212,8 +221,12 @@ class DefaultClient:
         except Exception as e:
             print(e)
 
-    def get_total_reminder_pages(self) -> int:
-        return len(pagination_test_data)
+    def get_total_reminder_pages(self, chat_id: int) -> int:
+        chat_id = 0
+        tasks = self.google_task_client.list_tasks(chat_id=chat_id)
+        if tasks is None:
+            return 0
+        return len(tasks.items)
 
     # ================= Other =================
 
@@ -242,15 +255,16 @@ class DefaultClient:
 
     def get_notion_authorization_url(self, chat_id: int) -> str:
         return self.NOTION_AUTH_URL
-    
+
+
     async def get_google_authorization_url(self, chat_id: int) -> str:
         url =  await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
-    
+
     def check_notion_authorization(self, chat_id: int) -> bool:
         return False
-    
+
     async def check_google_authorization(self, chat_id: int) -> bool:
-        
+
         credential = await sync_to_async(self.authorization_client.get_credentials)(chat_id)
         return credential is not None

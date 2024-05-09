@@ -24,7 +24,7 @@ class ViewNotesConversation(CommandConversation):
         self._states = [
             MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_preview),
             ]
-        
+
         self.previewing_pages = self.init_reviewing_pages()
 
     def add_preview_pages_callback(self, application) -> None:
@@ -33,18 +33,18 @@ class ViewNotesConversation(CommandConversation):
     def share_preview_page_callback(self) -> CallbackQueryHandler:
         # print(f'^{NOTE_PAGE_CHAR}#')
         return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#')
-        
+
     def init_reviewing_pages(self) -> NotePages:
         return NotePages(self.client)
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        
+
         await self.previewing_pages.view_note_page_command(update, context)
 
         await update.message.reply_text("Please send me the note index.")
 
         return self.VIEW_NOTES
-    
+
     async def receive_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         received_text = update.message.text
         await self.handle_preview(update, context, received_text)
@@ -76,19 +76,19 @@ class ViewNotesConversation(CommandConversation):
     async def handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_idx: str = None) -> None:
         chat_id = update.message.chat_id
         try:
-            note_content = self.client_get_content(chat_id, int(note_idx))
+            note_content = await self.client_get_content(chat_id, int(note_idx))
         except Exception as e:
             note_content = str(e)
             await update.message.reply_text(note_content)
             return
-        
+
         await self.response_modifying_options(update, context, note_content, note_idx)
 
 
-    
+
     def client_get_content(self, chat_id: int, idx: int) -> str:
-        
+
         return self.client.get_note_content(chat_id, idx)
 
-        
-        
+
+
