@@ -25,7 +25,7 @@ class ToolExecutor:
             'get_note': get_note
         }
 
-    def execute_from_string(self, raw_str) -> str:
+    def execute_from_string(self, chat_id, raw_str) -> str:
         # Extract function call string using regular expression
         function_call_match = re.search(r'(\w+)\((.*?)\)', raw_str)
         

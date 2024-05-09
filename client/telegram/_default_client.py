@@ -19,6 +19,7 @@ from asgiref.sync import sync_to_async
 import datetime
 # from pkg.reminder.task_queues import queue_task
 
+from llm.llm import LLM
 
 class DefaultClient:
     def __init__(self) -> None:
@@ -38,6 +39,7 @@ class DefaultClient:
         # https://core.telegram.org/bots/api
         self.google_task_client = GoogleTaskClient()
         self.authorization_client = Authorization_client()
+        self.llm = LLM()
 
     async def user_subscribe(self, chat_id):
         pass
@@ -234,14 +236,16 @@ class DefaultClient:
     # ================= Other =================
 
     async def process_prompt(self, chat_id, prompt_text) -> str:
-        response = requests.post(
-            f"{self.SERVER_URL}/prompt",
-            json={"chat_id": chat_id, "prompt_text": prompt_text},
-        ).json()
+        # response = requests.post(
+        #     f"{self.SERVER_URL}/prompt",
+        #     json={"chat_id": chat_id, "prompt_text": prompt_text},
+        # ).json()
 
-        print(response)
+        # print(response)
 
-        return response["result"]["response_text"], response["result"]["next_state"]
+        return self.llm.execute_llm(chat_id, prompt_text), END
+
+        # return response["result"]["response_text"], response["result"]["next_state"]
 
         # ở state Note_text nhưng muốn view note
         # /ah cho tôi xem note -> gửi một message mà chứa bảng note, VIEW_NOTE
