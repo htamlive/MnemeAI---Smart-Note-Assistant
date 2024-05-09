@@ -7,11 +7,11 @@ class ConversationController:
         self.factory = dict()
 
     
-    def get_states_dict(self, command_handler):
+    def get_states_dict(self, command_handler) -> dict:
         ''
 
-    def get_callbacks(self):
+    def get_callbacks(self) -> list:
         ''
 
-    def get_entry_points(self):
+    def get_entry_points(self) -> list:
         ''

@@ -13,6 +13,9 @@ import requests
 from config import *
 from urllib.parse import quote
 from pkg.google_task_api.client import Client as GoogleTaskClient, Task
+from pkg.google_task_api.authorization_client import Authorization_client
+
+from asgiref.sync import sync_to_async
 
 # from pkg.reminder.task_queues import queue_task
 
@@ -29,8 +32,11 @@ class DefaultClient:
         redirected_url = quote(f"{self.SERVER_URL}/login/notion/authorized")
         self.NOTION_AUTH_URL = f'{os.getenv("NOTION_AUTH_PREF")}&redirect_uri={redirected_url}'
 
-        self.api_base_url = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
+        self.API_BASE_URL = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api
+        self.google_task_client = GoogleTaskClient()
+        self.authorization_client = Authorization_client()
+
 
         
 
@@ -80,7 +86,7 @@ class DefaultClient:
 
     # ================= Reminder/Task =================
 
-    def extract_reminder_idx(self, reminder_idx_text) -> int:
+    def _extract_reminder_idx(self, reminder_idx_text) -> int:
         """
         May use LLM to extract reminder index from text
         """
@@ -88,8 +94,8 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    def get_reminder_content(self, chat_id, idx) -> str:
-        reminder_indx = self.extract_reminder_idx(idx)
+    def get_reminder_content(self, chat_id: int, idx_text : str) -> str:
+        reminder_indx = self._extract_reminder_idx(idx_text)
 
         title = pagination_test_data[reminder_indx]["title"]
         description = pagination_test_data[reminder_indx]["description"]
@@ -103,8 +109,8 @@ class DefaultClient:
     async def get_reminder_content_at_page(self, chat_id, page) -> str:
         return self.get_reminder_content(chat_id, page)
 
-    async def delete_reminder(self, chat_id, page) -> str:
-        return self.delete_note(chat_id, page)
+    async def delete_reminder(self, chat_id, idx) -> str:
+        return self.delete_note(chat_id, idx)
 
     # def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
     #     reminder, has_created = Reminder.objects.get_or_create(chat_id=chat_id, id=idx)
@@ -164,10 +170,9 @@ class DefaultClient:
     ) -> str:
         try:
             # Save the reminder by calling the Google Task API
-            google_task_client = GoogleTaskClient()
 
             task = Task(title=title, notes=details, due=due.isoformat())
-            result = google_task_client.insert_task(chat_id, task)
+            result = self.google_task_client.insert_task(chat_id, task)
             if result is None:
                 return "Task cannot be created"
             # Inserting the Celery task
@@ -181,7 +186,7 @@ class DefaultClient:
             new_cele_task.save()
 
 
-            url = f"{self.api_base_url}sendMessage"
+            url = f"{self.API_BASE_URL}sendMessage"
             # Setting up the Celery task
             send_notification.apply_async(
                 args=(url, chat_id, task.id),
@@ -195,7 +200,7 @@ class DefaultClient:
 
     def remove_task(self, chat_id: int, idx: str) -> None:
         try:
-            client = GoogleTaskClient()
+            client = self.google_task_client
             client.delete_task(
                 chat_id=chat_id,
                 task_id=idx,
@@ -238,5 +243,14 @@ class DefaultClient:
     def get_notion_authorization_url(self, chat_id: int) -> str:
         return self.NOTION_AUTH_URL
     
+    async def get_google_authorization_url(self, chat_id: int) -> str:
+        url =  await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
+        return url
+    
     def check_notion_authorization(self, chat_id: int) -> bool:
         return False
+    
+    async def check_google_authorization(self, chat_id: int) -> bool:
+        
+        credential = await sync_to_async(self.authorization_client.get_credentials)(chat_id)
+        return credential is not None

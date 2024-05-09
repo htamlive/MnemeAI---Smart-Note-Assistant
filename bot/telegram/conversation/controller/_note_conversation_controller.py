@@ -21,21 +21,21 @@ class NoteConversationController(ConversationController):
         self.factory[VIEW_NOTES] = ViewNotesConversation(VIEW_NOTES, EDIT_NOTE_TITLE, EDIT_NOTE_DETAIL, self.client)
         self.factory[NOTE_TEXT] = NoteConversation(NOTE_TEXT, client)
 
-    def get_callbacks(self):
+    def get_callbacks(self) -> list[CallbackQueryHandler]:
         return [
             CallbackQueryHandler(self.factory[EDIT_NOTE_TITLE].start_conversation, pattern=f'^{Patterns.EDIT_NOTE_TITLE.value}'),
             CallbackQueryHandler(self.factory[EDIT_NOTE_DETAIL].start_conversation, pattern=f'^{Patterns.EDIT_NOTE_DETAIL.value}'),
             CallbackQueryHandler(self.factory[DELETE_NOTE].start_conversation, pattern=f'^{Patterns.DELETE_NOTE.value}'),
         ]
     
-    def get_entry_points(self):
+    def get_entry_points(self) -> list[CommandHandler]:
         return [
             CommandHandler(Commands.NOTE.value, self.factory[NOTE_TEXT].start_conversation),
             CommandHandler(Commands.VIEW_NOTES.value, self.factory[VIEW_NOTES].start_conversation),
         ] + self.get_callbacks()
     
 
-    def get_states_dict(self, command_handler):
+    def get_states_dict(self, command_handler) -> dict:
         return {
             NOTE_TEXT: [command_handler] + self.factory[NOTE_TEXT].states,
             VIEW_NOTES: [command_handler] + self.get_callbacks() + self.factory[VIEW_NOTES].states,

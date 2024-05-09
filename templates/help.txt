@@ -13,5 +13,9 @@ View and edit notes and reminders commands:
 <b>Let me be your assistant! (Prompting)</b>
 /ah - <i>Tell me to do</i>
 
+Authorizing commands:
+/notion_authorization - <i>Authorize Notion account</i>
+/google_authorization - <i>Authorize Google account</i>
+
 Cancel command:
 /cancel - <i>Cancel the current operation</i>

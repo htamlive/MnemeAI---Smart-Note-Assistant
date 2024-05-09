@@ -1,15 +1,15 @@
 import os
 import requests
 import dotenv
-from utils import average_pool, generate_embeddings
-from database.client import supabase
+from .utils import generate_embeddings
+from ..database.client import supabase
 from typing import List
 
-notion_auth_url = os.environ.get("NOTION_AUTH_URL")
+# notion_auth_url = os.environ.get("NOTION_AUTH_URL")
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 access_token = os.environ.get("ACCESS_TOKEN")
 
-assert notion_auth_url, 'Must specify NOTION_AUTH_URL environment variable'
+# assert notion_auth_url, 'Must specify NOTION_AUTH_URL environment variable'
 
 awan_key = os.environ.get("AWAN_KEY")
 
@@ -26,7 +26,8 @@ class NotionClient:
     def set_session(self, notion_blueprint) -> None:
         self.session = notion_blueprint.session
     
-    def authorized(self, func):
+    @staticmethod
+    def authorized(func):
         def innerFunc():
             # assert self.session.authorized, "Notion Client is unauthorized"
             func()

@@ -14,14 +14,14 @@ class ReminderConversationController(ConversationController):
     def __init__(self, client) -> None:
         super().__init__(client)
 
-        self.factory: dict[int, ModifyNoteConversation] = {
-            VIEW_REMINDERS: ViewRemindersConversation(VIEW_REMINDERS, EDIT_REMINDER_TITLE, EDIT_REMINDER_DETAIL, self.client),
-            EDIT_REMINDER_DETAIL: EditReminderDetailConversation(EDIT_DETAIL=EDIT_REMINDER_DETAIL, client=self.client),
-            EDIT_REMINDER_TITLE: EditReminderTitleConversation(EDIT_TITLE=EDIT_REMINDER_TITLE, client=self.client),
-            EDIT_REMINDER_TIME: EditReminderDetailConversation(EDIT_DETAIL=EDIT_REMINDER_TIME, client=self.client),
-            DELETE_REMINDER: DeleteReminderConversation(DELETE_REMINDER,VIEW_REMINDERS=VIEW_REMINDERS, client=self.client),
-            REMIND_TEXT: RemindConversation(REMIND_TEXT, self.client),
-        }
+        self.factory: dict[int, ModifyNoteConversation] ={}
+        
+        self.factory[REMIND_TEXT] = RemindConversation(REMIND_TEXT, self.client)
+        self.factory[VIEW_REMINDERS] = ViewRemindersConversation(VIEW_REMINDERS, EDIT_REMINDER_TITLE, EDIT_REMINDER_DETAIL, self.client)
+        self.factory[EDIT_REMINDER_DETAIL] = EditReminderDetailConversation(EDIT_DETAIL=EDIT_REMINDER_DETAIL, client=self.client)
+        self.factory[EDIT_REMINDER_TITLE] = EditReminderTitleConversation(EDIT_TITLE=EDIT_REMINDER_TITLE, client=self.client)
+        self.factory[EDIT_REMINDER_TIME] = EditReminderDetailConversation(EDIT_DETAIL=EDIT_REMINDER_TIME, client=self.client)
+        self.factory[DELETE_REMINDER] = DeleteReminderConversation(DELETE_REMINDER,VIEW_REMINDERS=VIEW_REMINDERS, client=self.client)
 
     def get_states_dict(self, command_handler):
         return {
