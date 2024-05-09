@@ -1,7 +1,7 @@
 import os
 import requests
 import dotenv
-from utils import average_pool, generate_embeddings
+from .utils import generate_embeddings
 from database.client import supabase
 from typing import List
 
