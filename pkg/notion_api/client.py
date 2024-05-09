@@ -4,10 +4,8 @@ import dotenv
 from .utils import generate_embeddings
 from ..database.client import supabase
 from typing import List
-from authorization_client import Authorization_client
-
-awan_key = os.environ.get("AWAN_KEY")
-assert awan_key, 'Must specify AWAN_KEY environment variable'
+from .authorization_client import Authorization_client
+from config import config
 
 class NotionClient:
     def __init__(self):
@@ -64,7 +62,7 @@ class NotionClient:
         
         assert len(resp.data) > 0
         
-        return resp.json(), resp.status_code
+        return resp.data, 200
     
     def post_notes(self, chat_id: int, resource_id: str, resource_name:str = "", resource_desc:str = "") -> dict | None:
         headers = self.get_header(chat_id)
@@ -98,7 +96,7 @@ class NotionClient:
 
         assert len(resp.data) > 0
         
-        return resp.json(), resp.status_code
+        return resp.data, 200
     
     def patch_notes(self, chat_id:int, resource_id: str,  resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
         headers = self.get_header(chat_id)
@@ -150,7 +148,7 @@ class NotionClient:
 
         assert len(resp.data) > 0
         
-        return resp.json(), resp.status_code
+        return resp.data, 200
     
     def delete_notes(self, chat_id:int, resource_id: str, resource_index:int, clear_all: bool = False) -> dict | None:
         headers = self.get_header(chat_id)
@@ -211,7 +209,7 @@ class NotionClient:
         print(prompt)
         
         headers = {
-                'Authorization': f'Bearer {awan_key}',
+                'Authorization': f'Bearer {config.AWAN_KEY}',
                 'Content-Type': 'application/json'
         }
         

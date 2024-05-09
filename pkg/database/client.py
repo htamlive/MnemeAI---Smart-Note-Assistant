@@ -1,10 +1,5 @@
 from supabase import create_client, Client
 import os
+from config import config
 
-supabase_url = os.environ.get('SUPABASE_URL')
-supabase_key = os.environ.get('SUPABASE_KEY')
-
-assert supabase_url, 'Must specify SUPABASE_URL environment variable'
-assert supabase_key, 'Must specify SUPABASE_KEY environment variable'
-
-supabase: Client = create_client(supabase_url, supabase_key)
+supabase: Client = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
