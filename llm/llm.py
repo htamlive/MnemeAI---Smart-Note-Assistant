@@ -31,7 +31,7 @@ class LLM:
         with open("llm/tools_interface.py", "r") as f:
             return f.read()
     
-    def execute_llm(self, user_request: str) -> str | None:
+    def execute_llm(self, chat_id, user_request: str) -> str | None:
         def final_message_parser(ai_message: AIMessage) -> str:
             return ai_message.content
         
@@ -40,7 +40,7 @@ class LLM:
             try:
                 chain_1 = self.prompt_template_1 | self.model
                 response_1: AIMessage = chain_1.invoke({"tools": self.tools_interface, "request": user_request, "datetime": self.get_current_datetime()})
-                tool_response = self.tool_executor.execute_from_string(response_1.content)
+                tool_response = self.tool_executor.execute_from_string(chat_id, response_1.content)
 
                 chain_2 = self.prompt_template_2 | self.model | final_message_parser
                 response_2: str = chain_2.invoke({"ai_message": response_1.content, "result": tool_response, "tools": self.tools_interface, "request": user_request, "datetime": self.get_current_datetime()})
