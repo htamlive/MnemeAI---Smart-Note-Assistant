@@ -19,7 +19,8 @@ class NotePages:
         # self.init_note_pages()
 
     async def view_note_page_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        paginator: InlineKeyboardPaginator = self.init_preview_pages()
+        chat_id = update.effective_chat.id
+        paginator: InlineKeyboardPaginator = self.init_preview_pages(chat_id)
         chat_id = update.effective_chat.id
         message = await update.message.reply_text(
             text=self.client_get_content(chat_id, 1),
@@ -32,11 +33,11 @@ class NotePages:
     def client_get_content(self, chat_id, note_idx) -> str:
         return self.client.get_note_content(chat_id, note_idx)
     
-    def client_get_total_pages(self) -> int:
-        return self.client.get_total_note_pages()
+    def client_get_total_pages(self, chat_id: int) -> int:
+        return self.client.get_total_note_pages(chat_id)
     
-    def init_preview_pages(self, page: int = 1) -> InlineKeyboardPaginator:
-        return create_preview_pages(self.client_get_total_pages(), page, pattern=NOTE_PAGE_CHAR + '#{page}')
+    def init_preview_pages(self, chat_id: int, page: int = 1) -> InlineKeyboardPaginator:
+        return create_preview_pages(self.client_get_total_pages(chat_id), page, pattern=NOTE_PAGE_CHAR + '#{page}')
     
     def check_match_pattern(self, query: CallbackQuery) -> bool:
         exp = NOTE_PAGE_CHAR + r'#(\d+)'

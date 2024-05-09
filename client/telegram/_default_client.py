@@ -81,7 +81,7 @@ class DefaultClient:
 
         return f"<b>YOUR NOTES</b>\n\n\n<b><i>{title}</i></b>\n\n{description}"
 
-    def get_total_note_pages(self) -> int:
+    def get_total_note_pages(self, chat_id: int) -> int:
         return len(pagination_test_data)
 
     # ================= Reminder/Task =================
