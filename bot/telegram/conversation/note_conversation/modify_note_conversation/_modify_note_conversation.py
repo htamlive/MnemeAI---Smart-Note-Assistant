@@ -1,4 +1,4 @@
-from .._command_conversation import (
+from ..._command_conversation import (
     CommandConversation
 )
 from telegram import (

@@ -14,10 +14,12 @@ __all__=[
     'DELETE_REMINDER',
     'Commands',
     'Patterns',
-    'PATTERN_DELIMITER'
+    'PATTERN_DELIMITER',
+    'REMINDER_PAGE_CHAR',
+    'NOTE_PAGE_CHAR'
 ]
 
 from ._conversation_config import EDIT_NOTE_DETAIL, EDIT_NOTE_TITLE, NOTE_TEXT, PROMPTING, REMIND_TEXT, VIEW_NOTES, END, DELETE_NOTE
 from ._conversation_config import EDIT_REMINDER_DETAIL, EDIT_REMINDER_TIME, EDIT_REMINDER_TITLE, VIEW_REMINDERS, DELETE_REMINDER
 
-from ._conversation_config import Commands, Patterns, PATTERN_DELIMITER
+from ._conversation_config import Commands, Patterns, PATTERN_DELIMITER, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR

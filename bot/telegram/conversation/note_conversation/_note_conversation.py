@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
-from ._command_conversation import CommandConversation
+from .._command_conversation import CommandConversation
 from client import TelegramClient
 
 class NoteConversation(CommandConversation):

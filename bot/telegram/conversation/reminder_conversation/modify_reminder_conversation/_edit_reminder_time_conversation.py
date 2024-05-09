@@ -1,4 +1,4 @@
-from ..modify_note_conversation import ModifyNoteConversation
+from ...note_conversation.modify_note_conversation import ModifyNoteConversation
 from client import TelegramClient
 from telegram import Update, CallbackQuery
 

@@ -1,9 +1,9 @@
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from config import PATTERN_DELIMITER, Patterns
+from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR
 
-def create_preview_pages(num_pages: int, page_idx: int, pattern = 'n#{page}') -> InlineKeyboardPaginator:
+def create_preview_pages(num_pages: int, page_idx: int, pattern = NOTE_PAGE_CHAR + '#{page}') -> InlineKeyboardPaginator:
     return InlineKeyboardPaginator(
                 num_pages,
                 current_page=page_idx,
@@ -22,7 +22,7 @@ def create_preview_reminder_pages_json(chat_id: int, inital_text: str, num_pages
     return {
         'chat_id': chat_id,
         'text': inital_text,
-        'reply_markup': create_preview_pages(num_pages, page_idx, pattern='r#{page}').markup,
+        'reply_markup': create_preview_pages(num_pages, page_idx, pattern= REMINDER_PAGE_CHAR + '#{page}').markup,
         'parse_mode': 'HTML'
     }
 

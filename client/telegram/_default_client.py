@@ -6,7 +6,7 @@ import dotenv
 # import datetime
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 from pkg.msg_brokers.tasks import send_notification
-from telegram.ext import CallbackContext, ConversationHandler
+from telegram.ext import CallbackContext
 from telegram import Update
 from test import pagination_test_data
 import requests
@@ -25,7 +25,9 @@ class DefaultClient:
         dotenv.load_dotenv()
         self.TELEBOT_TOKEN = os.getenv("TELEBOT_TOKEN")
         self.SERVER_URL = os.getenv("SERVER_URL")
-        self.NOTION_AUTH_URL = os.getenv("NOTION_AUTH_URL")
+
+        redirected_url = quote(f"{self.SERVER_URL}/login/notion/authorized")
+        self.NOTION_AUTH_URL = f'{os.getenv("NOTION_AUTH_PREF")}&redirect_uri={redirected_url}'
 
         self.api_base_url = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api

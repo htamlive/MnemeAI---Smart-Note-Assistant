@@ -1,6 +1,6 @@
 
 __all__ = [
-    'ConversationController'
+    'ConversationCenterController'
 ]
 
-from ._conversation_controller import ConversationController
+from .controller._conversation_center_controller import ConversationCenterController

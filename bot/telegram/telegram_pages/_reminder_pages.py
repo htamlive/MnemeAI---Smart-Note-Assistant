@@ -9,6 +9,8 @@ from telegram_bot_pagination import InlineKeyboardPaginator
 
 from telegram import CallbackQuery
 
+from config import REMINDER_PAGE_CHAR
+
 import re
 
 class ReminderPages(NotePages):
@@ -19,11 +21,11 @@ class ReminderPages(NotePages):
         return get_reminder_option_keyboard(note_idx) 
 
     def init_preview_pages(self, page: int = 1) -> InlineKeyboardPaginator:
-        return create_preview_pages(self.client.get_total_reminder_pages(), page, pattern='r#{page}')
+        return create_preview_pages(self.client.get_total_reminder_pages(), page, pattern=REMINDER_PAGE_CHAR + '#{page}')
     
     def check_match_pattern(self, query: CallbackQuery) -> bool:
 
-        return re.match(r'r#(\d+)', query.data)
+        return re.match(REMINDER_PAGE_CHAR + r'#(\d+)', query.data)
     
     def client_get_content(self, chat_id, note_idx) -> str:
         return self.client.get_reminder_content(chat_id, note_idx)
