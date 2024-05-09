@@ -11,7 +11,7 @@ def average_pool(last_hidden_states: Tensor,
 tokenizer = AutoTokenizer.from_pretrained("Supabase/gte-small")
 model = AutoModel.from_pretrained("Supabase/gte-small")
         
-def generate_embeddings(prompt:str | List[str]) -> List[int] | None:
+def generate_embeddings(prompt:str | List[str]) -> List[List[float]] | None:
     batch_dict = tokenizer(prompt, max_length=512, padding=True, truncation=True, return_tensors='pt')
 
     with no_grad():

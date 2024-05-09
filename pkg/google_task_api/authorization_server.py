@@ -10,11 +10,13 @@ from .utils import decode_json_base64
 from pkg.model import Authz
 
 from notion_api.client import NotionClient
+from flask_dance.consumer import OAuth2ConsumerBlueprint
 
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-
+client_id = os.environ.get('NOTION_OAUTH_CLIENT_ID')
+client_secret = os.environ.get('NOTION_OAUTH_CLIENT_SECRET')
 
 encoded_key = config.GOOGLE_APP_CREDENTIAL
 app_credential = decode_json_base64(encoded_key)
@@ -29,7 +31,15 @@ class App:
     def __init__(self):
         self.app = flask.Flask(__name__)
         self.app.secret_key = 'REPLACE ME - this value is here as a placeholder.'
-        self.notion_client = NotionClient()
+        self.notion_blueprint = OAuth2ConsumerBlueprint(
+            "login_notion",
+            __name__,
+            client_id=client_id,
+            client_secret=client_secret,
+            base_url="https://api.notion.com",
+            token_url="https://api.notion.com/v1/oauth/token",
+            authorization_url="https://api.notion.com/v1/oauth/authorize",
+        )
         
         @self.app.route('/')
         def index():
