@@ -160,7 +160,7 @@ class DefaultClient:
     #     return f"Time edited: {time}"
 
     async def save_reminder(
-        self, chat_id: int, idx: int, title: str, details: str, due: datetime
+        self, chat_id: int, title: str, details: str, due: datetime
     ) -> str:
         try:
             # Save the reminder by calling the Google Task API
@@ -175,7 +175,7 @@ class DefaultClient:
                 title=title,
                 description=details,
                 chat_id=chat_id,
-                id=idx,
+                id=result.id,
                 state=ReminderCeleryTask.PENDING,
             )
             new_cele_task.save()
@@ -184,7 +184,7 @@ class DefaultClient:
             url = f"{self.api_base_url}sendMessage"
             # Setting up the Celery task
             send_notification.apply_async(
-                args=(url, chat_id, idx),
+                args=(url, chat_id, task.id),
                 eta=due - datetime.timedelta(minutes=5),
                 expires=due + datetime.timedelta(minutes=5),
             )
@@ -192,6 +192,20 @@ class DefaultClient:
             print(e)
             return "Task has been created but cannot be scheduled"
         return f"Reminder saved: {title}"
+
+    def remove_task(self, chat_id: int, idx: str) -> None:
+        try:
+            client = GoogleTaskClient()
+            client.delete_task(
+                chat_id=chat_id,
+                task_id=idx,
+            )
+            # Cancel the Celery task
+            cele_task = ReminderCeleryTask.objects.get(chat_id=chat_id, id=idx)
+            cele_task.revoke()
+            cele_task.save()
+        except Exception as e:
+            print(e)
 
     def get_total_reminder_pages(self) -> int:
         return len(pagination_test_data)

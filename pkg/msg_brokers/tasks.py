@@ -13,7 +13,7 @@ from .celery import app
 def send_notification(
     endpoint: str,
     chat_id: int,
-    idx: int,
+    idx: str,
 ):
     try:
         reminder_celery = ReminderCeleryTask.objects.get(chat_id=chat_id, id=idx)

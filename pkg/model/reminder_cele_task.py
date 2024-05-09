@@ -9,7 +9,7 @@ class ReminderCeleryTask(models.Model):
     choices = [(REVOKED, "revoked"), (PENDING, "pending")]
 
     chat_id = models.IntegerField()
-    id = models.IntegerField()
+    id = models.TextField()
     title = models.TextField()
     description = models.TextField()
     state = models.CharField(choices=choices, null=True)
