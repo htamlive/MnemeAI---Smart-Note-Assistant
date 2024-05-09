@@ -1,7 +1,6 @@
 from typing import Any
 from django.db import models
 
-
 class ReminderCeleryTask(models.Model):
     REVOKED = "revoked"
     PENDING = "pending"
@@ -9,10 +8,10 @@ class ReminderCeleryTask(models.Model):
     choices = [(REVOKED, "revoked"), (PENDING, "pending")]
 
     chat_id = models.IntegerField()
-    id = models.TextField()
-    title = models.TextField()
-    description = models.TextField()
-    state = models.CharField(choices=choices, null=True)
+    reminder_id = models.TextField()
+    title = models.TextField(null=True)
+    description = models.TextField(null=True)
+    state = models.TextField(null=True)
     completed = models.BooleanField(default=False)
 
     def is_cancelled(self) -> bool:
@@ -30,5 +29,4 @@ class ReminderCeleryTask(models.Model):
         self.state = self._revoked
         self.save()
 
-    class Meta:
-        ordering = ("modified",)
+
