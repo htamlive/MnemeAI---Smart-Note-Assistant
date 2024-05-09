@@ -23,7 +23,7 @@ class DeleteNoteConversation(ModifyNoteConversation):
         self.DELETE_NOTE = DELETE_NOTE
         self.VIEW_NOTES = VIEW_NOTES
         self._states = [CallbackQueryHandler(self.handle_confirmation)]
-        
+
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query: CallbackQuery = update.callback_query
         await query.answer()
@@ -36,8 +36,8 @@ class DeleteNoteConversation(ModifyNoteConversation):
         await query.message.reply_text("Are you really sure you want to delete?\n""Becareful, this action is irreversible.")
 
         return self.DELETE_NOTE
-    
-        
+
+
     async def handle_confirmation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query: CallbackQuery = update.callback_query
         await query.answer()
@@ -55,13 +55,13 @@ class DeleteNoteConversation(ModifyNoteConversation):
             await self.restore_note_content(query, note_idx)
 
             return self.VIEW_NOTES
-        
+
     async def client_delete(self, chat_id: int, idx: int) -> None:
         await self.client.delete_note(chat_id, idx)
-    
+
     async def restore_note_content(self, query: CallbackQuery, note_idx: str) -> None:
         chat_id = query.message.chat_id
-        note_content = self.client_get_content(chat_id, note_idx)
+        note_content = await self.client_get_content(chat_id, note_idx)
         keyboard = self.get_option_keyboard(note_idx)
         print(note_content)
         await query.edit_message_text(
@@ -72,11 +72,10 @@ class DeleteNoteConversation(ModifyNoteConversation):
 
     def get_option_keyboard(self, idx: int) -> list[list[InlineKeyboardButton]]:
         return get_note_option_keyboard(idx)
-    
+
     def get_confirmation_keyboard(self, idx: int) -> list[list[InlineKeyboardButton]]:
         return get_delete_note_confirmation_keyboard(idx)
 
     def client_get_content(self, chat_id: int, idx: int) -> str:
         return self.client.get_note_content(chat_id, idx)
 
-        
