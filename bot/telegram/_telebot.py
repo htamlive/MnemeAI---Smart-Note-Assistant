@@ -5,9 +5,11 @@ from telegram.ext import (
     Application, CommandHandler, ContextTypes, CallbackQueryHandler, CallbackContext
 )
 from .conversation import ConversationCenterController
-from .telegram_pages import NotePages
 from client import TelegramClient
-from telegram_bot_pagination import InlineKeyboardPaginator
+from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup
+
+from asgiref.sync import sync_to_async
+
 
 NOTE_TEXT, REMIND_TEXT = range(2)
 
@@ -24,6 +26,7 @@ class Telebot:
         self.init_conversation_controller(client)
         self.init_start_command()
         self.init_notion_authorization_command()
+        self.init_google_authorization_command()
         self.init_help_command()
         self.init_test_routine_notification()
 
@@ -91,19 +94,54 @@ class Telebot:
             url = self.client.get_notion_authorization_url(update.effective_chat.id)
             is_authorized = self.client.check_notion_authorization(update.effective_chat.id)
 
+            reply_markup = None
+
             if(not is_authorized):
-                text = f'Click this link to authorize: <a href="{url}">Authorize</a>'
+                text = f'Click the button to authorize with Notion'
+                reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Authorize', url=url)]])
             else:
                 text = 'You have already authorized the bot to access your Notion account.'    
+
+            
         
             await context.bot.send_message(
                 chat_id=update.effective_chat.id, 
                 text=text,
+                # use button url
+                reply_markup=reply_markup,
                 parse_mode='HTML'
                 )
         
 
         self.application.add_handler(CommandHandler('notion_authorization', notion_authorization))
+
+    def init_google_authorization_command(self) -> None:
+
+        async def google_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            
+            url = await sync_to_async(self.client.get_google_authorization_url)(update.effective_chat.id)
+            is_authorized = self.client.check_google_authorization(update.effective_chat.id)
+
+            reply_markup = None
+
+            if(not is_authorized):
+                text = f'Click the button to authorize with Google'
+                reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Authorize', url=url)]])
+            else:
+                text = 'You have already authorized the bot to access your Google account.'    
+
+            
+        
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, 
+                text=text,
+                # use button url
+                reply_markup=reply_markup,
+                parse_mode='HTML'
+                )
+        
+
+        self.application.add_handler(CommandHandler('google_authorization', google_authorization))
 
 
 

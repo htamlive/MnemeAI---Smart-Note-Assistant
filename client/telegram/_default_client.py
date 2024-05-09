@@ -13,6 +13,7 @@ import requests
 from config import *
 from urllib.parse import quote
 from pkg.google_task_api.client import Client as GoogleTaskClient, Task
+from pkg.google_task_api.authorization_client import Authorization_client
 
 # from pkg.reminder.task_queues import queue_task
 
@@ -29,8 +30,11 @@ class DefaultClient:
         redirected_url = quote(f"{self.SERVER_URL}/login/notion/authorized")
         self.NOTION_AUTH_URL = f'{os.getenv("NOTION_AUTH_PREF")}&redirect_uri={redirected_url}'
 
-        self.api_base_url = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
+        self.API_BASE_URL = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api
+        self.google_task_client = GoogleTaskClient()
+        self.authorization_client = Authorization_client()
+
 
         
 
@@ -164,10 +168,9 @@ class DefaultClient:
     ) -> str:
         try:
             # Save the reminder by calling the Google Task API
-            google_task_client = GoogleTaskClient()
 
             task = Task(title=title, notes=details, due=due.isoformat())
-            result = google_task_client.insert_task(chat_id, task)
+            result = self.google_task_client.insert_task(chat_id, task)
             if result is None:
                 return "Task cannot be created"
             # Inserting the Celery task
@@ -181,7 +184,7 @@ class DefaultClient:
             new_cele_task.save()
 
 
-            url = f"{self.api_base_url}sendMessage"
+            url = f"{self.API_BASE_URL}sendMessage"
             # Setting up the Celery task
             send_notification.apply_async(
                 args=(url, chat_id, idx),
@@ -224,5 +227,11 @@ class DefaultClient:
     def get_notion_authorization_url(self, chat_id: int) -> str:
         return self.NOTION_AUTH_URL
     
+    def get_google_authorization_url(self, chat_id: int) -> str:
+        return self.authorization_client.get_auth_url(chat_id)
+    
     def check_notion_authorization(self, chat_id: int) -> bool:
+        return False
+    
+    def check_google_authorization(self, chat_id: int) -> bool:
         return False
