@@ -20,8 +20,8 @@ class ReminderPages(NotePages):
     def get_option_keyboard(self, note_idx: str) -> list:
         return get_reminder_option_keyboard(note_idx) 
 
-    def init_preview_pages(self, chat_id, page: int = 1) -> InlineKeyboardPaginator:
-        return create_preview_pages(self.client_get_total_pages(chat_id), page, pattern=REMINDER_PAGE_CHAR + '#{page}')
+    async def init_preview_pages(self, chat_id, page: int = 1) -> InlineKeyboardPaginator:
+        return create_preview_pages(await self.client_get_total_pages(chat_id), page, pattern=REMINDER_PAGE_CHAR + '#{page}')
     
     def check_match_pattern(self, query: CallbackQuery) -> bool:
 
@@ -30,6 +30,6 @@ class ReminderPages(NotePages):
     def client_get_content(self, chat_id, note_idx) -> str:
         return self.client.get_reminder_content(chat_id, note_idx)
     
-    def client_get_total_pages(self, chat_id: int) -> int:
-        return self.client.get_total_reminder_pages(chat_id)
+    async def client_get_total_pages(self, chat_id: int) -> int:
+        return await self.client.get_total_reminder_pages(chat_id)
     

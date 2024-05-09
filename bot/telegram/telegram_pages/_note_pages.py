@@ -20,7 +20,7 @@ class NotePages:
 
     async def view_note_page_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         chat_id = update.effective_chat.id
-        paginator: InlineKeyboardPaginator = self.init_preview_pages(chat_id)
+        paginator: InlineKeyboardPaginator = await self.init_preview_pages(chat_id)
         chat_id = update.effective_chat.id
         message = await update.message.reply_text(
             text= await self.client_get_content(chat_id, 1),
@@ -33,11 +33,11 @@ class NotePages:
     def client_get_content(self, chat_id, note_idx) -> str:
         return self.client.get_note_content(chat_id, note_idx)
     
-    def client_get_total_pages(self, chat_id: int) -> int:
-        return self.client.get_total_note_pages(chat_id)
+    async def client_get_total_pages(self, chat_id: int) -> int:
+        return await self.client.get_total_note_pages(chat_id)
     
-    def init_preview_pages(self, chat_id: int, page: int = 1) -> InlineKeyboardPaginator:
-        return create_preview_pages(self.client_get_total_pages(chat_id), page, pattern=NOTE_PAGE_CHAR + '#{page}')
+    async def init_preview_pages(self, chat_id: int, page: int = 1) -> InlineKeyboardPaginator:
+        return create_preview_pages(await self.client_get_total_pages(chat_id), page, pattern=NOTE_PAGE_CHAR + '#{page}')
     
     def check_match_pattern(self, query: CallbackQuery) -> bool:
         exp = NOTE_PAGE_CHAR + r'#(\d+)'
@@ -56,7 +56,7 @@ class NotePages:
             page = int(query.data.split('#')[1])
             chat_id = query.message.chat_id
 
-            paginator = self.init_preview_pages(page)
+            paginator = await self.init_preview_pages(page)
 
             try:
                 text = await self.client_get_content(chat_id, page)
@@ -73,7 +73,7 @@ class NotePages:
                 )
 
                 # send new message
-                paginator = self.init_preview_pages()
+                paginator = await self.init_preview_pages()
                 await query.message.reply_text(
                     text= await self.client_get_content(chat_id, 1),
                     reply_markup=paginator.markup,
