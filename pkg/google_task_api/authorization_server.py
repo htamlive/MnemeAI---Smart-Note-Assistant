@@ -7,7 +7,7 @@ import google_auth_oauthlib.flow
 
 from .utils import decode_json_base64
 
-from pkg.model import Authz
+from pkg.model import Authz, ServiceType
 
 # from ..notion_api.client import NotionClient
 # from flask_dance.consumer import OAuth2ConsumerBlueprint
@@ -61,13 +61,15 @@ class App:
             # Store credentials
             credentials = flow.credentials
 
-            authorization = Authz.objects.get(current_state=state)
+            authorization = Authz.objects.filter(current_state=state, service_type=ServiceType.GOOGLE_TASK_API.value)
             if authorization:
-                authorization.token = credentials.token
-                authorization.refresh_token = credentials.refresh_token
-                authorization.client_id = credentials.client_id
-                authorization.client_secret = credentials.client_secret
-                authorization.save()
+                authorization.update(
+                    service_type=ServiceType.GOOGLE_TASK_API.value,
+                    token=credentials.token,
+                    refresh_token=credentials.refresh_token,
+                    client_id=credentials.client_id,
+                    client_secret=credentials.client_secret,
+                )
             else:
                 print("Authorization not found")
 

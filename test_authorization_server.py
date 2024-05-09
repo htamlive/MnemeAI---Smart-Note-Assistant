@@ -1,5 +1,7 @@
-import pkg.google_task_api.authorization_server as authorization_server
+# import pkg.google_task_api.authorization_server as authorization_server
+import pkg.notion_api.authorization_server as authorization_server
+
 
 if __name__ == '__main__':
     server = authorization_server.App()
-    server.app.run(port=8080)
+    server.run_server(host='localhost', port=5000)

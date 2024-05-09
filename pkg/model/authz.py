@@ -22,3 +22,4 @@ class Authz(models.Model):
 
     class Meta:
         db_table = 'authz'
+        unique_together = (('chat_id', 'service_type'),)

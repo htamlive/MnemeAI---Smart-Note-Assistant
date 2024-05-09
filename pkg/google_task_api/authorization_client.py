@@ -17,7 +17,7 @@ class Authorization_client:
         return google_auth_oauthlib.flow.Flow.from_client_config(key, scopes=SCOPES)
 
     def get_auth_url(self, chat_id: int) -> str:
-        self.flow.redirect_uri = config.OAUTH2_CALLBACK_URL
+        self.flow.redirect_uri = config.GOOGLE_OAUTH2_CALLBACK_URL
 
         authorization_url, state = self.flow.authorization_url(
             access_type='offline',
