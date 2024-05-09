@@ -9,7 +9,7 @@ from .utils import decode_json_base64
 
 from pkg.model import Authz
 
-from notion_api.client import NotionClient
+from ..notion_api.client import NotionClient
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
