@@ -16,7 +16,7 @@ from pkg.google_task_api.client import Client as GoogleTaskClient, Task
 from pkg.google_task_api.authorization_client import Authorization_client
 
 from asgiref.sync import sync_to_async
-
+import datetime
 # from pkg.reminder.task_queues import queue_task
 
 
@@ -46,7 +46,13 @@ class DefaultClient:
         return f"Note saved: {note_text}"
 
     async def save_remind(self, chat_id, remind_text) -> str:
-        return f"Remind saved: {remind_text}"
+        '''
+            LLM in action
+        '''
+
+        title = "Title"
+        duedate = datetime.datetime.now() + datetime.timedelta(minutes=5)
+        return self.save_reminder(chat_id, title, remind_text, duedate)
 
     # ================= Note =================
 
