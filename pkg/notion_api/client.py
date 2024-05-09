@@ -2,7 +2,7 @@ import os
 import requests
 import dotenv
 from .utils import generate_embeddings
-from database.client import supabase
+from ..database.client import supabase
 from typing import List
 
 notion_auth_url = os.environ.get("NOTION_AUTH_URL")
