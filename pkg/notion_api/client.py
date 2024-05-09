@@ -4,38 +4,17 @@ import dotenv
 from .utils import generate_embeddings
 from ..database.client import supabase
 from typing import List
-
-# notion_auth_url = os.environ.get("NOTION_AUTH_URL")
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-access_token = os.environ.get("ACCESS_TOKEN")
-
-# assert notion_auth_url, 'Must specify NOTION_AUTH_URL environment variable'
+from authorization_client import Authorization_client
 
 awan_key = os.environ.get("AWAN_KEY")
-
 assert awan_key, 'Must specify AWAN_KEY environment variable'
-
-client_id = os.environ.get('NOTION_OAUTH_CLIENT_ID')
-client_secret = os.environ.get('NOTION_OAUTH_CLIENT_SECRET')
 
 class NotionClient:
     def __init__(self):
-        self.chat_id: str = None
-        self.session = None
-        
-    def set_session(self, notion_blueprint) -> None:
-        self.session = notion_blueprint.session
+        self.auth_client = Authorization_client()
     
-    @staticmethod
-    def authorized(func):
-        def innerFunc():
-            # assert self.session.authorized, "Notion Client is unauthorized"
-            func()
-        return innerFunc
-    
-    @authorized
-    def get_header(self) -> dict:
-        # access_token = self.session.access_token
+    def get_header(self, chat_id: int) -> dict:
+        access_token = self.auth_client.get_credentials(chat_id)
         
         headers = {
                 'Authorization': f'Bearer {access_token}',
@@ -45,9 +24,8 @@ class NotionClient:
         
         return headers
     
-    @authorized
-    def get_notes(self, resource_id: str) -> List[dict] | None:              
-        headers = self.get_header()
+    def get_notes(self, chat_id: int, resource_id: str) -> List[dict] | None:              
+        headers = self.get_header(chat_id)
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "sorts": [
                 {
@@ -77,6 +55,7 @@ class NotionClient:
         resp = supabase.table("notes").upsert([
             {
                 "id": q['id'],
+                "chat_id": chat_id,
                 "parent_id": q['parent']['database_id'],
                 "content": content,
                 "embedding": emb
@@ -87,9 +66,8 @@ class NotionClient:
         
         return resp.json(), resp.status_code
     
-    @authorized
-    def post_notes(self, resource_id: str, resource_name:str = "", resource_desc:str = "") -> dict | None:
-        headers = self.get_header()
+    def post_notes(self, chat_id: int, resource_id: str, resource_name:str = "", resource_desc:str = "") -> dict | None:
+        headers = self.get_header(chat_id)
         data = {
             "parent" : {"database_id": resource_id},
             "properties": {
@@ -110,6 +88,7 @@ class NotionClient:
         resp = supabase.table("notes").upsert(
             {
                 "id": page_content['id'],
+                "chat_id": chat_id,
                 "parent_id": page_content['parent']['database_id'],
                 "title": resource_name,
                 "content": resource_name + " " + resource_desc,
@@ -121,9 +100,8 @@ class NotionClient:
         
         return resp.json(), resp.status_code
     
-    @authorized
-    def patch_notes(self, resource_id: str,  resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
-        headers = self.get_header()
+    def patch_notes(self, chat_id:int, resource_id: str,  resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
+        headers = self.get_header(chat_id)
         
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "sorts": [
@@ -162,6 +140,7 @@ class NotionClient:
         resp = supabase.table("notes").upsert(
             {
                 "id": page_content['id'],
+                "chat_id": chat_id,
                 "parent_id": page_content['parent']['database_id'],
                 "title": resource_name,
                 "content": resource_name + " " + resource_desc,
@@ -173,9 +152,8 @@ class NotionClient:
         
         return resp.json(), resp.status_code
     
-    @authorized
-    def delete_notes(self, resource_id: str, resource_index:int, clear_all: bool = False) -> dict | None:
-        headers = self.get_header()
+    def delete_notes(self, chat_id:int, resource_id: str, resource_index:int, clear_all: bool = False) -> dict | None:
+        headers = self.get_header(chat_id)
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "sorts": [
                 {
@@ -213,15 +191,14 @@ class NotionClient:
             
             return True
     
-    @authorized
-    def delete_all_notes(self) -> bool:
-        return self.delete_notes(0, True)
+    def delete_all_notes(self, chat_id: int) -> bool:
+        return self.delete_notes(chat_id, 0, True)
     
-    @authorized
-    def query(self, resource_id: str, prompt:str) -> dict | None:
+    def query(self, chat_id: int, resource_id: str, prompt:str) -> dict | None:
         embeddings = generate_embeddings(prompt)
         
         resp = supabase.rpc('match_documents', {
+            "chat_id": chat_id,
             "database_id": resource_id,
             "query_embedding": embeddings[0], 
             "match_threshold": 0.78,
