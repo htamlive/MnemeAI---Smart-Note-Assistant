@@ -73,7 +73,7 @@ class App:
 
             return flask.Response('Credentials have been stored.', mimetype='text/plain')
 
-        self.app.register_blueprint(self.notion_client.notion_blueprint)
+        self.app.register_blueprint(self.notion_blueprint)
             
     def run(self, host: str='localhost', port: int=8080, debug: bool=True):
         self.app.run(host=host, port=port, debug=debug)

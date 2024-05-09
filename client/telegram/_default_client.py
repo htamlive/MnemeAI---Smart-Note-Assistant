@@ -242,7 +242,9 @@ class DefaultClient:
         return self.NOTION_AUTH_URL
     
     def get_google_authorization_url(self, chat_id: int) -> str:
-        return self.authorization_client.get_auth_url(chat_id)
+        url =  self.authorization_client.get_auth_url(chat_id)
+        print(url)
+        return url
     
     def check_notion_authorization(self, chat_id: int) -> bool:
         return False
