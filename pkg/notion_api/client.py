@@ -1,18 +1,13 @@
 import os
 import requests
 import dotenv
-from supabase import create_client, Client
-from transformers import AutoTokenizer, AutoModel
 from utils import average_pool, generate_embeddings
-from torch import no_grad
 from database.client import supabase
-from flask import Flask, redirect, url_for, request, jsonify
 from typing import List
-from flask_dance.consumer import OAuth2ConsumerBlueprint
 
 notion_auth_url = os.environ.get("NOTION_AUTH_URL")
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-# access_token = os.environ.get("ACCESS_TOKEN")
+access_token = os.environ.get("ACCESS_TOKEN")
 
 assert notion_auth_url, 'Must specify NOTION_AUTH_URL environment variable'
 
@@ -25,23 +20,21 @@ client_secret = os.environ.get('NOTION_OAUTH_CLIENT_SECRET')
 
 class NotionClient:
     def __init__(self):
-        self.notion_blueprint = OAuth2ConsumerBlueprint(
-            "login_notion",
-            __name__,
-            client_id=client_id,
-            client_secret=client_secret,
-            base_url="https://api.notion.com",
-            token_url="https://api.notion.com/v1/oauth/token",
-            authorization_url="https://api.notion.com/v1/oauth/authorize",
-        )
         self.chat_id: str = None
+        self.session = None
         
+    def set_session(self, notion_blueprint) -> None:
+        self.session = notion_blueprint.session
+    
+    def authorized(self, func):
+        def innerFunc():
+            # assert self.session.authorized, "Notion Client is unauthorized"
+            func()
+        return innerFunc
+    
+    @authorized
     def get_header(self) -> dict:
-        assert self.notion_blueprint.session.authorized
-            
-        session = self.notion_blueprint.session
-        
-        access_token = session.access_token
+        # access_token = self.session.access_token
         
         headers = {
                 'Authorization': f'Bearer {access_token}',
@@ -51,6 +44,7 @@ class NotionClient:
         
         return headers
     
+    @authorized
     def get_notes(self, resource_id: str) -> List[dict] | None:              
         headers = self.get_header()
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
@@ -92,7 +86,9 @@ class NotionClient:
         
         return resp.json(), resp.status_code
     
-    def post_notes(self, resource_id: str, resource_name:str, resource_desc:str = "") -> dict | None:
+    @authorized
+    def post_notes(self, resource_id: str, resource_name:str = "", resource_desc:str = "") -> dict | None:
+        headers = self.get_header()
         data = {
             "parent" : {"database_id": resource_id},
             "properties": {
@@ -124,6 +120,7 @@ class NotionClient:
         
         return resp.json(), resp.status_code
     
+    @authorized
     def patch_notes(self, resource_id: str,  resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
         headers = self.get_header()
         
@@ -139,8 +136,7 @@ class NotionClient:
         data = resp.json()
         queries = data['results']
         
-        if len(queries) <= resource_index:
-            return jsonify({'error': 'Index exceeds database length'}), 400
+        assert len(queries) <= resource_index, "Index must be within query length"
         
         page_id = queries[resource_index]['id']
         
@@ -176,6 +172,7 @@ class NotionClient:
         
         return resp.json(), resp.status_code
     
+    @authorized
     def delete_notes(self, resource_id: str, resource_index:int, clear_all: bool = False) -> dict | None:
         headers = self.get_header()
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
@@ -203,8 +200,7 @@ class NotionClient:
             return True
             
         else:
-            if len(queries) <= resource_index:
-                return False
+            assert len(queries) <= resource_index, "Index must be within query length"
             
             page_id = queries[resource_index]['id']
             
@@ -216,13 +212,16 @@ class NotionClient:
             
             return True
     
+    @authorized
     def delete_all_notes(self) -> bool:
         return self.delete_notes(0, True)
     
+    @authorized
     def query(self, resource_id: str, prompt:str) -> dict | None:
         embeddings = generate_embeddings(prompt)
         
         resp = supabase.rpc('match_documents', {
+            "database_id": resource_id,
             "query_embedding": embeddings[0], 
             "match_threshold": 0.78,
             "match_count": 10,
