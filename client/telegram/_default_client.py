@@ -86,7 +86,7 @@ class DefaultClient:
 
     # ================= Reminder/Task =================
 
-    def extract_reminder_idx(self, reminder_idx_text) -> int:
+    def _extract_reminder_idx(self, reminder_idx_text) -> int:
         """
         May use LLM to extract reminder index from text
         """
@@ -94,8 +94,8 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    def get_reminder_content(self, chat_id, idx) -> str:
-        reminder_indx = self.extract_reminder_idx(idx)
+    def get_reminder_content(self, chat_id: int, idx_text : str) -> str:
+        reminder_indx = self._extract_reminder_idx(idx_text)
 
         title = pagination_test_data[reminder_indx]["title"]
         description = pagination_test_data[reminder_indx]["description"]
@@ -109,8 +109,8 @@ class DefaultClient:
     async def get_reminder_content_at_page(self, chat_id, page) -> str:
         return self.get_reminder_content(chat_id, page)
 
-    async def delete_reminder(self, chat_id, page) -> str:
-        return self.delete_note(chat_id, page)
+    async def delete_reminder(self, chat_id, idx) -> str:
+        return self.delete_note(chat_id, idx)
 
     # def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
     #     reminder, has_created = Reminder.objects.get_or_create(chat_id=chat_id, id=idx)
@@ -200,7 +200,7 @@ class DefaultClient:
 
     def remove_task(self, chat_id: int, idx: str) -> None:
         try:
-            client = GoogleTaskClient()
+            client = self.google_task_client
             client.delete_task(
                 chat_id=chat_id,
                 task_id=idx,

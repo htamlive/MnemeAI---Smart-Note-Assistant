@@ -8,8 +8,6 @@ from .conversation import ConversationCenterController
 from client import TelegramClient
 from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup
 
-from asgiref.sync import sync_to_async
-
 
 NOTE_TEXT, REMIND_TEXT = range(2)
 
