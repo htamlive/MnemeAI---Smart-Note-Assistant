@@ -9,8 +9,8 @@ from .utils import decode_json_base64
 
 from pkg.model import Authz
 
-from ..notion_api.client import NotionClient
-from flask_dance.consumer import OAuth2ConsumerBlueprint
+# from ..notion_api.client import NotionClient
+# from flask_dance.consumer import OAuth2ConsumerBlueprint
 
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -31,15 +31,15 @@ class App:
     def __init__(self):
         self.app = flask.Flask(__name__)
         self.app.secret_key = 'REPLACE ME - this value is here as a placeholder.'
-        self.notion_blueprint = OAuth2ConsumerBlueprint(
-            "login_notion",
-            __name__,
-            client_id=client_id,
-            client_secret=client_secret,
-            base_url="https://api.notion.com",
-            token_url="https://api.notion.com/v1/oauth/token",
-            authorization_url="https://api.notion.com/v1/oauth/authorize",
-        )
+        # self.notion_blueprint = OAuth2ConsumerBlueprint(
+        #     "login_notion",
+        #     __name__,
+        #     client_id=client_id,
+        #     client_secret=client_secret,
+        #     base_url="https://api.notion.com",
+        #     token_url="https://api.notion.com/v1/oauth/token",
+        #     authorization_url="https://api.notion.com/v1/oauth/authorize",
+        # )
         
         @self.app.route('/')
         def index():
@@ -73,7 +73,7 @@ class App:
 
             return flask.Response('Credentials have been stored.', mimetype='text/plain')
 
-        self.app.register_blueprint(self.notion_blueprint)
+        # self.app.register_blueprint(self.notion_blueprint)
             
     def run(self, host: str='localhost', port: int=8080, debug: bool=True):
         self.app.run(host=host, port=port, debug=debug)

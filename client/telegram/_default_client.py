@@ -15,6 +15,8 @@ from urllib.parse import quote
 from pkg.google_task_api.client import Client as GoogleTaskClient, Task
 from pkg.google_task_api.authorization_client import Authorization_client
 
+from asgiref.sync import sync_to_async
+
 # from pkg.reminder.task_queues import queue_task
 
 
@@ -241,13 +243,14 @@ class DefaultClient:
     def get_notion_authorization_url(self, chat_id: int) -> str:
         return self.NOTION_AUTH_URL
     
-    def get_google_authorization_url(self, chat_id: int) -> str:
-        url =  self.authorization_client.get_auth_url(chat_id)
-        print(url)
+    async def get_google_authorization_url(self, chat_id: int) -> str:
+        url =  await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
     
     def check_notion_authorization(self, chat_id: int) -> bool:
         return False
     
-    def check_google_authorization(self, chat_id: int) -> bool:
-        return False
+    async def check_google_authorization(self, chat_id: int) -> bool:
+        
+        credential = await sync_to_async(self.authorization_client.get_credentials)(chat_id)
+        return credential is not None

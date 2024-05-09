@@ -119,8 +119,8 @@ class Telebot:
 
         async def google_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             
-            url = await sync_to_async(self.client.get_google_authorization_url)(update.effective_chat.id)
-            is_authorized = self.client.check_google_authorization(update.effective_chat.id)
+            url = await self.client.get_google_authorization_url(update.effective_chat.id)
+            is_authorized = await self.client.check_google_authorization(update.effective_chat.id)
 
             reply_markup = None
 
