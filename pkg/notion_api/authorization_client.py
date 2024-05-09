@@ -31,5 +31,8 @@ class Authorization_client:
         return authorization_url
 
     # load the credentials from the database
-    def get_credentials(self, chat_id: int):
-        pass
+    def get_credentials(self, chat_id: int) -> str | None:
+        authz = Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value)
+        if authz:
+            return authz.token
+        return None
