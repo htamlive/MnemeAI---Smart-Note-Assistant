@@ -39,7 +39,6 @@ class DefaultClient:
         self.google_task_client = GoogleTaskClient()
         self.authorization_client = Authorization_client()
 
-
     async def user_subscribe(self, chat_id):
         pass
 
@@ -194,7 +193,6 @@ class DefaultClient:
             )
             new_cele_task.save()
 
-
             url = f"{self.API_BASE_URL}sendMessage"
             # Setting up the Celery task
             send_notification.apply_async(
@@ -221,9 +219,8 @@ class DefaultClient:
         except Exception as e:
             print(e)
 
-    def get_total_reminder_pages(self, chat_id: int) -> int:
-        chat_id = 0
-        tasks = self.google_task_client.list_tasks(chat_id=chat_id)
+    async def get_total_reminder_pages(self, chat_id: int) -> int:
+        tasks = await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id)
         if tasks is None:
             return 0
         return len(tasks.items)
@@ -256,9 +253,8 @@ class DefaultClient:
     def get_notion_authorization_url(self, chat_id: int) -> str:
         return self.NOTION_AUTH_URL
 
-
     async def get_google_authorization_url(self, chat_id: int) -> str:
-        url =  await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
+        url = await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
 
     def check_notion_authorization(self, chat_id: int) -> bool:
@@ -266,5 +262,7 @@ class DefaultClient:
 
     async def check_google_authorization(self, chat_id: int) -> bool:
 
-        credential = await sync_to_async(self.authorization_client.get_credentials)(chat_id)
+        credential = await sync_to_async(self.authorization_client.get_credentials)(
+            chat_id
+        )
         return credential is not None
