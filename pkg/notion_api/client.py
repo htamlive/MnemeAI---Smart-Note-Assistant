@@ -52,7 +52,8 @@ class NotionClient:
         return headers
     
     def get_notes(self, resource_id: str) -> List[dict] | None:              
-        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=self.get_header(), json={
+        headers = self.get_header()
+        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "sorts": [
                 {
                 "property": "Last edited time",
@@ -103,7 +104,7 @@ class NotionClient:
                 }
             }
         }
-        resp = requests.post('https://api.notion.com/v1/pages', headers=self.get_header(), json=data)
+        resp = requests.post('https://api.notion.com/v1/pages', headers=headers, json=data)
         
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
         
