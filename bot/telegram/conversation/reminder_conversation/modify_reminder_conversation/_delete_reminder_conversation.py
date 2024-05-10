@@ -28,7 +28,7 @@ class DeleteReminderConversation(DeleteNoteConversation):
         keyboard = self.get_confirmation_keyboard(reminder_idx)
         await query.edit_message_text(text="Are you really sure you want to delete?", reply_markup=InlineKeyboardMarkup(keyboard))
 
-        return self.DELETE_NOTE
+        return self.DELETE_ITEM
     
     def get_option_keyboard(self, note_idx: int) -> list:
         return get_reminder_option_keyboard(note_idx)
@@ -52,4 +52,4 @@ class DeleteReminderConversation(DeleteNoteConversation):
             reminder_idx = query.data.split(PATTERN_DELIMITER)[1]
             await self.restore_item_content(query, reminder_idx)
 
-            return self.VIEW_NOTES
+            return self.VIEW_ITEMS

@@ -126,7 +126,7 @@ class DefaultClient:
         return await self.get_reminder_content(chat_id, page)
 
     async def delete_reminder(self, chat_id, page) -> str:
-        self.remove_task(chat_id, page)
+        return await self.remove_task(chat_id, page)
         return self.delete_note(chat_id, page)
 
     # def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
@@ -265,7 +265,7 @@ class DefaultClient:
         #     return "Task has been created but cannot be scheduled"
         return f"Reminder saved: {title}"
 
-    def remove_task(self, chat_id: int, idx: str) -> None:
+    async def remove_task(self, chat_id: int, idx: str) -> None:
         # try:
         #     client = self.google_task_client
         #     client.delete_task(

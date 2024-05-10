@@ -20,8 +20,8 @@ class DeleteNoteConversation(ModifyNoteConversation):
     def __init__(self, DELETE_NOTE: int, VIEW_NOTES, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
-        self.DELETE_NOTE = DELETE_NOTE
-        self.VIEW_NOTES = VIEW_NOTES
+        self.DELETE_ITEM = DELETE_NOTE
+        self.VIEW_ITEMS = VIEW_NOTES
         self._states = [CallbackQueryHandler(self.handle_confirmation)]
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -35,7 +35,7 @@ class DeleteNoteConversation(ModifyNoteConversation):
         await query.edit_message_text(text=current_text, reply_markup=InlineKeyboardMarkup(keyboard))
         await query.message.reply_text("Are you really sure you want to delete?\n""Becareful, this action is irreversible.")
 
-        return self.DELETE_NOTE
+        return self.DELETE_ITEM
 
 
     async def handle_confirmation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -54,7 +54,7 @@ class DeleteNoteConversation(ModifyNoteConversation):
             note_idx = query.data.split(PATTERN_DELIMITER)[1]
             await self.restore_item_content(query, note_idx)
 
-            return self.VIEW_NOTES
+            return self.VIEW_ITEMS
 
     async def client_delete(self, chat_id: int, idx: int) -> None:
         await self.client.delete_note(chat_id, idx)
