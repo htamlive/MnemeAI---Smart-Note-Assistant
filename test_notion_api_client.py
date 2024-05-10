@@ -12,6 +12,7 @@ if __name__ == '__main__':
     
     print(client.get_notes(ID, database_id))
     print(client.post_notes(ID, database_id, "Notion", "Knowledge Base"))
-    print(client.patch_notes(ID, database_id, 1, "Google Task", "Task manager"))
-    print(client.delete_notes(ID, database_id, 0))
-    print(client.delete_all_notes(ID, database_id))
+    # print(client.patch_notes(ID, database_id, 1, "Google Task", "Task manager"))
+    # print(client.delete_notes(ID, database_id, 0))
+    # print(client.delete_all_notes(ID, database_id))
+    print(client.query(ID, database_id, "What is a cow"))
