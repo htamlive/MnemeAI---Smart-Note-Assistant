@@ -55,7 +55,7 @@ class DefaultClient:
         """
 
         title = "Title"
-        duedate = datetime.datetime.now() + datetime.timedelta(seconds=30)
+        duedate = datetime.datetime.now() + datetime.timedelta(minutes=1)
         return await self.save_reminder(chat_id, title, remind_text, duedate)
 
     # ================= Note =================
@@ -107,10 +107,8 @@ class DefaultClient:
         reminder_indx = self._extract_reminder_idx(idx)
         client = self.google_task_client
         tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
-        if tasks is None:
-            return "No reminder found"
-        if len(tasks.items) <= reminder_indx:
-            return "Reminder not found"
+        if tasks is None or len(tasks.items) <= reminder_indx:
+            return "No reminder found in your Google Task list."
         title, description, time = (
             tasks.items[reminder_indx].title,
             tasks.items[reminder_indx].notes,
@@ -153,25 +151,29 @@ class DefaultClient:
         # Setting up the Celery task
         await sync_to_async(send_notification.apply_async)(
             args=(chat_id, result.id),
-            eta=due,
+            countdown = (due - datetime.datetime.now()).total_seconds(),
             expires=due + datetime.timedelta(minutes=5),
         )
         return f"Reminder saved: {title}"
 
     async def remove_task(self, chat_id: int, idx: str) -> None:
         client = self.google_task_client
-        client.delete_task(
+        tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
+        to_be_removed_task = None
+        if tasks.items is not None:
+            to_be_removed_task = tasks.items[int(idx) - 1]
+        if to_be_removed_task is None:
+            return
+        await sync_to_async(client.delete_task)(
             chat_id=chat_id,
-            task_id=idx,
+            task_id=to_be_removed_task.id,
         )
         # Cancel the Celery task
         reminder = await sync_to_async(ReminderCeleryTask.objects.filter)(
             chat_id=chat_id,
-            reminder_id=idx,
+            reminder_id=to_be_removed_task.id,
             completed=False,
         )
-        if not reminder:
-            return
         await sync_to_async(reminder.update)(state=ReminderCeleryTask.REVOKED)
 
     async def get_total_reminder_pages(self, chat_id: int) -> int:
