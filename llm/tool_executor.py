@@ -15,6 +15,15 @@ def add_note(title: str, content: str) -> str:
 def get_note(queries_str: str) -> List[str]:
     return ['Building a rocket', 'fighting a mummy', 'climbing up the Eiffel Tower']
 
+def return_item_idx(index: int) -> int:
+    return index
+
+def get_all_details_for_note(title: str, body: str) -> list[str]:
+    return [title, body]
+
+def get_all_details_for_task(title: str, body: str, datetime: str) -> list[str]:
+    return [title, body, datetime]
+
 # @traceable
 class ToolExecutor:
     def __init__(self):
@@ -22,7 +31,10 @@ class ToolExecutor:
             'create_task': create_task,
             'delete_task': delete_task,
             'add_note': add_note,
-            'get_note': get_note
+            'get_note': get_note,
+            'return_item_idx': return_item_idx,
+            'get_all_details_for_note': get_all_details_for_note,
+            'get_all_details_for_task': get_all_details_for_task
         }
 
     def execute_from_string(self, chat_id, raw_str) -> str:

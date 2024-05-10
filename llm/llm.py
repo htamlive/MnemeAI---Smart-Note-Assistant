@@ -30,6 +30,31 @@ class LLM:
     def load_tools_interface(self) -> str:
         with open("llm/tools_interface.py", "r") as f:
             return f.read()
+        
+    def extract_idx(self, idx_text) -> int | None:
+        prompt = "Extract the most appropriate index number from the current context, the output must be an integer: " + idx_text
+        response = self.execute_llm(0, prompt)
+        try:
+            return int(response)
+        except:
+            return None
+        
+    def extract_detail_reminder(self, remind_text) -> list[str] | None:
+        prompt = "Extract the title, description, and due date from the reminder, the output values should be 3 parts,separated by the commas: " + remind_text
+        response = self.execute_llm(0, prompt)
+        try:
+            return response.split("\n")
+        except:
+            return None
+        
+    def extract_detail_note(self, note_text) -> list[str] | None:
+        prompt = "Extract the title and description from the note, return in the format of list[str]: " + note_text
+        response = self.execute_llm(0, prompt)
+        try:
+            return response.split("\n")
+        except:
+            return None
+
     
     def execute_llm(self, chat_id, user_request: str) -> str | None:
         def final_message_parser(ai_message: AIMessage) -> str:
