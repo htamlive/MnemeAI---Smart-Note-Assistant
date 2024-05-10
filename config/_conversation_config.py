@@ -31,3 +31,5 @@ class Patterns(Enum):
     DELETE_REMINDER = "delete_reminder" + PATTERN_DELIMITER
     CONFIRM_DELETE_NOTE = "confirm_delete_note" + PATTERN_DELIMITER
     CANCEL_DELETE_NOTE = "cancel_delete_note" + PATTERN_DELIMITER
+    CONFIRM_DELETE_REMINDER = "confirm_delete_reminder" + PATTERN_DELIMITER
+    CANCEL_DELETE_REMINDER = "cancel_delete_reminder" + PATTERN_DELIMITER
