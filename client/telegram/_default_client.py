@@ -22,6 +22,7 @@ import datetime
 
 from llm.llm import LLM
 
+
 class DefaultClient:
     def __init__(self) -> None:
         import dotenv
@@ -129,85 +130,19 @@ class DefaultClient:
         self.remove_task(chat_id, page)
         return self.delete_note(chat_id, page)
 
-    # def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
-    #     reminder, has_created = Reminder.objects.get_or_create(chat_id=chat_id, id=idx)
-    #     if has_created:
-    #         reminder.updated_at = timezone.now()
-    #     reminder.save()
-
-    #     return reminder
-
-    # async def save_reminder_title(self, chat_id: str, idx: int, title_text: str) -> str:
-    #     reminder = self._get_or_create_reminder(chat_id, idx)
-
-    #     client = GoogleTaskClient()
-    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
-    #     if task is None:
-    #         task = Task(chat_id=chat_id, id=id, title=title_text)
-    #     else:
-    #         task.title = title_text
-    #     client.insert_task(chat_id, task)
-
-    #     return f"Title saved: {title_text}"
-
-    # async def save_reminder_detail(
-    #     self, chat_id: str, idx: int, detail_text: str
-    # ) -> str:
-    #     reminder = self._get_or_create_reminder(chat_id, idx)
-
-    #     client = GoogleTaskClient()
-    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
-    #     if task is None:
-    #         task = Task(chat_id=chat_id, id=id, notes=detail_text)
-    #     else:
-    #         task.notes = detail_text
-    #     client.insert_task(chat_id, task)
-
-    #     return f"Detail saved: {detail_text}"
-
-    # async def save_reminder_time(self, chat_id: str, idx: int, time) -> str:
-    #     reminder = self._get_or_create_reminder(chat_id, idx)
-
-    #     client = GoogleTaskClient()
-    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
-    #     if task is None:
-    #         task = Task(chat_id=chat_id, id=id, due=time)
-    #     else:
-    #         task.due = time
-
-    #     # Schedule a task to celery here
-    #     # reminded_time is before 10 minutes
-    #     # reminded_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%fZ") - datetime.timedelta(minutes=10)
-    #     # queue_task.apply_async(args=(chat_id, idx), eta=reminded_time)
-
-    #     return f"Time edited: {time}"
-
     async def save_reminder(
         self, chat_id: int, title: str, details: str, due: datetime
     ) -> str:
         # Save the reminder by calling the Google Task API\
-        print(due.replace(tzinfo=timezone.utc).isoformat())
         task = Task(
             title=title,
             notes=details,
             due=due.replace(tzinfo=timezone.utc).isoformat(),
         )
-        result = await sync_to_async(self.google_task_client.insert_task)(
-            chat_id, task
-        )
-        print(result)
-        print(result.id)
+        result = await sync_to_async(self.google_task_client.insert_task)(chat_id, task)
         if result is None:
             return "Task cannot be created"
         # Inserting the Celery task
-        # new_cele_task = ReminderCeleryTask(
-        #     title=title,
-        #     description=details,
-        #     chat_id=chat_id,
-        #     id=result.id,
-        #     state=ReminderCeleryTask.PENDING,
-        # )
-        # print(new_cele_task.id)
         await sync_to_async(ReminderCeleryTask.objects.create)(
             title=title,
             description=details,
@@ -215,85 +150,34 @@ class DefaultClient:
             reminder_id=result.id,
             state=ReminderCeleryTask.PENDING,
         )
-        print("Here")
         # Setting up the Celery task
         await sync_to_async(send_notification.apply_async)(
             args=(chat_id, result.id),
-            countdown = 10,
+            eta=due,
             expires=due + datetime.timedelta(minutes=5),
         )
-        # try:
-        #     # Save the reminder by calling the Google Task API
-        #     task = Task(
-        #         title=title,
-        #         notes=details,
-        #         due=due.replace(tzinfo=timezone.utc).isoformat(),
-        #     )
-        #     result = await sync_to_async(self.google_task_client.insert_task)(
-        #         chat_id, task
-        #     )
-        #     print(result)
-        #     print(result.id)
-        #     if result is None:
-        #         return "Task cannot be created"
-        #     # Inserting the Celery task
-        #     # new_cele_task = ReminderCeleryTask(
-        #     #     title=title,
-        #     #     description=details,
-        #     #     chat_id=chat_id,
-        #     #     id=result.id,
-        #     #     state=ReminderCeleryTask.PENDING,
-        #     # )
-        #     # print(new_cele_task.id)
-        #     await sync_to_async(ReminderCeleryTask.objects.create)(
-        #         title=title,
-        #         description=details,
-        #         chat_id=chat_id,
-        #         reminder_id=result.id,
-        #         state=ReminderCeleryTask.PENDING,
-        #     )
-        #     print("Here")
-        #     url = f"{self.API_BASE_URL}sendMessage"
-        #     # Setting up the Celery task
-        #     send_notification.apply_async(
-        #         args=(url, chat_id, task.id),
-        #         eta=due,
-        #         expires=due + datetime.timedelta(minutes=5),
-        #     )
-        # except Exception as e:
-        #     print(e)
-        #     return "Task has been created but cannot be scheduled"
         return f"Reminder saved: {title}"
 
-    def remove_task(self, chat_id: int, idx: str) -> None:
-        # try:
-        #     client = self.google_task_client
-        #     client.delete_task(
-        #         chat_id=chat_id,
-        #         task_id=idx,
-        #     )
-        #     # Cancel the Celery task
-        #     cele_task = ReminderCeleryTask.objects.get(chat_id=chat_id, reminder_id=idx)
-        #     cele_task.revoke()
-        #     cele_task.save()
-        # except Exception as e:
-        #     print(e)
+    async def remove_task(self, chat_id: int, idx: str) -> None:
         client = self.google_task_client
         client.delete_task(
             chat_id=chat_id,
             task_id=idx,
         )
         # Cancel the Celery task
-        cele_task = ReminderCeleryTask.objects.get(chat_id=chat_id, reminder_id=idx)
-        cele_task.revoke()
-        cele_task.save()
+        reminder = await sync_to_async(ReminderCeleryTask.objects.filter)(
+            chat_id=chat_id,
+            reminder_id=idx,
+            completed=False,
+        )
+        if not reminder:
+            return
+        await sync_to_async(reminder.update)(state=ReminderCeleryTask.REVOKED)
 
     async def get_total_reminder_pages(self, chat_id: int) -> int:
         tasks = await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id)
         if tasks is None:
             return 0
-        print (tasks.items)
-        print (len(tasks.items))
         return len(tasks.items)
 
     # ================= Other =================

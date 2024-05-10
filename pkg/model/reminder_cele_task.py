@@ -7,7 +7,7 @@ class ReminderCeleryTask(models.Model):
 
     choices = [(REVOKED, "revoked"), (PENDING, "pending")]
 
-    chat_id = models.IntegerField()
+    chat_id = models.BigIntegerField()
     reminder_id = models.TextField()
     title = models.TextField(null=True)
     description = models.TextField(null=True)
@@ -15,7 +15,7 @@ class ReminderCeleryTask(models.Model):
     completed = models.BooleanField(default=False)
 
     def is_cancelled(self) -> bool:
-        return not self.completed and self.state == self._revoked
+        return not self.completed and self.state == self.REVOKED
 
     def mark_completed(self):
         if self.completed:
