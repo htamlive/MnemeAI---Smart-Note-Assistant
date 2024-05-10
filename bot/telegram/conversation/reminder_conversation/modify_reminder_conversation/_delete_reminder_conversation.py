@@ -5,6 +5,8 @@ from ...note_conversation.modify_note_conversation._delete_note_conversation imp
 from client import TelegramClient
 from telegram import Update, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+from config import Patterns, PATTERN_DELIMITER
+from telegram.ext import ConversationHandler
 
 from bot.telegram.ui_templates import get_reminder_option_keyboard, get_delete_reminder_confirmation_keyboard
 
@@ -33,3 +35,21 @@ class DeleteReminderConversation(DeleteNoteConversation):
     
     def get_confirmation_keyboard(self, note_idx: int) -> list:
         return get_delete_reminder_confirmation_keyboard(note_idx)
+    
+    async def handle_confirmation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        query: CallbackQuery = update.callback_query
+        await query.answer()
+
+        if query.data.startswith(Patterns.CONFIRM_DELETE_REMINDER.value):
+            chat_id = query.message.chat_id
+
+            reminder_idx = query.data.split(PATTERN_DELIMITER)[1]
+            await self.client_delete(chat_id, reminder_idx)
+            await self.on_finish_edit(update, context)
+
+            return ConversationHandler.END
+        elif query.data.startswith(Patterns.CANCEL_DELETE_REMINDER.value):
+            reminder_idx = query.data.split(PATTERN_DELIMITER)[1]
+            await self.restore_item_content(query, reminder_idx)
+
+            return self.VIEW_NOTES

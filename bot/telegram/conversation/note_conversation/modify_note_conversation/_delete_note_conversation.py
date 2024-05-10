@@ -52,14 +52,14 @@ class DeleteNoteConversation(ModifyNoteConversation):
             return ConversationHandler.END
         elif query.data.startswith(Patterns.CANCEL_DELETE_NOTE.value):
             note_idx = query.data.split(PATTERN_DELIMITER)[1]
-            await self.restore_note_content(query, note_idx)
+            await self.restore_item_content(query, note_idx)
 
             return self.VIEW_NOTES
 
     async def client_delete(self, chat_id: int, idx: int) -> None:
         await self.client.delete_note(chat_id, idx)
 
-    async def restore_note_content(self, query: CallbackQuery, note_idx: str) -> None:
+    async def restore_item_content(self, query: CallbackQuery, note_idx: str) -> None:
         chat_id = query.message.chat_id
         note_content = await self.client_get_content(chat_id, note_idx)
         keyboard = self.get_option_keyboard(note_idx)
