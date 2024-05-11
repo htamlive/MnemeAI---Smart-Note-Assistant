@@ -54,7 +54,7 @@ class NotePages:
 
         if not items:
             # edit message
-            await query.message.reply_text(
+            await update.message.reply_text(
                 text='There is no note yet',
                 reply_markup=None
             )
@@ -78,10 +78,10 @@ class NotePages:
             elif(count_items == 0):
                 text = 'There is no note yet'
 
-            message = await query.message.reply_text(
+            message = await update.message.reply_text(
                 text=text,
                 reply_markup=InlineKeyboardMarkup(keyboards)
-            )
+                )
 
 
         context.user_data['review_pages_message_id'] = message.message_id
