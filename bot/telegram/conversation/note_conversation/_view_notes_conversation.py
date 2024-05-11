@@ -7,7 +7,7 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, filters, CallbackQueryHandler
 )
 
-from config import NOTE_PAGE_CHAR
+from config import PAGE_DELIMITER, DETAIL_NOTE_CHAR, NOTE_PAGE_CHAR
 from ...telegram_pages import NotePages
 from client import TelegramClient
 
@@ -17,22 +17,22 @@ class ViewNotesConversation(CommandConversation):
     def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
-        self.VIEW_NOTES = VIEW_NOTES
+        self.VIEW_ITEMS = VIEW_NOTES
         self.EDIT_TITLE = EDIT_TITLE
         self.EDIT_DETAIL = EDIT_DETAIL
 
         self._states = [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_preview),
+            CallbackQueryHandler(self._preview_detail_callback, pattern=f'^{DETAIL_NOTE_CHAR}{PAGE_DELIMITER}'),
             ]
 
-        self.previewing_pages = self.init_reviewing_pages()
+        self.previewing_pages: NotePages = self.init_reviewing_pages()
 
     def add_preview_pages_callback(self, application) -> None:
-        application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#'))
+        application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}{PAGE_DELIMITER}'))
 
     def share_preview_page_callback(self) -> CallbackQueryHandler:
         # print(f'^{NOTE_PAGE_CHAR}#')
-        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#')
+        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}{PAGE_DELIMITER}')
 
     def init_reviewing_pages(self) -> NotePages:
         return NotePages(self.client)
@@ -43,12 +43,18 @@ class ViewNotesConversation(CommandConversation):
 
         await update.message.reply_text("Please send me the note index.")
 
-        return self.VIEW_NOTES
+        return self.VIEW_ITEMS
+    
+    async def view_note_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        query = update.callback_query
+        await query.answer()
+
+
 
     async def receive_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         received_text = update.message.text
         await self.handle_preview(update, context, received_text)
-        return self.VIEW_NOTES
+        return self.VIEW_ITEMS
         # return ConversationHandler.END
 
 
@@ -73,20 +79,26 @@ class ViewNotesConversation(CommandConversation):
     def get_option_keyboard(self, note_idx: str) -> list:
         return get_note_option_keyboard(note_idx)
 
-    async def handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_idx: str = None) -> None:
+    async def _handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_token: str | None = None) -> None:
         chat_id = update.message.chat_id
         try:
-            note_content = await self.client_get_content(chat_id, int(note_idx))
+            note_content = await self.client_get_content(chat_id, note_token)
         except Exception as e:
             note_content = str(e)
             await update.message.reply_text(note_content)
             return
 
-        await self.response_modifying_options(update, context, note_content, note_idx)
+        await self.response_modifying_options(update, context, note_content, note_token)
+
+    async def _preview_detail_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        query_data = update.callback_query.data
+        query = update.callback_query
+        note_token = query_data.split(PAGE_DELIMITER)[1]
+        await self._handle_preview(query, context, note_token)
 
 
 
-    def client_get_content(self, chat_id: int, idx: int) -> str:
+    def client_get_content(self, chat_id: int, idx: str | None) -> str:
 
         return self.client.get_note_content(chat_id, idx)
 

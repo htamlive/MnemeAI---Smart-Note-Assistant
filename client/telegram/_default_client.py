@@ -4,6 +4,7 @@ import os
 import dotenv
 
 # import datetime
+from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
 from telegram import Update
@@ -12,7 +13,7 @@ from test import pagination_test_data
 import requests
 from config import *
 from urllib.parse import quote
-from pkg.google_task_api.client import Client as GoogleTaskClient, Task
+from pkg.google_task_api.client import GoogleTaskClient as GoogleTaskClient, Task
 from pkg.google_task_api.authorization_client import Authorization_client
 
 from asgiref.sync import sync_to_async
@@ -47,16 +48,16 @@ class DefaultClient:
         pass
 
     async def save_note(self, chat_id, note_text) -> str:
-        return f"Note saved: {note_text}"
+        prompt = f"Add note: {note_text}"
+        return self.llm.execute_llm(chat_id, prompt)
 
     async def save_remind(self, chat_id, remind_text) -> str:
         """
         LLM in action
         """
 
-        title = "Title"
-        duedate = datetime.datetime.now() + datetime.timedelta(minutes=1)
-        return await self.save_reminder(chat_id, title, remind_text, duedate)
+        prompt = f"Add reminder: {remind_text}"
+        return self.llm.execute_llm(chat_id, prompt)
 
     # ================= Note =================
 
@@ -80,10 +81,10 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
 
-    def get_note_content(self, chat_id, note_idx_text) -> str:
+    def get_note_content(self, chat_id, note_token) -> str:
 
         # Remember to convert to 0-based index
-        note_idx = self.extract_note_idx(note_idx_text)
+        note_idx = self.extract_note_idx(note_token)
 
         title = pagination_test_data[note_idx]["title"]
         description = pagination_test_data[note_idx]["description"]
@@ -103,17 +104,22 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    async def get_reminder_content(self, chat_id, idx) -> str:
-        reminder_indx = self._extract_reminder_idx(idx)
+    async def get_reminder_content(self, chat_id, reminder_token) -> str:
         client = self.google_task_client
-        tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
-        if tasks is None or len(tasks.items) <= reminder_indx:
-            return "No reminder found in your Google Task list."
-        title, description, time = (
-            tasks.items[reminder_indx].title,
-            tasks.items[reminder_indx].notes,
-            tasks.items[reminder_indx].due,
-        )
+        task = await sync_to_async(client.get_task)(chat_id=chat_id, task_id=reminder_token)
+
+        title, description, time = task.title, task.notes, task.due
+
+
+        # reminder_indx = self._extract_reminder_idx(reminder_token)
+        # tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
+        # if tasks is None or len(tasks.items) <= reminder_indx:
+        #     return "No reminder found in your Google Task list."
+        # title, description, time = (
+        #     tasks.items[reminder_indx].title,
+        #     tasks.items[reminder_indx].notes,
+        #     tasks.items[reminder_indx].due,
+        # )
         # title = pagination_test_data[reminder_indx]["title"]
         # description = pagination_test_data[reminder_indx]["description"]
         # time = pagination_test_data[reminder_indx]["time"]
@@ -181,6 +187,9 @@ class DefaultClient:
         if tasks is None:
             return 0
         return len(tasks.items)
+    
+    async def get_note_page_content(self, chat_id, page_token) -> ListTask | None:
+        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
 
     # ================= Other =================
 

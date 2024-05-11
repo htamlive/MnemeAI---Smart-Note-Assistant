@@ -18,8 +18,11 @@ class Commands(Enum):
     PROMPTING = "ah"
 
 PATTERN_DELIMITER = "@"
+PAGE_DELIMITER = "#"
 REMINDER_PAGE_CHAR = "r"
 NOTE_PAGE_CHAR = "n"
+DETAIL_NOTE_CHAR = "dn"
+DETAIL_REMINDER_CHAR = "dr"
 
 class Patterns(Enum):
     EDIT_NOTE_TITLE = "edit_note_title" + PATTERN_DELIMITER

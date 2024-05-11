@@ -3,5 +3,6 @@ __all__ = [
     'ReminderPages'
 ]
 
-from ._note_pages import NotePages
-from ._reminder_pages import ReminderPages
+# from ._note_pages import NotePages
+from ._note_pages_v2 import NotePages
+from ._reminder_pages_v2 import ReminderPages

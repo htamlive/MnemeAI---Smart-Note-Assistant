@@ -38,22 +38,6 @@ class LLM:
             return int(response)
         except:
             return None
-        
-    def extract_detail_reminder(self, remind_text) -> list[str] | None:
-        prompt = "Extract the title, description, and due date from the reminder, the output values should be 3 parts,separated by the commas: " + remind_text
-        response = self.execute_llm(0, prompt)
-        try:
-            return response.split("\n")
-        except:
-            return None
-        
-    def extract_detail_note(self, note_text) -> list[str] | None:
-        prompt = "Extract the title and description from the note, return in the format of list[str]: " + note_text
-        response = self.execute_llm(0, prompt)
-        try:
-            return response.split("\n")
-        except:
-            return None
 
     
     def execute_llm(self, chat_id, user_request: str) -> str | None:

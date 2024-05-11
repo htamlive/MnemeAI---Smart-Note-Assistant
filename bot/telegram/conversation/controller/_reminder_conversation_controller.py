@@ -69,4 +69,4 @@ class ReminderConversationController(ConversationController):
         ] + self.get_callbacks()
     
     def share_preview_page_callback(self, application) -> None:
-        application.add_handler(CallbackQueryHandler(self.factory[VIEW_REMINDERS].previewing_pages.preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}#'))
+        application.add_handler(CallbackQueryHandler(self.factory[VIEW_REMINDERS].previewing_pages._preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}#'))

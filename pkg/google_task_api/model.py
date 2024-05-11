@@ -26,3 +26,4 @@ class ListTask:
     etag: str
     items: List[Task]
     nextPageToken: Optional[str]
+

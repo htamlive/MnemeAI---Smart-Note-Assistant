@@ -11,22 +11,21 @@ from .utils import decode_json_base64
 from .authorization_client import Authorization_client
 from .model import ListTask, Task
 
-SCOPES = ['https://www.googleapis.com/auth/tasks']
-API_SERVICE_NAME = 'tasks'
-API_VERSION = 'v1'
 
-
-
-class Client:
+class GoogleTaskClient:
     def __init__(self):
         self.authorization_client = Authorization_client()
+        self.SCOPES = ['https://www.googleapis.com/auth/tasks']
+        self.API_SERVICE_NAME = 'tasks'
+        self.API_VERSION = 'v1'
+
 
     def build_service(self, chat_id: int):
         credentials = self.authorization_client.get_credentials(chat_id)
         if not credentials:
             return None
         
-        service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+        service = googleapiclient.discovery.build(self.API_SERVICE_NAME, self.API_VERSION, credentials=credentials)
         return service
     
     def list_tasks(
