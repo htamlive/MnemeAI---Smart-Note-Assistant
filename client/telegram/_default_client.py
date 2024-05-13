@@ -109,7 +109,9 @@ class DefaultClient:
 
         title, description, time = task.title, task.notes, task.due
 
-        html_render = f"<b>YOUR REMINDERS:</b>\n\n\n<b><i>{title}</i></b>\n{time}\n\n{description}"
+        html_render = f"<b>📌 YOUR REMINDERS:</b>\n✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦\n\n<b>🔹 <i>{title}</i></b>\n\n📝\n{description}"
+
+        html_render = html_render.replace("Due time", "⏰\nDue time")
         return html_render
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'
 
@@ -148,22 +150,16 @@ class DefaultClient:
         )
         return f"Reminder saved: {title}"
 
-    async def remove_task(self, chat_id: int, idx: str) -> None:
+    async def remove_task(self, chat_id: int, token: str) -> None:
         client = self.google_task_client
-        tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
-        to_be_removed_task = None
-        if tasks.items is not None:
-            to_be_removed_task = tasks.items[int(idx) - 1]
-        if to_be_removed_task is None:
-            return
         await sync_to_async(client.delete_task)(
             chat_id=chat_id,
-            task_id=to_be_removed_task.id,
+            task_id=token,
         )
         # Cancel the Celery task
         reminder = await sync_to_async(ReminderCeleryTask.objects.filter)(
             chat_id=chat_id,
-            reminder_id=to_be_removed_task.id,
+            reminder_id=token,
             completed=False,
         )
         await sync_to_async(reminder.update)(state=ReminderCeleryTask.REVOKED)

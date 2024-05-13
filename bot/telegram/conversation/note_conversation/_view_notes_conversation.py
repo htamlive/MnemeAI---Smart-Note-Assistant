@@ -1,10 +1,9 @@
 from .._command_conversation import CommandConversation
-from telegram.ext import MessageHandler
 from telegram import (
-    Update, InlineKeyboardButton, CallbackQuery, InlineKeyboardMarkup
+    Update, InlineKeyboardMarkup
 )
 from telegram.ext import (
-    ContextTypes, ConversationHandler, filters, CallbackQueryHandler
+    ContextTypes, CallbackQueryHandler
 )
 
 from config import PAGE_DELIMITER, DETAIL_NOTE_CHAR, NOTE_PAGE_CHAR
@@ -62,13 +61,14 @@ class ViewNotesConversation(CommandConversation):
         keyboard = self.get_option_keyboard(note_idx)
 
         if('prev_review_message' in context.user_data):
-                await context.bot.delete_message(
-                    chat_id=update.effective_chat.id,
-                    message_id=context.user_data['prev_review_message'][0]
-                )
+            await context.bot.delete_message(
+                chat_id=update.effective_chat.id,
+                message_id=context.user_data['prev_review_message'][0]
+            )
 
 
-        message = await update.message.reply_text(
+        query = update.callback_query
+        message = await query.message.reply_text(
             text=note_content,
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='HTML'
@@ -80,21 +80,23 @@ class ViewNotesConversation(CommandConversation):
         return get_note_option_keyboard(note_idx)
 
     async def _handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_token: str | None = None) -> None:
-        chat_id = update.message.chat_id
+        query = update.callback_query
+        await query.answer()
+        chat_id = query.message.chat_id
         try:
-            note_content = await self.client_get_content(chat_id, note_token)
+            content = await self.client_get_content(chat_id, note_token)
         except Exception as e:
-            note_content = str(e)
-            await update.message.reply_text(note_content)
+            content = str(e)
+            await update.message.reply_text(content)
             return
 
-        await self.response_modifying_options(update, context, note_content, note_token)
+        await self.response_modifying_options(update, context, content, note_token)
 
     async def _preview_detail_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query_data = update.callback_query.data
-        query = update.callback_query
-        note_token = query_data.split(PAGE_DELIMITER)[1]
-        await self._handle_preview(query, context, note_token)
+        token = query_data.split(PAGE_DELIMITER)[1]
+        await self._handle_preview(update, context, token)
+
 
 
 

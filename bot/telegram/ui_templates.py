@@ -51,6 +51,7 @@ def get_reminder_option_keyboard(reminder_idx: str) -> list:
 
 
 def get_delete_note_confirmation_keyboard(note_idx: str) -> list:
+    print("note_idx", note_idx)
     keyboard = [
         [InlineKeyboardButton("Yes, delete it", callback_data=f'{Patterns.CONFIRM_DELETE_NOTE.value}{note_idx}')],
         [InlineKeyboardButton("No, go back", callback_data=f'{Patterns.CANCEL_DELETE_NOTE.value}{note_idx}')]
@@ -58,6 +59,7 @@ def get_delete_note_confirmation_keyboard(note_idx: str) -> list:
     return keyboard
 
 def get_delete_reminder_confirmation_keyboard(reminder_idx: str) -> list:
+    print("reminder_idx", reminder_idx)
     keyboard = [
         [InlineKeyboardButton("Yes, delete it", callback_data=f'{Patterns.CONFIRM_DELETE_REMINDER.value}{reminder_idx}')],
         [InlineKeyboardButton("No, go back", callback_data=f'{Patterns.CANCEL_DELETE_REMINDER.value}{reminder_idx}')]

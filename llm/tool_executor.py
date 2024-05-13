@@ -13,7 +13,10 @@ from asgiref.sync import sync_to_async
 # Define mock functions
 async def create_task(chat_id: int, title: str, body: str, due) -> str:
     # Save the reminder by calling the Google Task API
+
+    
     map_datetime = datetime.strptime(due, "%Y-%m-%d %H:%M")
+    body += map_datetime.strftime("\n\nDue time: %H:%M %A %d %B %Y")
     task = Task(
         title=title,
         notes=body,

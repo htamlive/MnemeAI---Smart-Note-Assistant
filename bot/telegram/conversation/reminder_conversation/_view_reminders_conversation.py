@@ -35,7 +35,7 @@ class ViewRemindersConversation(ViewNotesConversation):
     def share_preview_page_callback(self) -> CallbackQueryHandler:
         return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
 
-    async def client_get_content(self, chat_id: int, idx: int) -> str:
-        return await self.client.get_reminder_content(chat_id, idx)
+    async def client_get_content(self, chat_id: int, token: str) -> str:
+        return await self.client.get_reminder_content(chat_id, token)
 
 

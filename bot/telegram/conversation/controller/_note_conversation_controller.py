@@ -32,7 +32,7 @@ class NoteConversationController(ConversationController):
         return [
             CommandHandler(Commands.NOTE.value, self.factory[NOTE_TEXT].start_conversation),
             CommandHandler(Commands.VIEW_NOTES.value, self.factory[VIEW_NOTES].start_conversation),
-        ] + self.get_callbacks()
+        ] + self.get_callbacks() + self.factory[VIEW_NOTES].states
     
 
     def get_states_dict(self, command_handler) -> dict:

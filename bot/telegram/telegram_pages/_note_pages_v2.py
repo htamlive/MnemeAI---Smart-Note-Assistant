@@ -52,7 +52,7 @@ class NotePages:
 
         if not items:
             # edit message
-            await update.message.reply_text(
+            message = await update.message.reply_text(
                 text='There is no note yet',
                 reply_markup=None
             )

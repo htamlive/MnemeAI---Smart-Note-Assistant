@@ -6,9 +6,12 @@ from ..reminder_conversation.modify_reminder_conversation import EditReminderDet
 from ..note_conversation.modify_note_conversation import ModifyNoteConversation
 from ..reminder_conversation._view_reminders_conversation import ViewRemindersConversation
 from ..reminder_conversation._remind_conversation import RemindConversation
+from ...telegram_pages import ReminderPages
 
-from config import Commands, REMINDER_PAGE_CHAR
+from config import Commands, REMINDER_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR
 from telegram.ext import CommandHandler
+
+
 
 class ReminderConversationController(ConversationController):
     def __init__(self, client) -> None:
@@ -66,7 +69,8 @@ class ReminderConversationController(ConversationController):
         return [
             CommandHandler(Commands.REMINDER.value, self.factory[REMIND_TEXT].start_conversation),
             CommandHandler(Commands.VIEW_REMINDERS.value, self.factory[VIEW_REMINDERS].start_conversation),
-        ] + self.get_callbacks()
+        ] + self.get_callbacks() + self.factory[VIEW_REMINDERS].states
     
     def share_preview_page_callback(self, application) -> None:
-        application.add_handler(CallbackQueryHandler(self.factory[VIEW_REMINDERS].previewing_pages._preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}#'))
+        previewing_pages: ReminderPages = self.factory[VIEW_REMINDERS].previewing_pages
+        application.add_handler(CallbackQueryHandler(previewing_pages._preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}'))
