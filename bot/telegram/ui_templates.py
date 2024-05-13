@@ -37,13 +37,13 @@ def get_note_option_keyboard(note_idx: str) -> list:
     ]
     return keyboard
 
-def get_reminder_option_keyboard(reminder_idx: str) -> list:
+def get_reminder_option_keyboard(reminder_token: str) -> list:
     keyboard = [
         [
-            InlineKeyboardButton('Edit Title', callback_data=f'{Patterns.EDIT_REMINDER_TITLE.value}{reminder_idx}'),
-            InlineKeyboardButton('Edit Detail', callback_data=f'{Patterns.EDIT_REMINDER_DETAIL.value}{reminder_idx}'),
-            InlineKeyboardButton('Edit Time', callback_data=f'{Patterns.EDIT_REMINDER_TIME.value}{reminder_idx}'),
-            InlineKeyboardButton('Delete', callback_data=f'{Patterns.DELETE_REMINDER.value}{reminder_idx}')
+            InlineKeyboardButton('Edit Title', callback_data=f'{Patterns.EDIT_REMINDER_TITLE.value}{reminder_token}'),
+            InlineKeyboardButton('Edit Detail', callback_data=f'{Patterns.EDIT_REMINDER_DETAIL.value}{reminder_token}'),
+            InlineKeyboardButton('Edit Time', callback_data=f'{Patterns.EDIT_REMINDER_TIME.value}{reminder_token}'),
+            InlineKeyboardButton('Delete', callback_data=f'{Patterns.DELETE_REMINDER.value}{reminder_token}')
         ],
         [InlineKeyboardButton('Back', callback_data='back')]
     ]

@@ -13,6 +13,9 @@ import config.config as config
 import llm.prompt_template as prompt_template
 from .tool_executor import ToolExecutor
 
+from .models import UserData
+
+
 class LLM:
     def __init__(self, model="gpt-3.5-turbo"):
         self.model = ChatOpenAI(model=model, api_key=config.OPENAI_API_KEY)
@@ -33,7 +36,7 @@ class LLM:
 
 
     
-    async def execute_llm(self, chat_id, user_request: str) -> str | None:
+    async def execute_llm(self, user_data: UserData, user_request: str) -> str | None:
         def final_message_parser(ai_message: AIMessage) -> str:
             return ai_message.content
         
@@ -42,7 +45,7 @@ class LLM:
             try:
                 chain_1 = self.prompt_template_1 | self.model
                 response_1: AIMessage = chain_1.invoke({"tools": self.tools_interface, "request": user_request, "datetime": self.get_current_datetime()})
-                tool_response = await self.tool_executor.execute_from_string(chat_id, response_1.content)
+                tool_response = await self.tool_executor.execute_from_string(user_data, response_1.content)
 
                 chain_2 = self.prompt_template_2 | self.model | final_message_parser
                 response_2: str = chain_2.invoke({"ai_message": response_1.content, "result": tool_response, "tools": self.tools_interface, "request": user_request, "datetime": self.get_current_datetime()})

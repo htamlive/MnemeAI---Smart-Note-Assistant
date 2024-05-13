@@ -87,7 +87,7 @@ class ViewNotesConversation(CommandConversation):
             content = await self.client_get_content(chat_id, note_token)
         except Exception as e:
             content = str(e)
-            await update.message.reply_text(content)
+            await query.message.reply_text(content)
             return
 
         await self.response_modifying_options(update, context, content, note_token)
