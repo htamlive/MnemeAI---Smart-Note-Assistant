@@ -1,5 +1,4 @@
-from datetime import timezone
-import datetime
+from datetime import timezone, datetime, timedelta
 import re
 import ast
 from typing import List
@@ -9,9 +8,10 @@ from pkg.google_task_api.model import Task
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 from pkg.msg_brokers.celery import send_notification
 
+from asgiref.sync import sync_to_async
 
 # Define mock functions
-def create_task(chat_id: int, title: str, body: str, due) -> str:
+async def create_task(chat_id: int, title: str, body: str, due) -> str:
     # Save the reminder by calling the Google Task API
     map_datetime = datetime.strptime(due, "%Y-%m-%d %H:%M")
     task = Task(
@@ -19,12 +19,14 @@ def create_task(chat_id: int, title: str, body: str, due) -> str:
         notes=body,
         due=map_datetime.replace(tzinfo=timezone.utc).isoformat(),
     )
+    # print("Task:", task)
+
     google_task_client = GoogleTaskClient()
-    result = google_task_client.insert_task(chat_id, task)
+    result = await sync_to_async(google_task_client.insert_task)(chat_id, task)
     if result is None:
         return "Task cannot be created"
     # Inserting the Celery task
-    ReminderCeleryTask.objects.create(
+    await sync_to_async(ReminderCeleryTask.objects.create)(
         title=title,
         description=body,
         chat_id=chat_id,
@@ -35,12 +37,12 @@ def create_task(chat_id: int, title: str, body: str, due) -> str:
     send_notification.apply_async(
         args=(chat_id, result.id),
         countdown=(map_datetime - datetime.now()).total_seconds(),
-        expires=map_datetime + datetime.timedelta(minutes=5),
+        expires=map_datetime + timedelta(minutes=5),
     )
     return f"Created task: {title}, Body: {body}, Due: {datetime}"
 
 
-def delete_task(chat_id: int, task_name: str) -> str:
+async def delete_task(chat_id: int, task_name: str) -> str:
     client = GoogleTaskClient()
     tasks = client.list_tasks(chat_id=chat_id)
     to_be_removed_task = None
@@ -66,25 +68,25 @@ def delete_task(chat_id: int, task_name: str) -> str:
     return f"Deleted task: {task_name}"
 
 
-def add_note(chat_id: int, title: str, content: str) -> str:
+async def add_note(chat_id: int, title: str, content: str) -> str:
     return f"Added note: {title}, Note: {content}"
 
 
-def get_note(chat_id: int, queries_str: str) -> List[str]:
+async def get_note(chat_id: int, queries_str: str) -> List[str]:
     return ["Building a rocket", "fighting a mummy", "climbing up the Eiffel Tower"]
 
 
 # @traceable
 class ToolExecutor:
     def __init__(self):
-        self.function_map = {
+        self.function_map: dict[str, callable] = {
             "create_task": create_task,
             "delete_task": delete_task,
             "add_note": add_note,
             "get_note": get_note,
         }
 
-    def execute_from_string(self, chat_id, raw_str) -> str:
+    async def execute_from_string(self, chat_id, raw_str) -> str:
         # Extract function call string using regular expression
         function_call_match = re.search(r"(\w+)\((.*?)\)", raw_str)
 
@@ -108,7 +110,7 @@ class ToolExecutor:
             # Check if function exists
             if function_name in self.function_map:
                 # Execute the function call
-                return self.function_map[function_name](*arguments)
+                return await self.function_map[function_name](*arguments)
             else:
                 return f"Error: Function '{function_name}' not found."
         else:

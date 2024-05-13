@@ -25,7 +25,7 @@ class NotePages:
         await self.show_preview_page(update, context)
 
     
-    def client_get_page_content(self, chat_id, page_token):
+    def _client_get_page_content(self, chat_id, page_token):
         return self.client.get_note_page_content(chat_id, page_token)
 
     def client_get_content(self, chat_id, note_idx) -> str:
@@ -35,9 +35,7 @@ class NotePages:
         return await self.client.get_total_note_pages(chat_id)        
     
     def check_match_pattern(self, query: CallbackQuery) -> bool:
-        exp = NOTE_PAGE_CHAR + r'#(\d+)'
-
-        return re.match(exp, query.data)
+        return query.data.startswith(f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}')
 
     async def _preview_page_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query
@@ -48,7 +46,7 @@ class NotePages:
 
     async def show_preview_page(self, update: Update, context: ContextTypes.DEFAULT_TYPE, cur_page_token: str | None = None) -> None:
         chat_id = update.effective_chat.id
-        page_content: ListTask | None = await self.client_get_page_content(chat_id, cur_page_token)
+        page_content: ListTask | None = await self._client_get_page_content(chat_id, cur_page_token)
 
         items: List[Task] = page_content['items']
 

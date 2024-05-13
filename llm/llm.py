@@ -30,26 +30,19 @@ class LLM:
     def load_tools_interface(self) -> str:
         with open("llm/tools_interface.py", "r") as f:
             return f.read()
-        
-    def extract_idx(self, idx_text) -> int | None:
-        prompt = "Extract the most appropriate index number from the current context, the output must be an integer: " + idx_text
-        response = self.execute_llm(0, prompt)
-        try:
-            return int(response)
-        except:
-            return None
+
 
     
-    def execute_llm(self, chat_id, user_request: str) -> str | None:
+    async def execute_llm(self, chat_id, user_request: str) -> str | None:
         def final_message_parser(ai_message: AIMessage) -> str:
             return ai_message.content
         
         @chain
-        def custom_chain(user_request: str) -> str | None:
+        async def custom_chain(user_request: str) -> str | None:
             try:
                 chain_1 = self.prompt_template_1 | self.model
                 response_1: AIMessage = chain_1.invoke({"tools": self.tools_interface, "request": user_request, "datetime": self.get_current_datetime()})
-                tool_response = self.tool_executor.execute_from_string(chat_id, response_1.content)
+                tool_response = await self.tool_executor.execute_from_string(chat_id, response_1.content)
 
                 chain_2 = self.prompt_template_2 | self.model | final_message_parser
                 response_2: str = chain_2.invoke({"ai_message": response_1.content, "result": tool_response, "tools": self.tools_interface, "request": user_request, "datetime": self.get_current_datetime()})
@@ -57,4 +50,4 @@ class LLM:
                 return response_2
             except Exception as e:
                 return f"Error: {str(e)}"
-        return custom_chain.invoke(user_request)
+        return await custom_chain.ainvoke(user_request)

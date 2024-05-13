@@ -11,6 +11,8 @@ from .utils import decode_json_base64
 from .authorization_client import Authorization_client
 from .model import ListTask, Task
 
+from config import MAX_RESULTS
+
 
 class GoogleTaskClient:
     def __init__(self):
@@ -35,7 +37,7 @@ class GoogleTaskClient:
             completed_min: str = None, 
             due_max: str = None,
             due_min: str = None,
-            max_results: int = None,
+            max_results: int = MAX_RESULTS,
             page_token: str = None,
             show_completed: bool = None,
             show_deleted: bool = None,

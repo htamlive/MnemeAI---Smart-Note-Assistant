@@ -10,7 +10,6 @@ from telegram.ext import CallbackContext
 from telegram import Update
 from pkg.msg_brokers.celery import send_notification
 from test import pagination_test_data
-import requests
 from config import *
 from urllib.parse import quote
 from pkg.google_task_api.client import GoogleTaskClient as GoogleTaskClient, Task
@@ -49,7 +48,7 @@ class DefaultClient:
 
     async def save_note(self, chat_id, note_text) -> str:
         prompt = f"Add note: {note_text}"
-        return self.llm.execute_llm(chat_id, prompt)
+        return await self.llm.execute_llm(chat_id, prompt)
 
     async def save_remind(self, chat_id, remind_text) -> str:
         """
@@ -57,7 +56,7 @@ class DefaultClient:
         """
 
         prompt = f"Add reminder: {remind_text}"
-        return self.llm.execute_llm(chat_id, prompt)
+        return await self.llm.execute_llm(chat_id, prompt)
 
     # ================= Note =================
 
@@ -110,25 +109,12 @@ class DefaultClient:
 
         title, description, time = task.title, task.notes, task.due
 
-
-        # reminder_indx = self._extract_reminder_idx(reminder_token)
-        # tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
-        # if tasks is None or len(tasks.items) <= reminder_indx:
-        #     return "No reminder found in your Google Task list."
-        # title, description, time = (
-        #     tasks.items[reminder_indx].title,
-        #     tasks.items[reminder_indx].notes,
-        #     tasks.items[reminder_indx].due,
-        # )
-        # title = pagination_test_data[reminder_indx]["title"]
-        # description = pagination_test_data[reminder_indx]["description"]
-        # time = pagination_test_data[reminder_indx]["time"]
         html_render = f"<b>YOUR REMINDERS:</b>\n\n\n<b><i>{title}</i></b>\n{time}\n\n{description}"
         return html_render
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'
 
-    async def get_reminder_content_at_page(self, chat_id, page) -> str:
-        return await self.get_reminder_content(chat_id, page)
+    async def get_reminder_content_at_page(self, chat_id, page_token) -> str:
+        return await self.get_reminder_content(chat_id, page_token)
 
     async def delete_reminder(self, chat_id, page) -> str:
         return await self.remove_task(chat_id, page)
@@ -201,7 +187,7 @@ class DefaultClient:
 
         # print(response)
 
-        return self.llm.execute_llm(chat_id, prompt_text), END
+        return await self.llm.execute_llm(chat_id, prompt_text), END
 
         # return response["result"]["response_text"], response["result"]["next_state"]
 
