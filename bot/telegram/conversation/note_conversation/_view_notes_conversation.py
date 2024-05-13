@@ -19,12 +19,13 @@ class ViewNotesConversation(CommandConversation):
         self.VIEW_ITEMS = VIEW_NOTES
         self.EDIT_TITLE = EDIT_TITLE
         self.EDIT_DETAIL = EDIT_DETAIL
+        self.previewing_pages: NotePages = self.init_reviewing_pages()
 
         self._states = [
             CallbackQueryHandler(self._preview_detail_callback, pattern=f'^{DETAIL_NOTE_CHAR}{PAGE_DELIMITER}'),
+            CallbackQueryHandler(self.previewing_pages._preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}{PAGE_DELIMITER}')
             ]
 
-        self.previewing_pages: NotePages = self.init_reviewing_pages()
 
     def add_preview_pages_callback(self, application) -> None:
         application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}{PAGE_DELIMITER}'))

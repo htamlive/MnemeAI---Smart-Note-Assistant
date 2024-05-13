@@ -40,6 +40,7 @@ class NotePages:
     async def _preview_page_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query
         await query.answer()
+        print('preview page callback')
         if self.check_match_pattern(query):
             page_token = query.data.split(PAGE_DELIMITER)[1]
             await self.show_preview_page(query, context, page_token)

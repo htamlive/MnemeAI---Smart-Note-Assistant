@@ -19,6 +19,7 @@ class ViewRemindersConversation(ViewNotesConversation):
 
         self._states = [
             CallbackQueryHandler(self._preview_detail_callback, pattern=f'^{DETAIL_REMINDER_CHAR}{PAGE_DELIMITER}'),
+            CallbackQueryHandler(self.previewing_pages._preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
             ]
         
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

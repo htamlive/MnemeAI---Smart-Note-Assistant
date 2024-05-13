@@ -1,7 +1,7 @@
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR
+from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR
 
 def create_preview_pages(num_pages: int, page_idx: int, pattern = NOTE_PAGE_CHAR + '#{page}') -> InlineKeyboardPaginator:
     return InlineKeyboardPaginator(
@@ -79,5 +79,34 @@ def create_review_reminder_json(chat_id: int, reminder_text: str, reminder_idx: 
         'chat_id': chat_id,
         'text': reminder_text,
         'reply_markup': InlineKeyboardMarkup(get_reminder_option_keyboard(reminder_idx)),
+        'parse_mode': 'HTML'
+    }
+
+def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_page_token: str, cur_page_token: str | None = None) -> dict:
+    keyboards = []
+    for title, token in zip(titles, reminder_tokens):
+        keyboards.append([InlineKeyboardButton(title, callback_data=f'{DETAIL_REMINDER_CHAR}{PAGE_DELIMITER}{token}')])
+    
+    if next_page_token:
+        keyboards.append([InlineKeyboardButton('Show more', callback_data=f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}{next_page_token}')])
+
+    count_items = len(titles)
+
+    text = 'Here are your reminders:\n'
+    if cur_page_token is None:
+        if count_items > 1:
+            text = 'Here are your reminders:\n'
+        elif count_items == 1:
+            text = 'Here is your reminder:\n'
+        elif count_items == 0:
+            text = 'There is no reminder yet'
+    else:
+        # show text for more reminders
+        text = 'Here are more of your reminders:\n'
+
+    return {
+        'chat_id': chat_id,
+        'text': text,
+        'reply_markup': InlineKeyboardMarkup(keyboards),
         'parse_mode': 'HTML'
     }

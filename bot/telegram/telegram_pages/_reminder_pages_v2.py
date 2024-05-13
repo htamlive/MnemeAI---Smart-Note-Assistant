@@ -4,7 +4,7 @@ from ._note_pages_v2 import NotePages
 
 from client import TelegramClient
 
-from bot.telegram.ui_templates import get_reminder_option_keyboard, create_preview_pages
+from bot.telegram.ui_templates import get_reminder_option_keyboard, show_reminders_list
 
 from telegram_bot_pagination import InlineKeyboardPaginator
 
@@ -30,7 +30,7 @@ class ReminderPages(NotePages):
     
     def check_match_pattern(self, query: CallbackQuery) -> bool:
 
-        return re.match(REMINDER_PAGE_CHAR + r'#(\d+)', query.data)
+        return query.data.startswith(f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
     
     def client_get_content(self, chat_id, note_idx) -> str:
         return self.client.get_reminder_content(chat_id, note_idx)
@@ -45,36 +45,25 @@ class ReminderPages(NotePages):
         items: List[Task] = page_content.items
 
         if not items:
-            # edit message
             await query.message.reply_text(
                 text='There is no reminder yet',
                 reply_markup=None
             )
         
         else:
-            keyboards = []
 
-            count_items = len(items)
-            for item in items:
-                keyboards.append([InlineKeyboardButton(item.title, callback_data=f'{DETAIL_REMINDER_CHAR}{PAGE_DELIMITER}{item.id}')])
-            
+            titles = [item.title for item in items]
+            tokens = [item.id for item in items]
             next_page_token = page_content.nextPageToken
-            if next_page_token:
-                keyboards.append([InlineKeyboardButton('Show more', callback_data=f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}{next_page_token}')])
 
-            text = 'Here are your reminders:\n'
-            if(count_items > 1):
-                text = 'Here are your reminders:\n'
-            elif(count_items == 1):
-                text = 'Here is your reminder:\n'
-            elif(count_items == 0):
-                text = 'There is no reminder yet'
+            result = show_reminders_list(chat_id=chat_id, titles=titles, reminder_tokens=tokens, next_page_token=next_page_token, cur_page_token=cur_page_token)
+
 
             message = await query.message.reply_text(
-                text=text,
-                reply_markup=InlineKeyboardMarkup(keyboards)
-                )
-
+                text=result['text'],
+                reply_markup=result['reply_markup'],
+                parse_mode='HTML'
+            )
 
             context.user_data['review_pages_message_id'] = message.message_id
     
