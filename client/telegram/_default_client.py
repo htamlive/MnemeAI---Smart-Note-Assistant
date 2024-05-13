@@ -27,7 +27,7 @@ import time
 # from pkg.reminder.task_queues import queue_task
 
 from llm.llm import LLM
-from llm import delete_task
+from llm._tools import save_task_title, save_task_detail, save_task_time, delete_task
 from llm.models import UserData
 
 import warnings
@@ -73,15 +73,11 @@ class DefaultClient:
 
     async def save_note(self, chat_id, note_text) -> str:
         prompt = f"Add note: {note_text}"
-        return await self.llm.execute_llm(UserData(chat_id=chat_id), prompt)
+        return await self.llm.execute_prompting(UserData(chat_id=chat_id), prompt)
 
     async def save_remind(self, chat_id, remind_text) -> str:
-        """
-        LLM in action
-        """
-
         prompt = f"Add reminder: {remind_text}"
-        return await self.llm.execute_llm(UserData(chat_id=chat_id), prompt)
+        return await self.llm.add_task(UserData(chat_id=chat_id), prompt)
 
     # ================= Note =================
 
@@ -115,6 +111,7 @@ class DefaultClient:
 
         return f"<b>YOUR NOTES</b>\n\n\n<b><i>{title}</i></b>\n\n{description}"
 
+    @deprecated
     def get_total_note_pages(self, chat_id: int) -> int:
         return len(pagination_test_data)
 
@@ -144,32 +141,26 @@ class DefaultClient:
         return html_render
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'
 
+    @deprecated
     async def get_reminder_content_at_page(self, chat_id, page_token) -> str:
         return await self.get_reminder_content(chat_id, page_token)
 
     async def delete_reminder(self, chat_id, token) -> str:
-        # return await self.remove_task(chat_id, token)
         return await delete_task(UserData(chat_id=chat_id, reminder_token=token), google_task_client=self.google_task_client)
     
     async def save_reminder_title(self, chat_id: int, reminder_token: str, title_text: str) -> str:
-        task : Task = await sync_to_async(self.google_task_client.get_task)(chat_id=chat_id, task_id=reminder_token)
-        task.title = title_text
-        await sync_to_async(self.google_task_client.update_task)(chat_id=chat_id, task_id=reminder_token, task=task)
-        return f"Title saved: {title_text}"
+        return await save_task_title(UserData(chat_id=chat_id, reminder_token=reminder_token), title_text, google_task_client=self.google_task_client)
     
     async def save_reminder_detail(self, chat_id: int, reminder_token: str, detail_text: str) -> str:
-        task : Task = await sync_to_async(self.google_task_client.get_task)(chat_id=chat_id, task_id=reminder_token)
-        task.notes = detail_text
-        await sync_to_async(self.google_task_client.update_task)(chat_id=chat_id, task_id=reminder_token, task=task)
-        return f"Detail saved: {detail_text}"
+        return await save_task_detail(UserData(chat_id=chat_id, reminder_token=reminder_token), detail_text, google_task_client=self.google_task_client)
 
-    async def save_reminder_time(self, chat_id: int, reminder_token: str, time: datetime) -> str:
-        task : Task = await sync_to_async(self.google_task_client.get_task)(chat_id=chat_id, task_id=reminder_token)
-        task.due = time.replace(tzinfo=timezone.utc).isoformat()
-        await sync_to_async(self.google_task_client.update_task)(chat_id=chat_id, task_id=reminder_token, task=task)
-        return f"Time saved: {time}"
+    async def save_reminder_time(self, chat_id: int, reminder_token: str, time_text: str) -> str:
+        return await save_task_time(UserData(chat_id=chat_id, reminder_token=reminder_token), time_text, google_task_client=self.google_task_client)
 
+    async def get_note_page_content(self, chat_id, page_token) -> ListTask | None:
+        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
 
+    @deprecated
     async def remove_task(self, chat_id: int, token: str) -> None:
         client = self.google_task_client
         await sync_to_async(client.delete_task)(
@@ -191,8 +182,6 @@ class DefaultClient:
             return 0
         return len(tasks.items)
     
-    async def get_note_page_content(self, chat_id, page_token) -> ListTask | None:
-        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
 
     # ================= Other =================
 
@@ -204,7 +193,7 @@ class DefaultClient:
 
         # print(response)
 
-        return await self.llm.execute_llm(UserData(chat_id=chat_id), prompt_text)
+        return await self.llm.execute_prompting(UserData(chat_id=chat_id), prompt_text)
 
         # return response["result"]["response_text"], response["result"]["next_state"]
 

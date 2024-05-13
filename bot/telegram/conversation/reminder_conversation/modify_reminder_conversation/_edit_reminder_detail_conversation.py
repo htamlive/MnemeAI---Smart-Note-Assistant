@@ -5,6 +5,6 @@ class EditReminderDetailConversation(EditNoteDetailConversation):
     def __init__(self, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(EDIT_DETAIL, client, debug)
 
-    async def client_save_detail(self, chat_id: int, token: str) -> str:
-        return await self.client.save_reminder_detail(chat_id, token)
+    async def client_save_detail(self, chat_id: int, token: str, detail_text: str) -> str:
+        return await self.client.save_reminder_detail(chat_id, token, detail_text)
     

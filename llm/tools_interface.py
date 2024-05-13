@@ -18,7 +18,7 @@ def get_note(queries_str: str) -> list[str]:
     ['', 'Do CS311 homework']
     """
     pass
-
+#
 def add_note(title: str, content: str) -> str:
     """
     Adds a note with a title and content.
@@ -34,7 +34,7 @@ def add_note(title: str, content: str) -> str:
     >>> add_note("Ideas", "Brainstorm project ideas")
     """
     pass
-
+#
 def create_task(title: str, body: str, datetime) -> str:
     """
     Creates a task with a title, body, and due datetime.
@@ -56,7 +56,61 @@ def create_task(title: str, body: str, datetime) -> str:
     >>> create_task("Finish report", "Review and submit by end of the week.", "2024-05-10 23:59")
     """
     pass
+#
+def save_task_detail(detail_text: str) -> str:
+    """
+    Saves the details or description of a task.
 
+    Args:
+    detail_text (str): The new details or description for the task.
+
+    Returns:
+    (str): A message indicating the details have been saved.
+
+    Notes:
+    - The system already knows the task to be updated based on the context.
+
+    Example:
+    >>> save_task_detail("Review and submit by end of the week.")
+    """
+    pass
+#
+def save_task_time(time: datetime) -> str:
+    """
+    Saves the due date and time of a task.
+
+    Args: 
+    time (datetime): The new due date and time for the task.
+
+    Returns:
+    (str): A message indicating the time has been saved.
+
+    Notes:
+    - The system already knows the task to be updated based on the context.
+
+    Example:
+    >>> save_task_time("2024-05-10 23:59")
+    """
+    pass
+#
+def save_task_title(title_text: str) -> str:
+    """
+    Saves the title of a task.
+
+    Args:
+    title_text (str): The new title for the task.
+
+    Returns:
+    (str): A message indicating the title has been saved.
+
+    Notes:
+    - The system already knows the task to be updated based on the context.
+
+    Example:
+    >>> save_task_title("Review report")
+    """
+    pass
+#
 def delete_task(task_name: str) -> str:
     """
     Deletes a task with the given name.

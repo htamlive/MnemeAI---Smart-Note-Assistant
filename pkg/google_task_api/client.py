@@ -71,6 +71,15 @@ class GoogleTaskClient:
         result = service.tasks().get(tasklist='@default', task=task_id).execute()
         return from_dict(data_class=Task, data=result)
     
+    def update_task(self, chat_id: int, task_id: str, task: Task) -> Task | None:
+
+        service = self.build_service(chat_id)
+        if not service:
+            return None
+
+        result = service.tasks().update(tasklist='@default', task=task_id, body=asdict(task)).execute()
+        return from_dict(data_class=Task, data=result)
+    
     def insert_task(self, chat_id: int, task: Task) -> Task | None:
         service = self.build_service(chat_id)
         if not service:

@@ -55,7 +55,8 @@ class ReminderConversationController(ConversationController):
                 EDIT_REMINDER_TIME:
                     [command_handler] 
                     + self.get_callbacks()
-                    + self.factory[EDIT_REMINDER_TIME].states          
+                    + self.factory[EDIT_REMINDER_TIME].states   
+                    + self.factory[VIEW_REMINDERS].states,       
             }
     
     def get_callbacks(self):
@@ -63,6 +64,7 @@ class ReminderConversationController(ConversationController):
             CallbackQueryHandler(self.factory[EDIT_REMINDER_TITLE].start_conversation, pattern=f'^{Patterns.EDIT_REMINDER_TITLE.value}'),
             CallbackQueryHandler(self.factory[EDIT_REMINDER_DETAIL].start_conversation, pattern=f'^{Patterns.EDIT_REMINDER_DETAIL.value}'),
             CallbackQueryHandler(self.factory[DELETE_REMINDER].start_conversation, pattern=f'^{Patterns.DELETE_REMINDER.value}'),
+            CallbackQueryHandler(self.factory[EDIT_REMINDER_TIME].start_conversation, pattern=f'^{Patterns.EDIT_REMINDER_TIME.value}'),
         ]
     
     def get_entry_points(self):
