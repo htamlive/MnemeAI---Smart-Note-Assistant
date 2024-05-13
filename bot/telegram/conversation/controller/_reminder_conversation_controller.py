@@ -2,7 +2,7 @@
 from ._conversation_controller import ConversationController
 from config import Patterns, EDIT_REMINDER_DETAIL, EDIT_REMINDER_TITLE, DELETE_REMINDER, VIEW_REMINDERS, REMIND_TEXT, EDIT_REMINDER_TIME
 from telegram.ext import CallbackQueryHandler
-from ..reminder_conversation.modify_reminder_conversation import EditReminderDetailConversation, EditReminderTitleConversation, DeleteReminderConversation
+from ..reminder_conversation.modify_reminder_conversation import EditReminderDetailConversation, EditReminderTitleConversation, DeleteReminderConversation, EditReminderTimeConversation
 from ..note_conversation.modify_note_conversation import ModifyNoteConversation
 from ..reminder_conversation._view_reminders_conversation import ViewRemindersConversation
 from ..reminder_conversation._remind_conversation import RemindConversation
@@ -23,7 +23,7 @@ class ReminderConversationController(ConversationController):
         self.factory[VIEW_REMINDERS] = ViewRemindersConversation(VIEW_REMINDERS, EDIT_REMINDER_TITLE, EDIT_REMINDER_DETAIL, self.client)
         self.factory[EDIT_REMINDER_DETAIL] = EditReminderDetailConversation(EDIT_DETAIL=EDIT_REMINDER_DETAIL, client=self.client)
         self.factory[EDIT_REMINDER_TITLE] = EditReminderTitleConversation(EDIT_TITLE=EDIT_REMINDER_TITLE, client=self.client)
-        self.factory[EDIT_REMINDER_TIME] = EditReminderDetailConversation(EDIT_DETAIL=EDIT_REMINDER_TIME, client=self.client)
+        self.factory[EDIT_REMINDER_TIME] = EditReminderTimeConversation(EDIT_REMINDER_TIME, client=self.client)
         self.factory[DELETE_REMINDER] = DeleteReminderConversation(DELETE_REMINDER,VIEW_REMINDERS=VIEW_REMINDERS, client=self.client)
 
     def get_states_dict(self, command_handler):

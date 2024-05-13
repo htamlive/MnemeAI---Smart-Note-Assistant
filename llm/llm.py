@@ -47,6 +47,10 @@ class LLM:
         # print("Function map:", function_map)
         # print("Tool interfaces:", tool_interfaces)
         return await self._llm_invoke(user_data, task_text, function_map, tool_interfaces)
+    
+    async def save_task_time(self, user_data: UserData, time_text: str) -> str | None:
+        function_map, tool_interfaces = self.tool_manager.get_tools([ToolType.SAVE_TASK_TIME])
+        return await self._llm_invoke(user_data, time_text, function_map, tool_interfaces)
 
     async def _llm_invoke(self, user_data: UserData, user_request: str, function_map: dict[str, callable], tool_interfaces: str) -> str:
         def final_message_parser(ai_message: AIMessage) -> str:

@@ -27,7 +27,7 @@ import time
 # from pkg.reminder.task_queues import queue_task
 
 from llm.llm import LLM
-from llm._tools import save_task_title, save_task_detail, save_task_time, delete_task
+from llm._tools import save_task_title, save_task_detail, delete_task
 from llm.models import UserData
 
 import warnings
@@ -155,7 +155,8 @@ class DefaultClient:
         return await save_task_detail(UserData(chat_id=chat_id, reminder_token=reminder_token), detail_text, google_task_client=self.google_task_client)
 
     async def save_reminder_time(self, chat_id: int, reminder_token: str, time_text: str) -> str:
-        return await save_task_time(UserData(chat_id=chat_id, reminder_token=reminder_token), time_text, google_task_client=self.google_task_client)
+        prompt = f"Set reminder time: {time_text}"
+        return await self.llm.save_task_time(UserData(chat_id=chat_id, reminder_token=reminder_token), prompt)
 
     async def get_note_page_content(self, chat_id, page_token) -> ListTask | None:
         return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 

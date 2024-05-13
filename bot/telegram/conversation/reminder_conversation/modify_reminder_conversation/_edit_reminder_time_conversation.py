@@ -29,7 +29,7 @@ class EditReminderTimeConversation(ModifyNoteConversation):
         time_text = update.message.text
         await self.handle_receive_time(update, context, time_text)
 
-        self.on_finish_edit(update, context)
+        await self.on_finish_edit(update, context)
 
         return ConversationHandler.END
     
