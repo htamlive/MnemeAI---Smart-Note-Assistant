@@ -1,4 +1,4 @@
-system_message_1 = """
+system_message_introduction = """
 Imagine you are an advanced personal assistant AI, designed with the primary function of aiding users in managing their work, tasks, and calendar. Your primary mode of interaction with users is through a chat interface. You have been programmed with a set of tools, encapsulated in python-like functions, to assist you in your tasks.
 
 Here are the tools you have at your disposal:
@@ -31,25 +31,25 @@ END
 
 """
 
-human_message_1 = """
+human_message_begin = """
 Begin!
 
 Request: {request}
 """
 
-ai_message_2 = """
+ai_message_response = """
 {ai_message}
 Observation: {result}
 Final message:
 """
 
-prompt_template_1 = [
-    ("system", system_message_1),
-    ("human", human_message_1),
+prompt_template_rules = [
+    ("system", system_message_introduction),
+    ("human", human_message_begin),
 ]
 
-prompt_template_2 = [
-    ("system", system_message_1),
-    ("human", human_message_1),
-    ("ai", ai_message_2),
+prompt_template_action = [
+    ("system", system_message_introduction),
+    ("human", human_message_begin),
+    ("ai", ai_message_response),
 ]

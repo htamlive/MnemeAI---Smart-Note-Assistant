@@ -23,8 +23,8 @@ class LLM:
         self.model = ChatOpenAI(model=model, api_key=config.OPENAI_API_KEY)
         self.model = self.model.bind(stop=["Observation:"])
         self.tool_executor = ToolExecutor()
-        self.prompt_template_1 = ChatPromptTemplate.from_messages(prompt_template.prompt_template_1)
-        self.prompt_template_2 = ChatPromptTemplate.from_messages(prompt_template.prompt_template_2)
+        self.prompt_template_1 = ChatPromptTemplate.from_messages(prompt_template.prompt_template_rules)
+        self.prompt_template_2 = ChatPromptTemplate.from_messages(prompt_template.prompt_template_action)
 
         self.tool_manager = ToolManager()
     
