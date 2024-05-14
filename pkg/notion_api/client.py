@@ -51,7 +51,7 @@ class NotionClient:
         assert len(resp.data) > 0
         return resp.data
         
-    def register_page_database(self, chat_id: int, page_id: str, title: str):
+    def register_page_database(self, chat_id: int, page_id: str, title: str = "New Database"):
         headers = self.get_header(chat_id)
         data = {
             "parent": { "page_id": page_id },
