@@ -1,26 +1,52 @@
 from datetime import datetime, timezone
+
+from django.utils import timezone as dj_timezone
+
 import os
 
 import dotenv
+import pytz
 
 # import datetime
+from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
 from telegram import Update
 from pkg.msg_brokers.celery import send_notification
 from test import pagination_test_data
-import requests
 from config import *
 from urllib.parse import quote
-from pkg.google_task_api.client import Client as GoogleTaskClient, Task
+from pkg.google_task_api.client import GoogleTaskClient as GoogleTaskClient, Task
 from pkg.google_task_api.authorization_client import Authorization_client
 from pkg.notion_api.client import NotionClient
 from asgiref.sync import sync_to_async
 import datetime
+import time
+
 
 # from pkg.reminder.task_queues import queue_task
 
 from llm.llm import LLM
+from llm._tools import save_task_title, save_task_detail, delete_task
+from llm.models import UserData
+
+import warnings
+import functools
+
+def deprecated(func):
+    """This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emitted
+    when the function is used."""
+    @functools.wraps(func)
+    def new_func(*args, **kwargs):
+        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
+        warnings.warn("Call to deprecated function {}.".format(func.__name__),
+                      category=DeprecationWarning,
+                      stacklevel=2)
+        warnings.simplefilter('default', DeprecationWarning)  # reset filter
+        return func(*args, **kwargs)
+    return new_func
+
 
 class DefaultClient:
     def __init__(self) -> None:
@@ -47,16 +73,12 @@ class DefaultClient:
         pass
 
     async def save_note(self, chat_id, note_text) -> str:
-        return f"Note saved: {note_text}"
+        prompt = f"Add note: {note_text}"
+        return await self.llm.execute_prompting(UserData(chat_id=chat_id), prompt)
 
     async def save_remind(self, chat_id, remind_text) -> str:
-        """
-        LLM in action
-        """
-
-        title = "Title"
-        duedate = datetime.datetime.now() + datetime.timedelta(seconds=30)
-        return await self.save_reminder(chat_id, title, remind_text, duedate)
+        prompt = f"Add reminder: {remind_text}"
+        return await self.llm.add_task(UserData(chat_id=chat_id), prompt)
 
     # ================= Note =================
 
@@ -90,21 +112,23 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
 
-    def get_note_content(self, chat_id, note_idx_text) -> str:
+    def get_note_content(self, chat_id, note_token) -> str:
 
         # Remember to convert to 0-based index
+        note_idx = self.extract_note_idx(note_idx_text)
 
         # title = pagination_test_data[note_idx]["title"]
         # description = pagination_test_data[note_idx]["description"]
         
         return self.notion_client.get_note_content(chat_id, note_idx_text)
 
+    @deprecated
     def get_total_note_pages(self, chat_id: int) -> int:
         data = self.notion_client.get_notes(chat_id)
         return len(data)
 
     # ================= Reminder/Task =================
-
+    @deprecated
     def _extract_reminder_idx(self, reminder_idx_text) -> int:
         """
         May use LLM to extract reminder index from text
@@ -113,199 +137,64 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    async def get_reminder_content(self, chat_id, idx) -> str:
-        reminder_indx = self._extract_reminder_idx(idx)
+    async def get_reminder_content(self, chat_id, reminder_token) -> str:
         client = self.google_task_client
-        tasks = await sync_to_async(client.list_tasks)(chat_id=chat_id)
-        if tasks is None:
-            return "No reminder found"
-        if len(tasks.items) <= reminder_indx:
-            return "Reminder not found"
-        title, description, time = (
-            tasks.items[reminder_indx].title,
-            tasks.items[reminder_indx].notes,
-            tasks.items[reminder_indx].due,
-        )
-        # title = pagination_test_data[reminder_indx]["title"]
-        # description = pagination_test_data[reminder_indx]["description"]
-        # time = pagination_test_data[reminder_indx]["time"]
-        html_render = f"<b>YOUR REMINDERS:</b>\n\n\n<b><i>{title}</i></b>\n{time}\n\n{description}"
+        task = await sync_to_async(client.get_task)(chat_id=chat_id, task_id=reminder_token)
+
+        reminder = await sync_to_async(ReminderCeleryTask.objects.get)(chat_id=chat_id, reminder_id=reminder_token)
+
+        # get time zone dynamically
+        due = dj_timezone.localtime(reminder.due).strftime("Due time: %H:%M %A %d %B %Y")
+
+        title, description = task.title, task.notes
+
+        html_render = f"<b>📌 YOUR REMINDERS:</b>\n✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦\n\n<b>🔹 <i>{title}</i></b>\n\n📝\n{description}\n\n⏰\n{due}"
+
         return html_render
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'
 
-    async def get_reminder_content_at_page(self, chat_id, page) -> str:
-        return await self.get_reminder_content(chat_id, page)
+    @deprecated
+    async def get_reminder_content_at_page(self, chat_id, page_token) -> str:
+        return await self.get_reminder_content(chat_id, page_token)
 
-    async def delete_reminder(self, chat_id, page) -> str:
-        self.remove_task(chat_id, page)
-        return self.delete_note(chat_id, page)
+    async def delete_reminder(self, chat_id, token) -> str:
+        return await delete_task(UserData(chat_id=chat_id, reminder_token=token), google_task_client=self.google_task_client)
+    
+    async def save_reminder_title(self, chat_id: int, reminder_token: str, title_text: str) -> str:
+        return await save_task_title(UserData(chat_id=chat_id, reminder_token=reminder_token), title_text, google_task_client=self.google_task_client)
+    
+    async def save_reminder_detail(self, chat_id: int, reminder_token: str, detail_text: str) -> str:
+        return await save_task_detail(UserData(chat_id=chat_id, reminder_token=reminder_token), detail_text, google_task_client=self.google_task_client)
 
-    # def _get_or_create_reminder(self, chat_id, idx) -> Reminder:
-    #     reminder, has_created = Reminder.objects.get_or_create(chat_id=chat_id, id=idx)
-    #     if has_created:
-    #         reminder.updated_at = timezone.now()
-    #     reminder.save()
+    async def save_reminder_time(self, chat_id: int, reminder_token: str, time_text: str) -> str:
+        prompt = f"Set reminder time: {time_text}"
+        return await self.llm.save_task_time(UserData(chat_id=chat_id, reminder_token=reminder_token), prompt)
 
-    #     return reminder
+    async def get_note_page_content(self, chat_id, page_token) -> ListTask | None:
+        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
 
-    # async def save_reminder_title(self, chat_id: str, idx: int, title_text: str) -> str:
-    #     reminder = self._get_or_create_reminder(chat_id, idx)
-
-    #     client = GoogleTaskClient()
-    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
-    #     if task is None:
-    #         task = Task(chat_id=chat_id, id=id, title=title_text)
-    #     else:
-    #         task.title = title_text
-    #     client.insert_task(chat_id, task)
-
-    #     return f"Title saved: {title_text}"
-
-    # async def save_reminder_detail(
-    #     self, chat_id: str, idx: int, detail_text: str
-    # ) -> str:
-    #     reminder = self._get_or_create_reminder(chat_id, idx)
-
-    #     client = GoogleTaskClient()
-    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
-    #     if task is None:
-    #         task = Task(chat_id=chat_id, id=id, notes=detail_text)
-    #     else:
-    #         task.notes = detail_text
-    #     client.insert_task(chat_id, task)
-
-    #     return f"Detail saved: {detail_text}"
-
-    # async def save_reminder_time(self, chat_id: str, idx: int, time) -> str:
-    #     reminder = self._get_or_create_reminder(chat_id, idx)
-
-    #     client = GoogleTaskClient()
-    #     task: Task | None = client.get_task(chat_id, reminder.task_id)
-    #     if task is None:
-    #         task = Task(chat_id=chat_id, id=id, due=time)
-    #     else:
-    #         task.due = time
-
-    #     # Schedule a task to celery here
-    #     # reminded_time is before 10 minutes
-    #     # reminded_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%fZ") - datetime.timedelta(minutes=10)
-    #     # queue_task.apply_async(args=(chat_id, idx), eta=reminded_time)
-
-    #     return f"Time edited: {time}"
-
-    async def save_reminder(
-        self, chat_id: int, title: str, details: str, due: datetime
-    ) -> str:
-        # Save the reminder by calling the Google Task API\
-        print(due.replace(tzinfo=timezone.utc).isoformat())
-        task = Task(
-            title=title,
-            notes=details,
-            due=due.replace(tzinfo=timezone.utc).isoformat(),
-        )
-        result = await sync_to_async(self.google_task_client.insert_task)(
-            chat_id, task
-        )
-        print(result)
-        print(result.id)
-        if result is None:
-            return "Task cannot be created"
-        # Inserting the Celery task
-        # new_cele_task = ReminderCeleryTask(
-        #     title=title,
-        #     description=details,
-        #     chat_id=chat_id,
-        #     id=result.id,
-        #     state=ReminderCeleryTask.PENDING,
-        # )
-        # print(new_cele_task.id)
-        await sync_to_async(ReminderCeleryTask.objects.create)(
-            title=title,
-            description=details,
-            chat_id=chat_id,
-            reminder_id=result.id,
-            state=ReminderCeleryTask.PENDING,
-        )
-        print("Here")
-        # Setting up the Celery task
-        await sync_to_async(send_notification.apply_async)(
-            args=(chat_id, result.id),
-            countdown = 10,
-            expires=due + datetime.timedelta(minutes=5),
-        )
-        # try:
-        #     # Save the reminder by calling the Google Task API
-        #     task = Task(
-        #         title=title,
-        #         notes=details,
-        #         due=due.replace(tzinfo=timezone.utc).isoformat(),
-        #     )
-        #     result = await sync_to_async(self.google_task_client.insert_task)(
-        #         chat_id, task
-        #     )
-        #     print(result)
-        #     print(result.id)
-        #     if result is None:
-        #         return "Task cannot be created"
-        #     # Inserting the Celery task
-        #     # new_cele_task = ReminderCeleryTask(
-        #     #     title=title,
-        #     #     description=details,
-        #     #     chat_id=chat_id,
-        #     #     id=result.id,
-        #     #     state=ReminderCeleryTask.PENDING,
-        #     # )
-        #     # print(new_cele_task.id)
-        #     await sync_to_async(ReminderCeleryTask.objects.create)(
-        #         title=title,
-        #         description=details,
-        #         chat_id=chat_id,
-        #         reminder_id=result.id,
-        #         state=ReminderCeleryTask.PENDING,
-        #     )
-        #     print("Here")
-        #     url = f"{self.API_BASE_URL}sendMessage"
-        #     # Setting up the Celery task
-        #     send_notification.apply_async(
-        #         args=(url, chat_id, task.id),
-        #         eta=due,
-        #         expires=due + datetime.timedelta(minutes=5),
-        #     )
-        # except Exception as e:
-        #     print(e)
-        #     return "Task has been created but cannot be scheduled"
-        return f"Reminder saved: {title}"
-
-    def remove_task(self, chat_id: int, idx: str) -> None:
-        # try:
-        #     client = self.google_task_client
-        #     client.delete_task(
-        #         chat_id=chat_id,
-        #         task_id=idx,
-        #     )
-        #     # Cancel the Celery task
-        #     cele_task = ReminderCeleryTask.objects.get(chat_id=chat_id, reminder_id=idx)
-        #     cele_task.revoke()
-        #     cele_task.save()
-        # except Exception as e:
-        #     print(e)
+    @deprecated
+    async def remove_task(self, chat_id: int, token: str) -> None:
         client = self.google_task_client
-        client.delete_task(
+        await sync_to_async(client.delete_task)(
             chat_id=chat_id,
-            task_id=idx,
+            task_id=token,
         )
         # Cancel the Celery task
-        cele_task = ReminderCeleryTask.objects.get(chat_id=chat_id, reminder_id=idx)
-        cele_task.revoke()
-        cele_task.save()
+        reminder = await sync_to_async(ReminderCeleryTask.objects.filter)(
+            chat_id=chat_id,
+            reminder_id=token,
+            completed=False,
+        )
+        await sync_to_async(reminder.update)(state=ReminderCeleryTask.REVOKED)
 
+    @deprecated
     async def get_total_reminder_pages(self, chat_id: int) -> int:
         tasks = await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id)
         if tasks is None:
             return 0
-        print (tasks.items)
-        print (len(tasks.items))
         return len(tasks.items)
+    
 
     # ================= Other =================
 
@@ -317,12 +206,9 @@ class DefaultClient:
 
         # print(response)
 
-        return self.llm.execute_llm(chat_id, prompt_text), END
+        return await self.llm.execute_prompting(UserData(chat_id=chat_id), prompt_text)
 
         # return response["result"]["response_text"], response["result"]["next_state"]
-
-        # ở state Note_text nhưng muốn view note
-        # /ah cho tôi xem note -> gửi một message mà chứa bảng note, VIEW_NOTE
 
     def get_jobs_from_start(self, update: Update) -> list:
         async def notify_assignees(context: CallbackContext) -> None:

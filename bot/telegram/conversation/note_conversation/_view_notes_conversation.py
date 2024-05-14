@@ -1,13 +1,12 @@
 from .._command_conversation import CommandConversation
-from telegram.ext import MessageHandler
 from telegram import (
-    Update, InlineKeyboardButton, CallbackQuery, InlineKeyboardMarkup
+    Update, InlineKeyboardMarkup
 )
 from telegram.ext import (
-    ContextTypes, ConversationHandler, filters, CallbackQueryHandler
+    ContextTypes, CallbackQueryHandler
 )
 
-from config import NOTE_PAGE_CHAR
+from config import PAGE_DELIMITER, DETAIL_NOTE_CHAR, NOTE_PAGE_CHAR
 from ...telegram_pages import NotePages
 from client import TelegramClient
 
@@ -17,22 +16,23 @@ class ViewNotesConversation(CommandConversation):
     def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
-        self.VIEW_NOTES = VIEW_NOTES
+        self.VIEW_ITEMS = VIEW_NOTES
         self.EDIT_TITLE = EDIT_TITLE
         self.EDIT_DETAIL = EDIT_DETAIL
+        self.previewing_pages: NotePages = self.init_reviewing_pages()
 
         self._states = [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_preview),
+            CallbackQueryHandler(self._preview_detail_callback, pattern=f'^{DETAIL_NOTE_CHAR}{PAGE_DELIMITER}'),
+            CallbackQueryHandler(self.previewing_pages._preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}{PAGE_DELIMITER}')
             ]
 
-        self.previewing_pages = self.init_reviewing_pages()
 
     def add_preview_pages_callback(self, application) -> None:
-        application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#'))
+        application.add_handler(CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}{PAGE_DELIMITER}'))
 
     def share_preview_page_callback(self) -> CallbackQueryHandler:
         # print(f'^{NOTE_PAGE_CHAR}#')
-        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#')
+        return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}{PAGE_DELIMITER}')
 
     def init_reviewing_pages(self) -> NotePages:
         return NotePages(self.client)
@@ -43,12 +43,18 @@ class ViewNotesConversation(CommandConversation):
 
         await update.message.reply_text("Please send me the note index.")
 
-        return self.VIEW_NOTES
+        return self.VIEW_ITEMS
+    
+    async def view_note_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        query = update.callback_query
+        await query.answer()
+
+
 
     async def receive_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         received_text = update.message.text
         await self.handle_preview(update, context, received_text)
-        return self.VIEW_NOTES
+        return self.VIEW_ITEMS
         # return ConversationHandler.END
 
 
@@ -56,13 +62,14 @@ class ViewNotesConversation(CommandConversation):
         keyboard = self.get_option_keyboard(note_idx)
 
         if('prev_review_message' in context.user_data):
-                await context.bot.delete_message(
-                    chat_id=update.effective_chat.id,
-                    message_id=context.user_data['prev_review_message'][0]
-                )
+            await context.bot.delete_message(
+                chat_id=update.effective_chat.id,
+                message_id=context.user_data['prev_review_message'][0]
+            )
 
 
-        message = await update.message.reply_text(
+        query = update.callback_query
+        message = await query.message.reply_text(
             text=note_content,
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='HTML'
@@ -73,20 +80,28 @@ class ViewNotesConversation(CommandConversation):
     def get_option_keyboard(self, note_idx: str) -> list:
         return get_note_option_keyboard(note_idx)
 
-    async def handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_idx: str = None) -> None:
-        chat_id = update.message.chat_id
+    async def _handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_token: str | None = None) -> None:
+        query = update.callback_query
+        await query.answer()
+        chat_id = query.message.chat_id
         try:
-            note_content = await self.client_get_content(chat_id, int(note_idx))
+            content = await self.client_get_content(chat_id, note_token)
         except Exception as e:
-            note_content = str(e)
-            await update.message.reply_text(note_content)
+            content = str(e)
+            await query.message.reply_text(content)
             return
 
-        await self.response_modifying_options(update, context, note_content, note_idx)
+        await self.response_modifying_options(update, context, content, note_token)
+
+    async def _preview_detail_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        query_data = update.callback_query.data
+        token = query_data.split(PAGE_DELIMITER)[1]
+        await self._handle_preview(update, context, token)
 
 
 
-    def client_get_content(self, chat_id: int, idx: int) -> str:
+
+    def client_get_content(self, chat_id: int, idx: str | None) -> str:
 
         return self.client.get_note_content(chat_id, idx)
 

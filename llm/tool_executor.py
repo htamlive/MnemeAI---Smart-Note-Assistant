@@ -1,34 +1,15 @@
+from datetime import timezone, datetime, timedelta
 import re
 import ast
-from typing import List
 
-# Define mock functions
-def create_task(title: str, body: str, datetime) -> str:
-    return f"Created task: {title}, Body: {body}, Due: {datetime}"
-
-def delete_task(task_name: str) -> str:
-    return f"Deleted task: {task_name}"
-
-def add_note(title: str, content: str) -> str:
-    return f"Added note: {title}, Note: {content}"
-
-def get_note(queries_str: str) -> List[str]:
-    return ['Building a rocket', 'fighting a mummy', 'climbing up the Eiffel Tower']
 
 # @traceable
 class ToolExecutor:
-    def __init__(self):
-        self.function_map = {
-            'create_task': create_task,
-            'delete_task': delete_task,
-            'add_note': add_note,
-            'get_note': get_note
-        }
-
-    def execute_from_string(self, chat_id, raw_str) -> str:
-        # Extract function call string using regular expression
-        function_call_match = re.search(r'(\w+)\((.*?)\)', raw_str)
         
+    async def execute_from_string(self, user_data, raw_str, function_map: dict[str, callable]) -> str:
+        # Extract function call string using regular expression
+        function_call_match = re.search(r"(\w+)\((.*?)\)", raw_str)
+
         if function_call_match:
             # Extract function name and its arguments
             function_name = function_call_match.group(1)
@@ -41,13 +22,15 @@ class ToolExecutor:
                 # If the argument is a single value, convert it to a tuple
                 if not isinstance(arguments, tuple):
                     arguments = (arguments,)
+
+                arguments = (user_data, *arguments)
             except (SyntaxError, ValueError):
                 return "Error: Failed to parse arguments string."
-            
+
             # Check if function exists
-            if function_name in self.function_map:
+            if function_name in function_map:
                 # Execute the function call
-                return self.function_map[function_name](*arguments)
+                return await function_map[function_name](*arguments)
             else:
                 return f"Error: Function '{function_name}' not found."
         else:

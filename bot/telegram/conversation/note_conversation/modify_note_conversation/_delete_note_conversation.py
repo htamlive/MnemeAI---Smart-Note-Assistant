@@ -20,8 +20,8 @@ class DeleteNoteConversation(ModifyNoteConversation):
     def __init__(self, DELETE_NOTE: int, VIEW_NOTES, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
         self.client = client
-        self.DELETE_NOTE = DELETE_NOTE
-        self.VIEW_NOTES = VIEW_NOTES
+        self.DELETE_ITEM = DELETE_NOTE
+        self.VIEW_ITEMS = VIEW_NOTES
         self._states = [CallbackQueryHandler(self.handle_confirmation)]
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -35,7 +35,7 @@ class DeleteNoteConversation(ModifyNoteConversation):
         await query.edit_message_text(text=current_text, reply_markup=InlineKeyboardMarkup(keyboard))
         await query.message.reply_text("Are you really sure you want to delete?\n""Becareful, this action is irreversible.")
 
-        return self.DELETE_NOTE
+        return self.DELETE_ITEM
 
 
     async def handle_confirmation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -52,20 +52,20 @@ class DeleteNoteConversation(ModifyNoteConversation):
             return ConversationHandler.END
         elif query.data.startswith(Patterns.CANCEL_DELETE_NOTE.value):
             note_idx = query.data.split(PATTERN_DELIMITER)[1]
-            await self.restore_note_content(query, note_idx)
+            await self.restore_item_content(query, note_idx)
 
-            return self.VIEW_NOTES
+            return self.VIEW_ITEMS
 
     async def client_delete(self, chat_id: int, idx: int) -> None:
         await self.client.delete_note(chat_id, idx)
 
-    async def restore_note_content(self, query: CallbackQuery, note_idx: str) -> None:
+    async def restore_item_content(self, query: CallbackQuery, note_idx: str) -> None:
         chat_id = query.message.chat_id
-        note_content = await self.client_get_content(chat_id, note_idx)
+        item_content = await self.client_get_content(chat_id, note_idx)
         keyboard = self.get_option_keyboard(note_idx)
-        print(note_content)
+        print(item_content)
         await query.edit_message_text(
-            text=note_content,
+            text=item_content,
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='HTML'
         )

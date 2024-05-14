@@ -32,7 +32,7 @@ class NoteConversationController(ConversationController):
         return [
             CommandHandler(Commands.NOTE.value, self.factory[NOTE_TEXT].start_conversation),
             CommandHandler(Commands.VIEW_NOTES.value, self.factory[VIEW_NOTES].start_conversation),
-        ] + self.get_callbacks()
+        ] + self.get_callbacks() + self.factory[VIEW_NOTES].states
     
 
     def get_states_dict(self, command_handler) -> dict:
@@ -57,5 +57,5 @@ class NoteConversationController(ConversationController):
         }
     
     def share_preview_page_callback(self, application) -> None:
-        application.add_handler(CallbackQueryHandler(self.factory[VIEW_NOTES].previewing_pages.preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#'))
+        application.add_handler(CallbackQueryHandler(self.factory[VIEW_NOTES].previewing_pages._preview_page_callback, pattern=f'^{NOTE_PAGE_CHAR}#'))
     

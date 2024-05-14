@@ -11,22 +11,23 @@ from .utils import decode_json_base64
 from .authorization_client import Authorization_client
 from .model import ListTask, Task
 
-SCOPES = ['https://www.googleapis.com/auth/tasks']
-API_SERVICE_NAME = 'tasks'
-API_VERSION = 'v1'
+from config import MAX_RESULTS
 
 
-
-class Client:
+class GoogleTaskClient:
     def __init__(self):
         self.authorization_client = Authorization_client()
+        self.SCOPES = ['https://www.googleapis.com/auth/tasks']
+        self.API_SERVICE_NAME = 'tasks'
+        self.API_VERSION = 'v1'
+
 
     def build_service(self, chat_id: int):
         credentials = self.authorization_client.get_credentials(chat_id)
         if not credentials:
             return None
         
-        service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+        service = googleapiclient.discovery.build(self.API_SERVICE_NAME, self.API_VERSION, credentials=credentials)
         return service
     
     def list_tasks(
@@ -36,7 +37,7 @@ class Client:
             completed_min: str = None, 
             due_max: str = None,
             due_min: str = None,
-            max_results: int = None,
+            max_results: int = MAX_RESULTS,
             page_token: str = None,
             show_completed: bool = None,
             show_deleted: bool = None,
@@ -68,6 +69,15 @@ class Client:
             return None
         
         result = service.tasks().get(tasklist='@default', task=task_id).execute()
+        return from_dict(data_class=Task, data=result)
+    
+    def update_task(self, chat_id: int, task_id: str, task: Task) -> Task | None:
+
+        service = self.build_service(chat_id)
+        if not service:
+            return None
+
+        result = service.tasks().update(tasklist='@default', task=task_id, body=asdict(task)).execute()
         return from_dict(data_class=Task, data=result)
     
     def insert_task(self, chat_id: int, task: Task) -> Task | None:

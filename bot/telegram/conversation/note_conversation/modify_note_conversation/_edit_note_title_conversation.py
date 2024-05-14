@@ -43,9 +43,9 @@ class EditNoteTitleConversation(ModifyNoteConversation):
         response_text = await self.save_title(chat_id, note_idx, title_text)
         await update.message.reply_text(response_text)
 
-    async def save_title(self, chat_id: int, note_idx: int, title_text: str) -> str:
-        return await self.client_save_title(chat_id, note_idx, title_text)
+    async def save_title(self, chat_id: int, token: str, title_text: str) -> str:
+        return await self.client_save_title(chat_id, token, title_text)
     
-    async def client_save_title(self, chat_id: int, note_idx: int, title_text: str) -> str:
-        response_text = await self.client.save_note_title(chat_id, note_idx, title_text)
+    async def client_save_title(self, chat_id: int, token: str, title_text: str) -> str:
+        response_text = await self.client.save_note_title(chat_id, token, title_text)
         return response_text

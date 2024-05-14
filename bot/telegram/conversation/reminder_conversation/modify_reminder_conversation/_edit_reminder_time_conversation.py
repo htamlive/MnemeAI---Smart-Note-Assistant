@@ -29,7 +29,7 @@ class EditReminderTimeConversation(ModifyNoteConversation):
         time_text = update.message.text
         await self.handle_receive_time(update, context, time_text)
 
-        self.on_finish_edit(update, context)
+        await self.on_finish_edit(update, context)
 
         return ConversationHandler.END
     
@@ -41,7 +41,7 @@ class EditReminderTimeConversation(ModifyNoteConversation):
         await update.message.reply_text(response_text)
 
     async def save_time(self, chat_id: int, idx: int, time: str) -> str:
-        return await self.client.save_reminder_time(chat_id, idx, time)
+        return await self.client_save_time(chat_id, idx, time)
     
-    async def client_save_time(self, chat_id: int, idx: int, time: str) -> str:
-        return await self.client.save_reminder_time(chat_id, idx, time)
+    async def client_save_time(self, chat_id: int, idx: int, time_text: str) -> str:
+        return await self.client.save_reminder_time(chat_id, idx, time_text)
