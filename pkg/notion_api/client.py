@@ -241,6 +241,7 @@ class NotionClient:
                 "parent_id": page_content['parent']['database_id'],
                 "title": resource_name,
                 "description": resource_desc,
+                "content": [resource_desc, resource_name],
                 "embedding": embeddings[0]
             } 
             ).execute()
