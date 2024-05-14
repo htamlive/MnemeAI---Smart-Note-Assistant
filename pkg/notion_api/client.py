@@ -218,7 +218,7 @@ class NotionClient:
             }
         return data
 
-    def post_notes(self, chat_id: int, resource_name:str = None, resource_desc:str = None) -> dict | None:
+    def post_notes(self, chat_id: int, resource_name:str = "", resource_desc:str = "") -> dict | None:
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
         
@@ -231,6 +231,8 @@ class NotionClient:
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
         
         page_content = resp.json()
+        
+        print(page_content)
         
         resp = supabase.table("notes").upsert(
             {
