@@ -75,7 +75,10 @@ class DefaultClient:
 
     async def save_note(self, chat_id, note_text) -> str:
         prompt = f"Add note: {note_text}"
-        return await self.llm.execute_prompting(UserData(chat_id=chat_id), prompt)
+        return await self.llm.add_note(
+            UserData(chat_id=chat_id),
+            prompt,
+        )
 
     async def save_remind(self, chat_id, remind_text) -> str:
         prompt = f"Add reminder: {remind_text}"

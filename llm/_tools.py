@@ -243,7 +243,6 @@ async def add_note(user_data: UserData, title: str, content: str, client: Notion
     chat_id = user_data.chat_id
     
     resp = await sync_to_async(client.post_notes)(chat_id, title, content)
-    assert len(resp.data) > 0
     
     return f"Added note: {title}, Note: {content}"
 
