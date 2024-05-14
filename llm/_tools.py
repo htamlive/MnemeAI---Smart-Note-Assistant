@@ -299,3 +299,24 @@ async def delete_note(user_data: UserData, client: NotionClient = NotionClient()
     await sync_to_async(client.delete_all_notes)(chat_id)
     
     return "Deleted all notes"
+
+async def register_database_id(user_data: UserData, database_id: str, client: NotionClient = NotionClient()) -> str:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.register_database_id)(chat_id, database_id)
+    
+    return f"Registered database {database_id} to user {chat_id}"
+
+async def register_page_database(user_data: UserData, page_id: str, client: NotionClient = NotionClient()) -> str:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.register_page_database)(chat_id, page_id)
+    
+    return f"Registered database {resp.data['id']} to user {chat_id}"
+
+async def check_type(user_data: UserData, content_id: str, client: NotionClient = NotionClient()) -> str:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.check_type)(chat_id, content_id)
+    
+    return resp
