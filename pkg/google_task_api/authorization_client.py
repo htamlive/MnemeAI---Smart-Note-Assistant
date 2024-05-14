@@ -3,9 +3,10 @@ from config import config
 from pkg.model import Authz, ServiceType
 import google_auth_oauthlib.flow
 import google.oauth2.credentials
+import requests
 from .utils import decode_json_base64
 
-SCOPES = ['https://www.googleapis.com/auth/tasks']
+SCOPES = ['https://www.googleapis.com/auth/tasks', 'https://www.googleapis.com/auth/calendar']
 
 class Authorization_client:
     def __init__(self):
@@ -49,3 +50,21 @@ class Authorization_client:
                 scopes=SCOPES
             )
         return None
+    
+    def revoke_credentials(self, chat_id: int):
+        credentials = self.get_credentials(chat_id)
+
+        if credentials:
+            revoke = requests.post('https://oauth2.googleapis.com/revoke',
+            params={'token': credentials.token},
+            headers = {'content-type': 'application/x-www-form-urlencoded'})
+
+            status_code = getattr(revoke, 'status_code')
+            if status_code == 200:
+                Authz.objects.filter(chat_id=chat_id, service_type=self.service_type.value).delete()
+
+                return('Credentials successfully revoked.')
+            else:
+                return revoke.text
+        
+        return('No credentials found.')
