@@ -15,6 +15,9 @@ class ToolExecutor:
             function_name = function_call_match.group(1)
             arguments_str = function_call_match.group(2)
 
+            if arguments_str == "":
+                arguments_str = "()"
+
             # Parse arguments string into a Python literal
             try:
                 arguments = ast.literal_eval(arguments_str)
