@@ -312,7 +312,7 @@ async def register_page_database(user_data: UserData, page_id: str, client: Noti
     
     resp = await sync_to_async(client.register_page_database)(chat_id, page_id)
     
-    return f"Registered database {resp.data['id']} to user {chat_id}"
+    return f"Registered database {resp['id']} to user {chat_id}"
 
 async def check_type(user_data: UserData, content_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id

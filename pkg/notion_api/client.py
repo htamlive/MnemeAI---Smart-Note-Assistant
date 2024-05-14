@@ -224,7 +224,7 @@ class NotionClient:
         
         data = self.get_data(resource_id, resource_name, resource_desc)
         
-        resp = requests.post('https://api.notion.com/v1/pages', headers=headers, json=data)
+        resp = requests.post('https://api.notion.com/v1/pages/', headers=headers, json=data)
         
         resp.raise_for_status()
         
