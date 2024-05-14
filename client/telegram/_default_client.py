@@ -14,7 +14,7 @@ from config import *
 from urllib.parse import quote
 from pkg.google_task_api.client import Client as GoogleTaskClient, Task
 from pkg.google_task_api.authorization_client import Authorization_client
-
+from pkg.notion_api.client import NotionClient
 from asgiref.sync import sync_to_async
 import datetime
 
@@ -40,6 +40,7 @@ class DefaultClient:
         # https://core.telegram.org/bots/api
         self.google_task_client = GoogleTaskClient()
         self.authorization_client = Authorization_client()
+        self.notion_client = NotionClient()
         self.llm = LLM()
 
     async def user_subscribe(self, chat_id):
@@ -60,16 +61,26 @@ class DefaultClient:
     # ================= Note =================
 
     async def save_note_title(self, chat_id, note_idx, title_text):
+        if note_idx < self.notion_client.get_len(chat_id):
+            data = self.notion_client.patch_notes(chat_id, note_idx, resource_name=title_text)
+        else:
+            data = self.notion_client.post_notes(chat_id, resource_name=title_text)
         return f"Title saved: {title_text}"
 
     async def save_note_detail(self, chat_id, note_idx, detail_text):
+        if note_idx < self.notion_client.get_len(chat_id):
+            data = self.notion_client.patch_notes(chat_id, note_idx, resource_desc=detail_text)
+        else:
+            data = self.notion_client.post_notes(chat_id, resource_desc=detail_text)
+            
         return f"Detail saved: {detail_text}"
 
     async def delete_note(self, chat_id, page) -> str:
+        self.notion_client.delete_all_notes(chat_id)
         return f"Note deleted at page {page}"
 
     def get_note_content_at_page(self, chat_id, page) -> str:
-        return self.get_note_content(chat_id, page)
+        return self.notion_client.get_notes(chat_id)
 
     def extract_note_idx(self, note_idx_text) -> int:
         """
@@ -82,15 +93,15 @@ class DefaultClient:
     def get_note_content(self, chat_id, note_idx_text) -> str:
 
         # Remember to convert to 0-based index
-        note_idx = self.extract_note_idx(note_idx_text)
 
-        title = pagination_test_data[note_idx]["title"]
-        description = pagination_test_data[note_idx]["description"]
-
-        return f"<b>YOUR NOTES</b>\n\n\n<b><i>{title}</i></b>\n\n{description}"
+        # title = pagination_test_data[note_idx]["title"]
+        # description = pagination_test_data[note_idx]["description"]
+        
+        return self.notion_client.get_note_content(chat_id, note_idx_text)
 
     def get_total_note_pages(self, chat_id: int) -> int:
-        return len(pagination_test_data)
+        data = self.notion_client.get_notes(chat_id)
+        return len(data)
 
     # ================= Reminder/Task =================
 
