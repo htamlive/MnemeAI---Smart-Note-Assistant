@@ -10,6 +10,7 @@ from config import config
 class NotionClient:
     def __init__(self):
         self.auth_client = Authorization_client()
+        self.len = None
     
     def get_header(self, chat_id: int) -> dict:
         access_token = self.auth_client.get_credentials(chat_id)
@@ -22,8 +23,68 @@ class NotionClient:
         
         return headers
     
-    def get_notes(self, chat_id: int, resource_id: str) -> List[dict] | None:              
+    def get_user(self, chat_id: int):
         headers = self.get_header(chat_id)
+        resp = requests.get(f'https://api.notion.com/v1/users/me', headers=headers)
+        
+        data = resp.json()
+        
+        return data
+    
+    def get_database_id(self, chat_id: int):
+        resp = supabase.from_("notion_database_id").select("id, database_id").eq("id", chat_id).execute()
+        assert len(resp.data) > 0
+        data = resp.data
+        return data[0]['database_id']
+    
+    def get_len(self, chat_id: int):
+        return len(self.get_notes(chat_id))
+    
+    def register_database_id(self, chat_id: int, resource_id: str):
+        resp = supabase.from_("notion_database_id").upsert({
+            "id": chat_id,
+            "database_id": resource_id
+        }).execute()
+        
+        assert len(resp.data) > 0
+        return resp.data
+        
+    def register_page_database(self, chat_id: int, page_id: str, title: str):
+        headers = self.get_header(chat_id)
+        data = {
+            "parent": { "page_id": page_id },
+            "title": [
+                {
+                    "type": "text",
+                    "text": {
+                        "content": title
+                    }
+                }
+            ],
+            "properties": {
+                "Name": {
+                    "title": {}
+                },
+                "Description": {
+                    "rich_text": {}
+                }
+            }
+        }
+        resp = requests.post(f'https://api.notion.com/v1/databases/', headers=headers, json=data)
+        data = resp.json()
+        
+        resp.raise_for_status()
+        resp = supabase.from_("notion_database_id").upsert({
+            "id": chat_id,
+            "database_id": data['id']
+        }).execute()
+        
+        assert len(resp.data) > 0
+        return resp.data
+        
+    def get_notes(self, chat_id: int) -> List[dict] | None:              
+        headers = self.get_header(chat_id)
+        resource_id = self.get_database_id(chat_id)
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "sorts": [
                 {
@@ -43,40 +104,85 @@ class NotionClient:
                 # Check if the value is a string
                 if value['type'] in ['title', 'rich_text']:
                     # Extract the text content from the property
-                    text = ''.join([item['plain_text'] for item in value[value['type']]])
+                    text = ' '.join([item['plain_text'] for item in value[value['type']]])
                     string_values.append(text)
                     
-            all_string_values.append(" ".join(string_values))
+            all_string_values.append(string_values)
             
-        embeddings = generate_embeddings(all_string_values)
+        embeddings = generate_embeddings([" ".join(strings) for strings in all_string_values])
         
         resp = supabase.table("notes").upsert([
             {
                 "id": q['id'],
                 "chat_id": chat_id,
                 "parent_id": q['parent']['database_id'],
-                "content": content,
+                "title": content[-1],
+                "description": content[0],
                 "embedding": emb
             } 
             for q, emb, content in zip(queries, embeddings, all_string_values)]).execute()
         
         assert len(resp.data) > 0
         
-        return resp.data, 200
+        return resp.data
     
-    def post_notes(self, chat_id: int, resource_id: str, resource_name:str = "", resource_desc:str = "") -> dict | None:
-        headers = self.get_header(chat_id)
-        data = {
-            "parent" : {"database_id": resource_id},
-            "properties": {
-                "Name": {
-                    "title": [{ "text": { "content": resource_name }}]
-                },
-                "Description": {
-                    "rich_text": [{ "text": { "content": resource_desc }}]
+    def get_note_content(self, chat_id, note_idx) -> str:
+
+        # title = pagination_test_data[note_idx]["title"]
+        # description = pagination_test_data[note_idx]["description"]
+        
+        data = self.get_notes(chat_id)
+        assert note_idx < len(data)
+        title = data[note_idx]["title"]
+        description = data[note_idx]["description"]
+
+        return f"<b>YOUR NOTES</b>\n\n\n<b><i>{title}</i></b>\n\n{description}"
+    
+    def get_data(self, resource_id:str, resource_name: str = None, resource_desc: str = None):
+        if resource_name and resource_desc:
+            data = {
+                "parent" : {"database_id": resource_id},
+                "properties": {
+                    "Name": {
+                        "title": [{ "text": { "content": resource_name }}]
+                    },
+                    "Description": {
+                        "rich_text": [{ "text": { "content": resource_desc }}]
+                    }
                 }
             }
-        }
+        elif resource_name:
+            data = {
+                "parent" : {"database_id": resource_id},
+                "properties": {
+                    "Name": {
+                        "title": [{ "text": { "content": resource_name }}]
+                    }
+                }
+            }
+        elif resource_desc:
+            data = {
+                "parent" : {"database_id": resource_id},
+                "properties": {
+                    "Description": {
+                        "rich_text": [{ "text": { "content": resource_desc }}]
+                    }
+                }
+            }
+        else:
+            data = {
+                "parent" : {"database_id": resource_id},
+                "properties": {
+                }
+            }
+        return data
+
+    def post_notes(self, chat_id: int, resource_name:str = None, resource_desc:str = None) -> dict | None:
+        headers = self.get_header(chat_id)
+        resource_id = self.get_database_id(chat_id)
+        
+        data = self.get_data(resource_id, resource_name, resource_desc)
+        
         resp = requests.post('https://api.notion.com/v1/pages', headers=headers, json=data)
         
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
@@ -89,17 +195,18 @@ class NotionClient:
                 "chat_id": chat_id,
                 "parent_id": page_content['parent']['database_id'],
                 "title": resource_name,
-                "content": resource_name + " " + resource_desc,
+                "description": resource_desc,
                 "embedding": embeddings[0]
             } 
             ).execute()
 
         assert len(resp.data) > 0
         
-        return resp.data, 200
+        return resp.data
     
-    def patch_notes(self, chat_id:int, resource_id: str,  resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
+    def patch_notes(self, chat_id:int, resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
         headers = self.get_header(chat_id)
+        resource_id = self.get_database_id(chat_id)
         
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "sorts": [
@@ -117,17 +224,7 @@ class NotionClient:
         
         page_id = queries[resource_index]['id']
         
-        data = {
-            "parent" : {"database_id": resource_id},
-            "properties": {
-                "Name": {
-                    "title": [{ "text": { "content": resource_name }}]
-                },
-                "Description": {
-                    "rich_text": [{ "text": { "content": resource_desc }}]
-                }
-            }
-        }
+        data = self.get_data(resource_id, resource_name, resource_desc)
         
         resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json=data)
         
@@ -141,6 +238,7 @@ class NotionClient:
                 "chat_id": chat_id,
                 "parent_id": page_content['parent']['database_id'],
                 "title": resource_name,
+                "description": resource_desc,
                 "content": resource_name + " " + resource_desc,
                 "embedding": embeddings[0]
             } 
@@ -148,10 +246,11 @@ class NotionClient:
 
         assert len(resp.data) > 0
         
-        return resp.data, 200
+        return resp.data
     
-    def delete_notes(self, chat_id:int, resource_id: str, resource_index:int, clear_all: bool = False) -> dict | None:
+    def delete_notes(self, chat_id:int, resource_index:int, clear_all: bool = False) -> dict | None:
         headers = self.get_header(chat_id)
+        resource_id = self.get_database_id(chat_id)
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "sorts": [
                 {
@@ -192,7 +291,8 @@ class NotionClient:
     def delete_all_notes(self, chat_id: int) -> bool:
         return self.delete_notes(chat_id, 0, True)
     
-    def query(self, chat_id: int, resource_id: str, prompt:str) -> dict | None:
+    def query(self, chat_id: int, prompt:str) -> dict | None:
+        resource_id = self.get_database_id(chat_id)
         embeddings = generate_embeddings(prompt)
         
         resp = supabase.rpc('match_documents', {
@@ -218,4 +318,4 @@ class NotionClient:
             "prompt": prompt,
         })
         
-        return resp.json(), resp.status_code
+        return resp.json()
