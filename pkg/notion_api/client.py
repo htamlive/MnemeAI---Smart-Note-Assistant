@@ -133,6 +133,8 @@ class NotionClient:
             ],
         })
         
+        resp.raise_for_status()
+        
         data = resp.json()
         queries = data['results']
         
@@ -224,6 +226,8 @@ class NotionClient:
         
         resp = requests.post('https://api.notion.com/v1/pages', headers=headers, json=data)
         
+        resp.raise_for_status()
+        
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
         
         page_content = resp.json()
@@ -247,6 +251,8 @@ class NotionClient:
         headers = self.get_header(chat_id)
         
         resp = requests.get(f'https://api.notion.com/v1/pages/{resource_idx}', headers=headers)
+        
+        resp.raise_for_status()
         
         data = resp.json()
         assert data is not None
@@ -309,6 +315,8 @@ class NotionClient:
             ],
         })
         
+        resp.raise_for_status()
+        
         data = resp.json()
         queries = data['results']
         
@@ -328,7 +336,7 @@ class NotionClient:
             resp = requests.patch(f'https://api.notion.com/v1/pages/{resource_index}', headers=headers, json={
                 "in_trash": True
             })
-            assert resp.status_code == 200, "Page might not exist, or has_more is set to true"
+            resp.raise_for_status()
             data = supabase.table("notes").delete().eq("page_id", page_id).execute()
             
             return True
