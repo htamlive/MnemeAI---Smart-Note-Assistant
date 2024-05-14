@@ -24,3 +24,7 @@ AWAN_KEY = os.getenv("AWAN_KEY")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+TELEBOT_TOKEN = os.getenv("TELEBOT_TOKEN")
+TELEGRAM_API = f'https://api.telegram.org/bot{TELEBOT_TOKEN}/'
+TELEGRAM_SEND_ENDPOINT = f'{TELEGRAM_API}sendMessage'

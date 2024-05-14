@@ -4,19 +4,15 @@ from ._note_pages_v2 import NotePages
 
 from client import TelegramClient
 
-from bot.telegram.ui_templates import get_reminder_option_keyboard, show_reminders_list
+from bot.telegram.ui_templates import get_reminder_option_keyboard, show_reminders_list, render_html_reminder_detail
 
-from telegram_bot_pagination import InlineKeyboardPaginator
+from telegram import CallbackQuery
 
-from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-
-from config import REMINDER_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR
+from config import REMINDER_PAGE_CHAR, PAGE_DELIMITER
 
 from pkg.google_task_api.model import ListTask, Task
 
 from config import REMINDER_PAGE_CHAR
-
-import re
 
 from telegram.ext import  ContextTypes
 
@@ -31,9 +27,6 @@ class ReminderPages(NotePages):
     def check_match_pattern(self, query: CallbackQuery) -> bool:
 
         return query.data.startswith(f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
-    
-    def client_get_content(self, chat_id, note_idx) -> str:
-        return self.client.get_reminder_content(chat_id, note_idx)
     
     async def client_get_total_pages(self, chat_id: int) -> int:
         return await self.client.get_total_reminder_pages(chat_id)

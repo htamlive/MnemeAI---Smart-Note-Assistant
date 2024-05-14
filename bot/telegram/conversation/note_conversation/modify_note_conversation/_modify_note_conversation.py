@@ -25,13 +25,12 @@ class ModifyNoteConversation(CommandConversation):
             )
             context.user_data.pop('review_pages_message_id')
 
-        query = update.callback_query
-        await query.answer()
+
         if('prev_review_message' in context.user_data):
-            message_id, text_html = context.user_data['prev_review_message']
+            message_id = context.user_data['prev_review_message']['message_id']
+            # text_html = context.user_data['prev_review_message']['text_html']
 
-
-            print(text_html)
+            # print(text_html)
             # delete the previous message
             await context.bot.delete_message(
                 chat_id=update.effective_chat.id,
@@ -50,7 +49,7 @@ class ModifyNoteConversation(CommandConversation):
             context.user_data.pop('prev_review_message')
 
 
-        await query.message.reply_text(
+        await update.message.reply_text(
             'Woohoo! Finished!\n\n<i>View your latest version with</i> /view_notes <i>and</i> /view_reminders',
             parse_mode='HTML'
             )

@@ -58,8 +58,8 @@ class ViewNotesConversation(CommandConversation):
         # return ConversationHandler.END
 
 
-    async def response_modifying_options(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_content, note_idx) -> None:
-        keyboard = self.get_option_keyboard(note_idx)
+    async def _response_modifying_options(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_content, token) -> None:
+        keyboard = self.get_option_keyboard(token)
 
         if('prev_review_message' in context.user_data):
             await context.bot.delete_message(
@@ -75,23 +75,30 @@ class ViewNotesConversation(CommandConversation):
             parse_mode='HTML'
         )
 
-        context.user_data['prev_review_message'] = (message.message_id, message.text_html)
+        self.update_review_message_tracker(context, message.message_id, note_content, token)
+
+    def update_review_message_tracker(self, context, message_id, text_html, token) -> None:
+        context.user_data['prev_review_message'] = {
+            'message_id': message_id,
+            'text_html': text_html,
+            'note_token': token
+        }
 
     def get_option_keyboard(self, note_idx: str) -> list:
         return get_note_option_keyboard(note_idx)
 
-    async def _handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_token: str | None = None) -> None:
+    async def _handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, token: str | None = None) -> None:
         query = update.callback_query
         await query.answer()
         chat_id = query.message.chat_id
         try:
-            content = await self.client_get_content(chat_id, note_token)
+            content = await self.client_get_content(chat_id, token)
         except Exception as e:
             content = str(e)
             await query.message.reply_text(content)
             return
 
-        await self.response_modifying_options(update, context, content, note_token)
+        await self._response_modifying_options(update, context, content, token)
 
     async def _preview_detail_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query_data = update.callback_query.data
@@ -102,7 +109,7 @@ class ViewNotesConversation(CommandConversation):
 
 
     def client_get_content(self, chat_id: int, idx: str | None) -> str:
-
+        # may need to change
         return self.client.get_note_content(chat_id, idx)
 
 

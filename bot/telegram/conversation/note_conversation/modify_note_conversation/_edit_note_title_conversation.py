@@ -38,9 +38,9 @@ class EditNoteTitleConversation(ModifyNoteConversation):
     
     async def handle_receive_title_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, title_text: str) -> None:
         chat_id = update.message.chat_id
-        note_idx = context.user_data['item_idx']
+        item_token = context.user_data['item_idx']
 
-        response_text = await self.save_title(chat_id, note_idx, title_text)
+        response_text = await self.save_title(chat_id, item_token, title_text)
         await update.message.reply_text(response_text)
 
     async def save_title(self, chat_id: int, token: str, title_text: str) -> str:

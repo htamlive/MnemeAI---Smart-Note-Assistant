@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Tuple
 
 from django.utils import timezone as dj_timezone
 
@@ -125,7 +126,7 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    async def get_reminder_content(self, chat_id, reminder_token) -> str:
+    async def get_reminder_content(self, chat_id, reminder_token) -> Tuple[str, str, str]:  # [title, description, due
         client = self.google_task_client
         task = await sync_to_async(client.get_task)(chat_id=chat_id, task_id=reminder_token)
 
@@ -136,9 +137,7 @@ class DefaultClient:
 
         title, description = task.title, task.notes
 
-        html_render = f"<b>📌 YOUR REMINDERS:</b>\n✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦\n\n<b>🔹 <i>{title}</i></b>\n\n📝\n{description}\n\n⏰\n{due}"
-
-        return html_render
+        return title, description, due
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'
 
     @deprecated
@@ -186,7 +185,7 @@ class DefaultClient:
 
     # ================= Other =================
 
-    async def process_prompt(self, chat_id, prompt_text) -> str:
+    async def process_prompt(self, user_data: UserData, prompt_text: str) -> Tuple[str, str]:
         # response = requests.post(
         #     f"{self.SERVER_URL}/prompt",
         #     json={"chat_id": chat_id, "prompt_text": prompt_text},
@@ -194,7 +193,7 @@ class DefaultClient:
 
         # print(response)
 
-        return await self.llm.execute_prompting(UserData(chat_id=chat_id), prompt_text)
+        return await self.llm.execute_prompting(user_data, prompt_text), END
 
         # return response["result"]["response_text"], response["result"]["next_state"]
 

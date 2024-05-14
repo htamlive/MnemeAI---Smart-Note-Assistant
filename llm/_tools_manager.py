@@ -9,6 +9,8 @@ class ToolType(enum.Enum):
     SAVE_TASK_TITLE = "save_task_title"
     SAVE_TASK_DETAIL = "save_task_detail"
     SAVE_TASK_TIME = "save_task_time"
+    SHOW_TASK_DETAIL = "show_task_detail"
+    SHOW_TASK_LIST = "show_task_list"
     ADD_NOTE = "add_note"
     GET_NOTE = "get_note"
 
@@ -20,6 +22,8 @@ class ToolManager():
             ToolType.SAVE_TASK_TITLE: save_task_title,
             ToolType.SAVE_TASK_DETAIL: save_task_detail,
             ToolType.SAVE_TASK_TIME: save_task_time,
+            ToolType.SHOW_TASK_DETAIL: show_task_detail,
+            ToolType.SHOW_TASK_LIST: show_task_list,
             ToolType.ADD_NOTE: add_note,
             ToolType.GET_NOTE: get_note,
         }

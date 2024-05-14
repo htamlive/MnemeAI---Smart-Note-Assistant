@@ -35,6 +35,36 @@ def add_note(title: str, content: str) -> str:
     """
     pass
 #
+def show_task_detail() -> str:
+    """
+    Shows the details or description of a task.
+
+    Returns:
+    (str): The details or description of the task.
+
+    Notes:
+    - The system already knows the task to be displayed based on the context.
+
+    Example:
+    >>> show_task_detail()
+    """
+    pass
+#
+def show_task_list() -> str:
+    """
+    Shows a list of tasks.
+
+    Returns:
+    (str): A list of tasks with their titles and due dates.
+
+    Notes:
+    - The system already knows the tasks to be displayed based on the context.
+
+    Example:
+    >>> show_task_list()
+    """
+    pass
+#
 def create_task(title: str, body: str, datetime) -> str:
     """
     Creates a task with a title, body, and due datetime.
