@@ -15,6 +15,8 @@ class NotionClient:
     def get_header(self, chat_id: int) -> dict:
         access_token = self.auth_client.get_credentials(chat_id)
         
+        assert access_token is not None, f"Empty access token, please login to Notion with {self.auth_client.get_auth_url}"
+        
         headers = {
                 'Authorization': f'Bearer {access_token}',
                 'Content-Type': 'application/json',
@@ -204,33 +206,43 @@ class NotionClient:
         
         return resp.data
     
-    def patch_notes(self, chat_id:int, resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
+    def get_notes_idx(self, chat_id: int, resource_idx: str):
         headers = self.get_header(chat_id)
-        resource_id = self.get_database_id(chat_id)
         
-        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
-            "sorts": [
-                {
-                "property": "Last edited time",
-                "direction": "descending"
-                }
-            ],
-        })
+        resp = requests.get(f'https://api.notion.com/v1/pages/{resource_idx}', headers=headers)
         
         data = resp.json()
-        queries = data['results']
+        assert data is not None
         
-        assert len(queries) <= resource_index, "Index must be within query length"
+        return data
+    
+    def patch_notes(self, chat_id:int, resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
+        # headers = self.get_header(chat_id)
+        # resource_id = self.get_database_id(chat_id)
         
-        page_id = queries[resource_index]['id']
+        # resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
+        #     "sorts": [
+        #         {
+        #         "property": "Last edited time",
+        #         "direction": "descending"
+        #         }
+        #     ],
+        # })
         
-        data = self.get_data(resource_id, resource_name, resource_desc)
+        # data = resp.json()
+        # queries = data['results']
         
-        resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json=data)
+        # assert len(queries) <= resource_index, "Index must be within query length"
+        
+        # page_id = queries[resource_index]['id']
+                
+        # data = self.get_data(resource_id, resource_name, resource_desc)
+        
+        # resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json=data)
         
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
         
-        page_content = resp.json()
+        page_content = self.get_notes_idx(chat_id, resource_index)
         
         resp = supabase.table("notes").upsert(
             {
@@ -248,7 +260,7 @@ class NotionClient:
         
         return resp.data
     
-    def delete_notes(self, chat_id:int, resource_index:int, clear_all: bool = False) -> dict | None:
+    def delete_notes(self, chat_id:int, resource_index:str = None, clear_all: bool = False) -> dict | None:
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
         resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
@@ -265,31 +277,27 @@ class NotionClient:
         
         if clear_all:
             for q in queries:
-                page_id = q[resource_index]['id']
+                page_id = q['id']
             
                 resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json={
                     "in_trash": True
                 })
             
-            resp = supabase.table("notes").delete().execute()
+            resp = supabase.table("notes").delete().eq("database_id", resource_id).execute()
             
             return True
             
-        else:
-            assert len(queries) <= resource_index, "Index must be within query length"
-            
-            page_id = queries[resource_index]['id']
-            
-            resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json={
+        else:            
+            resp = requests.patch(f'https://api.notion.com/v1/pages/{resource_index}', headers=headers, json={
                 "in_trash": True
             })
-            
+            assert resp.status_code == 200, "Page might not exist, or has_more is set to true"
             data = supabase.table("notes").delete().eq("page_id", page_id).execute()
             
             return True
     
     def delete_all_notes(self, chat_id: int) -> bool:
-        return self.delete_notes(chat_id, 0, True)
+        return self.delete_notes(chat_id, clear_all=True)
     
     def query(self, chat_id: int, prompt:str) -> dict | None:
         resource_id = self.get_database_id(chat_id)

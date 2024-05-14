@@ -11,8 +11,9 @@ if __name__ == '__main__':
     database_id = "39057a07ecf74585aa8580f5ba0e419a"
     
     print(client.get_user(ID))
-    print(client.get_notes(ID))
-    print(client.get_note_content(ID, 0))
+    print(client.get_notes_idx(ID, "393975a34e7b4bb880b7c216e401965a"))
+    # print(client.get_notes(ID))
+    # print(client.get_note_content(ID, 0))
     # print(client.register_database_id(ID, database_id))
     # print(client.get_database_id(ID))
     # print(client.register_page_database(2, "05633266620d4746822cdeb99ea28144", "Another one 2"))

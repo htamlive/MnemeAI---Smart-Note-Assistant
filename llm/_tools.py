@@ -6,6 +6,7 @@ from pkg.google_task_api.client import GoogleTaskClient
 from pkg.google_task_api.model import Task
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 from pkg.msg_brokers.celery import send_notification
+from pkg.notion_api.client import NotionClient
 
 from asgiref.sync import sync_to_async
 
@@ -122,9 +123,61 @@ async def delete_task(user_data: UserData, task_name: str | None = None, google_
     return f"Deleted task: {task_name}"
 
 
-async def add_note(chat_id: int, title: str, content: str) -> str:
+async def add_note(user_data: UserData, title: str, content: str, client: NotionClient | None) -> str:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.post_notes)(chat_id, title, content)
+    assert len(resp.data) > 0
+    
     return f"Added note: {title}, Note: {content}"
 
+async def update_note(user_data: UserData, note_id: str, title:str = None, content: str = None, client: NotionClient = None) -> str:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
+    assert len(resp.data) > 0
+    
+    return f"Updated note"
 
-async def get_note(chat_id: int, queries_str: str) -> List[str]:
-    return ["Building a rocket", "fighting a mummy", "climbing up the Eiffel Tower"]
+async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient = None) -> str:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
+    props = resp['properties']
+    
+    title = " ".join([string['plain_text'] for string in props['Name']['title']])
+    content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
+    
+    return f"Got note: {title}, Note: {content}"
+
+async def get_note(user_data: UserData, client: NotionClient | None) -> List[str]:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.get_notes)(chat_id)
+    
+    prompts = []
+    for q in resp:
+        props = q['properties']
+        title = " ".join([string['plain_text'] for string in props['Name']['title']])
+        content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
+        prompts.append(f"Got note: {title}, Note: {content}")
+        
+    return prompts
+
+async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClient = None) -> str:
+    chat_id = user_data.chat_id
+    
+    resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
+    props = resp['properties']
+    
+    title = " ".join([string['plain_text'] for string in props['Name']['title']])
+    content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
+    
+    return f"Got note: {title}, Note: {content}"
+
+async def delete_note(user_data: UserData, client: NotionClient = None) -> str:
+    chat_id = user_data.chat_id
+    
+    await sync_to_async(client.delete_all_notes)(chat_id)
+    
+    return "Deleted all notes"
