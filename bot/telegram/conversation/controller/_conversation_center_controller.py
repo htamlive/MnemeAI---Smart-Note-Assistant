@@ -6,6 +6,8 @@ from telegram.ext import filters
 
 from ._note_conversation_controller import NoteConversationController
 from ._reminder_conversation_controller import ReminderConversationController
+from ..notion_request.request_notion_db_conversation import RequestNotionDBConversation
+from ..notion_request.request_page_conversation import RequestNotionPageConversation
 
 from .._prompting_conversation import PromptingConversation
 
@@ -20,6 +22,9 @@ class ConversationCenterController:
 
         self.reminder_conversation_controller = ReminderConversationController(self.client)
         self.note_conversation_controller = NoteConversationController(self.client)
+        self.notion_db_request_conversation = RequestNotionDBConversation(NOTION_REQ_DB, self.client)
+        self.notion_page_request_conversation = RequestNotionPageConversation(NOTION_REQ_PAGE, self.client)
+        
 
         self.prompting_conversation = PromptingConversation(PROMPTING, self.client)
 
@@ -30,9 +35,14 @@ class ConversationCenterController:
         self.conversation_handler = ConversationHandler(
             entry_points=[
                 CommandHandler(Commands.PROMPTING.value, self.prompting_conversation.start_conversation),
+                CommandHandler(Commands.NOTION_REQ_DB.value, self.notion_db_request_conversation.start_conversation),
+                CommandHandler(Commands.NOTION_REQ_PAGE.value, self.notion_page_request_conversation.start_conversation)
             ] + self.note_conversation_controller.get_entry_points() + self.reminder_conversation_controller.get_entry_points(),
-            states = 
-                self.note_conversation_controller.get_states_dict(command_handler) | self.reminder_conversation_controller.get_states_dict(command_handler),
+            states = {
+                NOTION_REQ_DB: [command_handler] + self.notion_db_request_conversation.states,
+                NOTION_REQ_PAGE: [command_handler] + self.notion_page_request_conversation.states
+
+            } | self.note_conversation_controller.get_states_dict(command_handler) | self.reminder_conversation_controller.get_states_dict(command_handler),
             fallbacks=[
                 CommandHandler('cancel', self.cancel)
             ]
@@ -61,6 +71,12 @@ class ConversationCenterController:
         
         if command.startswith('/'+Commands.PROMPTING.value):
             return await self.prompting_conversation.start_conversation(update, context)
+        
+        if command.startswith('/'+Commands.NOTION_REQ_DB.value):
+            return await self.notion_db_request_conversation.start_conversation(update, context)
+        
+        if command.startswith('/'+Commands.NOTION_REQ_PAGE.value):
+            return await self.notion_page_request_conversation.start_conversation(update, context)
         
         return ConversationHandler.END
 

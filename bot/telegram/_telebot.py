@@ -113,6 +113,22 @@ class Telebot:
 
         self.application.add_handler(CommandHandler('notion_authorization', notion_authorization))
 
+    def init_notion_register_page(self) -> None:
+        async def notion_register_page_normal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text='Please enter your database URL or database ID'
+            )
+
+        async def notion_register_page_advance(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text='Please enter your database URL or database ID'
+            )
+
+        self.application.add_handler(CommandHandler('normal_notion_register', notion_register_page_normal))
+        self.application.add_handler(CommandHandler('advance_notion_register', notion_register_page_advance))
+
     def init_google_authorization_command(self) -> None:
 
         async def google_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
