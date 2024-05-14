@@ -239,7 +239,7 @@ async def delete_task(user_data: UserData, task_name: str | None = None, google_
     return f"Deleted task: {task_name}"
 
 
-async def add_note(user_data: UserData, title: str, content: str, client: NotionClient | None) -> str:
+async def add_note(user_data: UserData, title: str, content: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
     resp = await sync_to_async(client.post_notes)(chat_id, title, content)
@@ -247,15 +247,17 @@ async def add_note(user_data: UserData, title: str, content: str, client: Notion
     
     return f"Added note: {title}, Note: {content}"
 
-async def update_note(user_data: UserData, note_id: str, title:str = None, content: str = None, client: NotionClient = None) -> str:
+async def update_note(user_data: UserData, note_id: str, title:str = None, content: str = None, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
+    
+    
     
     resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
     assert len(resp.data) > 0
     
     return f"Updated note"
 
-async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient = None) -> str:
+async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
     resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
@@ -266,7 +268,7 @@ async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient =
     
     return f"Got note: {title}, Note: {content}"
 
-async def get_note(user_data: UserData, client: NotionClient | None) -> List[str]:
+async def get_note(user_data: UserData, client: NotionClient = NotionClient()) -> List[str]:
     chat_id = user_data.chat_id
     
     resp = await sync_to_async(client.get_notes)(chat_id)
@@ -280,7 +282,7 @@ async def get_note(user_data: UserData, client: NotionClient | None) -> List[str
         
     return prompts
 
-async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClient = None) -> str:
+async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
     resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
@@ -291,7 +293,7 @@ async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClien
     
     return f"Got note: {title}, Note: {content}"
 
-async def delete_note(user_data: UserData, client: NotionClient = None) -> str:
+async def delete_note(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
     await sync_to_async(client.delete_all_notes)(chat_id)
