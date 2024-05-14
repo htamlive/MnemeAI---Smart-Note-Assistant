@@ -126,10 +126,7 @@ class NotionClient:
         
         return resp.data
     
-    def get_note_content(self, chat_id, note_idx_text) -> str:
-
-        # Remember to convert to 0-based index
-        note_idx = int(note_idx_text) - 1
+    def get_note_content(self, chat_id, note_idx) -> str:
 
         # title = pagination_test_data[note_idx]["title"]
         # description = pagination_test_data[note_idx]["description"]

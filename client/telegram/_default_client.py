@@ -115,12 +115,12 @@ class DefaultClient:
     def get_note_content(self, chat_id, note_token) -> str:
 
         # Remember to convert to 0-based index
-        note_idx = self.extract_note_idx(note_idx_text)
+        note_idx = self.extract_note_idx(note_token)
 
         # title = pagination_test_data[note_idx]["title"]
         # description = pagination_test_data[note_idx]["description"]
         
-        return self.notion_client.get_note_content(chat_id, note_idx_text)
+        return self.notion_client.get_note_content(chat_id, note_idx)
 
     @deprecated
     def get_total_note_pages(self, chat_id: int) -> int:
