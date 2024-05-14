@@ -3,15 +3,50 @@ import requests
 import dotenv
 from .utils import generate_embeddings
 from ..database.client import supabase
-from typing import List
+from typing import List, Tuple
 from .authorization_client import Authorization_client
 from config import config
+import re
 
 class NotionClient:
     def __init__(self):
         self.auth_client = Authorization_client()
         self.len = None
     
+    def check_type(self, chat_id: int, resource_id: str) -> str:
+        headers = self.get_header(chat_id)
+        resource_id = self.extract_notion_id(resource_id)
+        
+        # Check if it's a database
+        resp = requests.get(f"https://api.notion.com/v1/databases/{resource_id}", headers=headers)
+        if resp.status_code == 200:
+            return "database"
+
+        # Check if it's a page
+        resp = requests.get(f"https://api.notion.com/v1/pages/{resource_id}", headers=headers)
+        if resp.status_code == 200:
+            return "page"
+
+        # Check if it's a block
+        resp = requests.get(f"https://api.notion.com/v1/blocks/{resource_id}", headers=headers)
+        if resp.status_code == 200:
+            return "block"
+
+        # If none of the above, it's an unknown type or invalid ID
+        return "unknown"
+    
+    def extract_notion_id(self, url: str):
+        # Regex pattern to match Notion ID
+        pattern = re.compile(r'[a-f0-9]{32}(?:[a-f0-9]{0,6}|)')
+        
+        # Search for the pattern in the given URL
+        match = pattern.search(url)
+        
+        if match:
+            return match.group(0)
+        else:
+            return None
+        
     def get_header(self, chat_id: int) -> dict:
         access_token = self.auth_client.get_credentials(chat_id)
         
@@ -43,6 +78,7 @@ class NotionClient:
         return len(self.get_notes(chat_id))
     
     def register_database_id(self, chat_id: int, resource_id: str):
+        resource_id = self.extract_notion_id(resource_id)
         resp = supabase.from_("notion_database_id").upsert({
             "id": chat_id,
             "database_id": resource_id
@@ -52,6 +88,7 @@ class NotionClient:
         return resp.data
         
     def register_page_database(self, chat_id: int, page_id: str, title: str = "New Database"):
+        page_id = self.extract_notion_id(page_id)
         headers = self.get_header(chat_id)
         data = {
             "parent": { "page_id": page_id },
@@ -299,7 +336,7 @@ class NotionClient:
     def delete_all_notes(self, chat_id: int) -> bool:
         return self.delete_notes(chat_id, clear_all=True)
     
-    def query(self, chat_id: int, prompt:str) -> dict | None:
+    def query(self, chat_id: int, prompt:str) -> Tuple[dict, List[str]] | None:
         resource_id = self.get_database_id(chat_id)
         embeddings = generate_embeddings(prompt)
         
@@ -326,4 +363,4 @@ class NotionClient:
             "prompt": prompt,
         })
         
-        return resp.json()
+        return resp.json(), [query['content'] for query in resp.data]

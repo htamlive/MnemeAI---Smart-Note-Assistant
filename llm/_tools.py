@@ -248,10 +248,8 @@ async def add_note(user_data: UserData, title: str, content: str, client: Notion
     return f"Added note: {title}, Note: {content}"
 
 async def update_note(user_data: UserData, note_id: str, title:str = None, content: str = None, client: NotionClient = NotionClient()) -> str:
-    chat_id = user_data.chat_id
-    
-    
-    
+    chat_id = user_data.chat_id    
+    note_id = client.extract_notion_id(note_id)
     resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
     assert len(resp.data) > 0
     
@@ -259,6 +257,7 @@ async def update_note(user_data: UserData, note_id: str, title:str = None, conte
 
 async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
+    note_id = client.extract_notion_id(note_id)
     
     resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
     props = resp['properties']
@@ -284,6 +283,7 @@ async def get_note(user_data: UserData, client: NotionClient = NotionClient()) -
 
 async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
+    note_id = client.extract_notion_id(note_id)
     
     resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
     props = resp['properties']

@@ -1,0 +1,25 @@
+import re
+
+def extract_notion_id(input_str):
+    # Regex pattern to match Notion ID
+    pattern = re.compile(r'[a-f0-9]{32}(?:[a-f0-9]{0,6}|)')
+    
+    # Search for the pattern in the given input string
+    match = pattern.search(input_str)
+    
+    if match:
+        return match.group(0)
+    else:
+        return None
+
+# Example inputs
+inputs = [
+    "https://www.notion.so/workspace/Page-Name-1234567890abcdef1234567890abcdef",
+    "https://www.notion.so/workspace/1234567890abcdef1234567890abcdef",
+    "https://www.notion.so/1234567890abcdef1234567890abcdef",
+    "1234567890abcdef1234567890abcdef"
+]
+
+for input_str in inputs:
+    notion_id = extract_notion_id(input_str)
+    print(f"Input: {input_str}\nExtracted Notion ID: {notion_id}\n")
