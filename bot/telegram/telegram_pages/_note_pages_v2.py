@@ -27,9 +27,6 @@ class NotePages:
     
     def _client_get_page_content(self, chat_id, page_token):
         return self.client.get_note_page_content(chat_id, page_token)
-
-    def client_get_content(self, chat_id, note_idx) -> str:
-        return self.client.get_note_content(chat_id, note_idx)
     
     async def client_get_total_pages(self, chat_id: int) -> int:
         return await self.client.get_total_note_pages(chat_id)        

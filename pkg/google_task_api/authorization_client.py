@@ -34,7 +34,11 @@ class Authorization_client:
         return authorization_url
 
     def get_credentials(self, chat_id: int) -> google.oauth2.credentials.Credentials | None:
-        authz = Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value)
+        try:
+            authz = Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value)
+            print("Authz:", authz)
+        except Authz.DoesNotExist:
+            authz = None
         if authz:
             return google.oauth2.credentials.Credentials(
                 token=authz.token,

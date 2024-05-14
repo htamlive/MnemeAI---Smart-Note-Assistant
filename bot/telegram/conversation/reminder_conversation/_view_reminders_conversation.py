@@ -4,7 +4,7 @@ from telegram.ext import CallbackQueryHandler
 
 from ..note_conversation._view_notes_conversation import ViewNotesConversation
 from bot.telegram.telegram_pages import NotePages, ReminderPages
-from bot.telegram.ui_templates import get_reminder_option_keyboard
+from bot.telegram.ui_templates import get_reminder_option_keyboard, render_html_reminder_detail
 from config import REMINDER_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -37,6 +37,14 @@ class ViewRemindersConversation(ViewNotesConversation):
         return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
 
     async def client_get_content(self, chat_id: int, token: str) -> str:
-        return await self.client.get_reminder_content(chat_id, token)
+        title, description, due = await self.client.get_reminder_content(chat_id, token)
+        html_render = render_html_reminder_detail(due, title, description)
+        return html_render
 
+    def update_review_message_tracker(self, context, message_id, text_html, token) -> dict:
+        context.user_data['prev_review_message'] = {
+            'message_id': message_id,
+            'text_html': text_html,
+            'reminder_token': token
+        }
 

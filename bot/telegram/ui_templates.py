@@ -1,3 +1,4 @@
+import datetime
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -110,3 +111,14 @@ def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_
         'reply_markup': InlineKeyboardMarkup(keyboards),
         'parse_mode': 'HTML'
     }
+
+def render_html_reminder_detail(due: datetime, title: str, description: str) -> str:
+    html_render = \
+        "<b>📌 YOUR REMINDERS:</b>\n" \
+        "✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦\n\n<b>"\
+        f"🔹 <i>{title}</i></b>\n"\
+        f"\n📝\n{description}\n"\
+        f"\n⏰\n{due}"
+
+    return html_render
+

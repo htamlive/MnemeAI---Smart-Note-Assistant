@@ -89,8 +89,8 @@ class Telebot:
 
         async def notion_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
-            url = self.client.get_notion_authorization_url(update.effective_chat.id)
-            is_authorized = self.client.check_notion_authorization(update.effective_chat.id)
+            url = await self.client.get_notion_authorization_url(update.effective_chat.id)
+            is_authorized = await self.client.check_notion_authorization(update.effective_chat.id)
 
             reply_markup = None
 

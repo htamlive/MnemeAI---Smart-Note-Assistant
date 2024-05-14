@@ -36,6 +36,7 @@ class LLM:
     
     async def execute_prompting(self, user_data: UserData, user_request: str) -> str | None:
         function_map, tool_interfaces = self.tool_manager.get_tools([tool_type for tool_type in ToolType])
+        print(len(function_map))
         return await self._llm_invoke(user_data, user_request, function_map, tool_interfaces)
 
     async def add_note(self, user_data: UserData, note_text: str) -> str | None:

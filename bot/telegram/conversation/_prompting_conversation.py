@@ -2,6 +2,9 @@ from telegram import Update
 from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
+
+from llm.models import UserData
+from llm._tools import show_task_list
 from ._command_conversation import CommandConversation
 from client import TelegramClient
 
@@ -16,13 +19,22 @@ class PromptingConversation(CommandConversation):
         if(context.args):
             chat_id = update.message.chat_id
             prompt_text = ' '.join(context.args)
+
+            user_data: UserData = UserData()
+
+            user_data.chat_id = chat_id
+            if('prev_review_message' in context.user_data):
+                data = context.user_data['prev_review_message']
+                user_data.reminder_token = data.get('reminder_token', None)
+                user_data.note_token = data.get('note_token', None)
         
-            response_text, next_state = await self.client.process_prompt(chat_id, prompt_text)
+            
+            response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
 
             if(self.debug):
                 await update.message.reply_text(response_text)
 
-            print(f'Next state: {next_state}')
+            # print(f'Next state: {next_state}')
             return next_state
 
 

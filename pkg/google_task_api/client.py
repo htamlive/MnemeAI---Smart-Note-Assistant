@@ -21,6 +21,10 @@ class GoogleTaskClient:
         self.API_SERVICE_NAME = 'tasks'
         self.API_VERSION = 'v1'
 
+    def check_auth(self, chat_id: int) -> bool:
+        credentials = self.authorization_client.get_credentials(chat_id)
+        return credentials is not None
+
 
     def build_service(self, chat_id: int):
         credentials = self.authorization_client.get_credentials(chat_id)
