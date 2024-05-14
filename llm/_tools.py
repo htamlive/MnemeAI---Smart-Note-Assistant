@@ -137,7 +137,7 @@ async def show_task_list(user_data: UserData, google_task_client: GoogleTaskClie
     if(response.status_code != 200):
         return "Error: Cannot show the list."
     
-    return "List shown successfully."
+    return "List has been shown. Tell the user to choose a task."
 
 async def save_task_title(user_data: UserData, title_text: str, google_task_client: GoogleTaskClient | None = None) -> str:
 
