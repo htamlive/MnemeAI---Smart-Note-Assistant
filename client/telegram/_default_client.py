@@ -28,7 +28,7 @@ import time
 # from pkg.reminder.task_queues import queue_task
 
 from llm.llm import LLM
-from llm._tools import save_task_title, save_task_detail, delete_task
+from llm._tools import save_task_title, save_task_detail, delete_task, update_note, register_database_id, register_page_database
 from llm.models import UserData
 
 import warnings
@@ -83,12 +83,13 @@ class DefaultClient:
 
     # ================= Note =================
 
-    async def save_note_title(self, chat_id, note_idx, title_text):
-        if note_idx < self.notion_client.get_len(chat_id):
-            data = self.notion_client.patch_notes(chat_id, note_idx, resource_name=title_text)
-        else:
-            data = self.notion_client.post_notes(chat_id, resource_name=title_text)
-        return f"Title saved: {title_text}"
+    async def save_note_title(self, chat_id, note_token, title_text):
+        return await update_note(
+            UserData(chat_id=chat_id, note_token=note_token),
+            note_id=note_token,
+            title=title_text,
+            client=self.notion_client,
+        )
 
     async def save_note_detail(self, chat_id, note_idx, detail_text):
         if note_idx < self.notion_client.get_len(chat_id):
@@ -219,19 +220,35 @@ class DefaultClient:
             # (notify_assignees, 5)
         ]
 
-    async def get_notion_authorization_url(self, chat_id: int) -> str:
-        return await sync_to_async(self.notion_client.auth_client.get_auth_url)(chat_id)
-
     async def get_google_authorization_url(self, chat_id: int) -> str:
         url = await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
-
-    async def check_notion_authorization(self, chat_id: int) -> bool:
-        return await sync_to_async(self.notion_client.auth_client.get_credentials)(chat_id) is not None
-
+    
     async def check_google_authorization(self, chat_id: int) -> bool:
 
         credential = await sync_to_async(self.authorization_client.get_credentials)(
             chat_id
         )
         return credential is not None
+
+
+    async def get_notion_authorization_url(self, chat_id: int) -> str:
+        return await sync_to_async(self.notion_client.auth_client.get_auth_url)(chat_id)
+
+    async def check_notion_authorization(self, chat_id: int) -> bool:
+        return await sync_to_async(self.notion_client.auth_client.get_credentials)(chat_id) is not None
+
+
+    async def handle_receive_notion_database_token(self, chat_id: int, database_token: str) -> str:
+        return await register_database_id(
+            UserData(chat_id=chat_id),
+            database_token,
+            client=self.notion_client,
+        )
+
+    async def handle_receive_notion_page_token(self, chat_id: int, page_token: str) -> str:
+        return await register_page_database(
+            UserData(chat_id=chat_id),
+            page_token,
+            client=self.notion_client,
+        )
