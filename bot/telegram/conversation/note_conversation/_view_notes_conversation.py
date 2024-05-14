@@ -64,7 +64,7 @@ class ViewNotesConversation(CommandConversation):
         if('prev_review_message' in context.user_data):
             await context.bot.delete_message(
                 chat_id=update.effective_chat.id,
-                message_id=context.user_data['prev_review_message'][0]
+                message_id=context.user_data['prev_review_message']['message_id']
             )
 
 
