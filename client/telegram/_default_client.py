@@ -219,15 +219,15 @@ class DefaultClient:
             # (notify_assignees, 5)
         ]
 
-    def get_notion_authorization_url(self, chat_id: int) -> str:
-        return self.NOTION_AUTH_URL
+    async def get_notion_authorization_url(self, chat_id: int) -> str:
+        return await sync_to_async(self.notion_client.auth_client.get_auth_url)(chat_id)
 
     async def get_google_authorization_url(self, chat_id: int) -> str:
         url = await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
 
-    def check_notion_authorization(self, chat_id: int) -> bool:
-        return False
+    async def check_notion_authorization(self, chat_id: int) -> bool:
+        return await sync_to_async(self.notion_client.auth_client.get_credentials)(chat_id) is not None
 
     async def check_google_authorization(self, chat_id: int) -> bool:
 

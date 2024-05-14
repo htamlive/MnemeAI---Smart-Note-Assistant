@@ -28,6 +28,7 @@ class PromptingConversation(CommandConversation):
                 user_data.reminder_token = data.get('reminder_token', None)
                 user_data.note_token = data.get('note_token', None)
         
+            
             response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
 
             if(self.debug):

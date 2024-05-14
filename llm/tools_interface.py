@@ -52,10 +52,10 @@ def show_task_detail() -> str:
 #
 def show_task_list() -> str:
     """
-    Shows a list of tasks.
+    Shows user's tasks
 
     Returns:
-    (str): A list of tasks with their titles and due dates.
+    (str): The status of the task list.
 
     Notes:
     - The system already knows the tasks to be displayed based on the context.

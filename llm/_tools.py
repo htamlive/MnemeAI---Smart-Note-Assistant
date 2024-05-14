@@ -7,7 +7,7 @@ from bot.telegram.ui_templates import get_reminder_option_keyboard, render_html_
 from config.config import TELEGRAM_SEND_ENDPOINT
 from llm.models import UserData
 from pkg.google_task_api.client import GoogleTaskClient
-from pkg.google_task_api.model import Task
+from pkg.google_task_api.model import ListTask, Task
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 from pkg.msg_brokers.celery import send_notification
 from django.utils import timezone as dj_timezone
@@ -21,7 +21,6 @@ async def check_google_task_auth(user_data: UserData, google_task_client: Google
     if google_task_client is None:
         google_task_client = GoogleTaskClient()
     return await sync_to_async(google_task_client.check_auth)(chat_id)
-
 
 async def create_task(user_data: UserData, title: str, body: str, due, google_task_client: GoogleTaskClient | None = None) -> str:
     
@@ -104,7 +103,7 @@ async def show_task_detail(user_data: UserData, google_task_client: GoogleTaskCl
 
     return "Task shown successfully."
 
-async def show_task_list(user_data: UserData, google_task_client: GoogleTaskClient | None = None):
+async def show_task_list(user_data: UserData, google_task_client: GoogleTaskClient | None = None) -> str:
     chat_id = user_data.chat_id
 
     if chat_id is None:
@@ -116,7 +115,7 @@ async def show_task_list(user_data: UserData, google_task_client: GoogleTaskClie
     if not await check_google_task_auth(user_data, google_task_client=google_task_client):
         return "Error: Not authorized to create a task."    
 
-    tasks = await sync_to_async(google_task_client.list_tasks)(chat_id=chat_id)
+    tasks: ListTask = await sync_to_async(google_task_client.list_tasks)(chat_id=chat_id)
 
     if tasks is None:
         return "Error: Cannot show the list."
