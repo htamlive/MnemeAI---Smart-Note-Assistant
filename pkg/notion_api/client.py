@@ -121,12 +121,14 @@ class NotionClient:
         assert len(resp.data) > 0
         return resp.data
         
-    def get_notes(self, chat_id: int, starting_point: int = 0) -> List[dict] | None:              
+    def get_notes(self, chat_id: int, starting_point: str = None) -> List[dict] | None:              
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
-        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers)
+        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
+            "page_size": 5,
+            "start_cursor": starting_point
+        })
         
-
         # print(data)
         resp.raise_for_status()
         data = resp.json()
@@ -160,7 +162,7 @@ class NotionClient:
         
         assert len(resp.data) > 0
         
-        return resp.data
+        return resp.data, data['next_cursor'], data['has_more']
     
     def get_note_content(self, chat_id, note_idx) -> str:
 
