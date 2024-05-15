@@ -300,17 +300,27 @@ async def delete_note(user_data: UserData, client: NotionClient = NotionClient()
 
 async def register_database_id(user_data: UserData, database_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
+    type = client.check_type(chat_id, database_id)
+    if type == "database":
+        resp = await sync_to_async(client.register_database_id)(chat_id, database_id)
+        
+        return f"Registered database {database_id} to user {chat_id}"
+    elif type == "page":
+        page_id = database_id
+        resp = await sync_to_async(client.register_page_database)(chat_id, page_id)
     
-    resp = await sync_to_async(client.register_database_id)(chat_id, database_id)
-    
-    return f"Registered database {database_id} to user {chat_id}"
+        return f"Registered database {resp['id']} in page {page_id} to user {chat_id}"
+    else:
+        return f"This is a {type} object, try again"
 
-async def register_page_database(user_data: UserData, page_id: str, client: NotionClient = NotionClient()) -> str:
-    chat_id = user_data.chat_id
+# async def register_page_database(user_data: UserData, page_id: str, client: NotionClient = NotionClient()) -> str:
+#     chat_id = user_data.chat_id
+#     type = client.check_type(chat_id, page_id)
+#     if type != "page":
+#         pass
+#     resp = await sync_to_async(client.register_page_database)(chat_id, page_id)
     
-    resp = await sync_to_async(client.register_page_database)(chat_id, page_id)
-    
-    return f"Registered database {resp['id']} to user {chat_id}"
+#     return f"Registered database {resp['id']} in page {page_id} to user {chat_id}"
 
 async def check_type(user_data: UserData, content_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
