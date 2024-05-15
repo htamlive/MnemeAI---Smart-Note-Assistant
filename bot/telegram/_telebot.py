@@ -89,12 +89,12 @@ class Telebot:
 
         async def notion_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
-            url = await self.client.get_notion_authorization_url(update.effective_chat.id)
             is_authorized = await self.client.check_notion_authorization(update.effective_chat.id)
 
             reply_markup = None
 
             if(not is_authorized):
+                url = await self.client.get_notion_authorization_url(update.effective_chat.id)
                 text = f'Click the button to authorize with Notion'
                 reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Authorize', url=url)]])
             else:
@@ -133,18 +133,16 @@ class Telebot:
 
         async def google_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
-            url = await self.client.get_google_authorization_url(update.effective_chat.id)
             is_authorized = await self.client.check_google_authorization(update.effective_chat.id)
 
             reply_markup = None
 
             if(not is_authorized):
+                url = await self.client.get_google_authorization_url(update.effective_chat.id)
                 text = f'Click the button to authorize with Google'
                 reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Authorize', url=url)]])
             else:
                 text = 'You have already authorized the bot to access your Google account.'
-
-
 
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
