@@ -17,7 +17,7 @@ from pkg.notion_api.client import NotionClient
 
 from asgiref.sync import sync_to_async
 
-from pkg.notion_api.model import ListNotes
+from pkg.notion_api.model import ListNotes, Notes
 
 async def check_google_task_auth(user_data: UserData, google_task_client: GoogleTaskClient | None = None) -> bool:
     chat_id = user_data.chat_id
@@ -247,22 +247,20 @@ async def add_note(user_data: UserData, title: str, content: str, client: Notion
     
     return f"Added note: {title}, Note: {content}"
 
-async def update_note(user_data: UserData, note_id: str, title:str = None, content: str = None, client: NotionClient = NotionClient()) -> str:
+async def update_note(user_data: UserData, title:str = None, content: str = None, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id    
-    note_id = client.extract_notion_id(note_id)
+    note_id = user_data.note_token
     resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
     
-    return f"Updated note"
+    return f"note is updated"
 
 async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
-    note_id = user_data.note_token
-    note_id = client.extract_notion_id(note_id)
+    note_id = user_data.note_token    
+    resp = await sync_to_async(client.get_notes)(chat_id, note_id)
+    props = resp['properties']
     
-    # resp = await sync_to_async(client.get_notes)(chat_id, note_id)
-    # props = resp['properties']
-    
-    # title = " ".join([string['plain_text'] for string in props['Name']['title']])
-    # content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
+    title = " ".join([string['plain_text'] for string in props['Name']['title']])
+    content = " ".join([string['plain_text'] for string in props['Description']['rich_text']])
     
     return f"Show note sucessfully"
 
@@ -297,15 +295,16 @@ async def get_notes_list(user_data: UserData, client: NotionClient = NotionClien
     
     return "List has been shown. Let some time for the user to see the list."
     
-async def delete_notes(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
+async def delete_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
-    note_id = client.extract_notion_id(note_id)
+    note_id = user_data.note_token
     
-    resp = await sync_to_async(client.get_notes)(chat_id, note_id)
-    props = resp['properties']
+    notes: Notes = await sync_to_async(client.get_notes)(chat_id, note_id)
     
-    title = " ".join([string['plain_text'] for string in props['Name']['title']])
+    title = notes.title
     # content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
+
+    await sync_to_async(client.delete_notes)(chat_id, note_id)
     
     return f"Note {title} is deleted"
 

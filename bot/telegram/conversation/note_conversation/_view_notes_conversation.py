@@ -41,8 +41,6 @@ class ViewNotesConversation(CommandConversation):
 
         await self.previewing_pages.view_note_page_command(update, context)
 
-        await update.message.reply_text("Please send me the note index.")
-
         return self.VIEW_ITEMS
     
     async def view_note_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

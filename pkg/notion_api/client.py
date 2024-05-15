@@ -323,22 +323,17 @@ class NotionClient:
         
         return resp.data
     
-    def delete_notes(self, chat_id:int, resource_index:str = None, clear_all: bool = False) -> dict | None:
+    def delete_notes(self, chat_id:int, resource_index:str = None, clear_all: bool = False) -> bool:
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
-        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
-            "sorts": [
-                {
-                "property": "Last edited time",
-                "direction": "descending"
-                }
-            ],
-        })
+        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers)
         
         resp.raise_for_status()
         
         data = resp.json()
         queries = data['results']
+
+        page_id = resource_index
         
         if clear_all:
             for q in queries:
@@ -352,14 +347,16 @@ class NotionClient:
             
             return True
             
-        else:            
-            resp = requests.patch(f'https://api.notion.com/v1/pages/{resource_index}', headers=headers, json={
-                "in_trash": True
-            })
-            resp.raise_for_status()
-            data = supabase.table("notes").delete().eq("page_id", page_id).execute()
-            
-            return True
+        resp = requests.patch(f'https://api.notion.com/v1/pages/{resource_index}', headers=headers, json={
+            "in_trash": True
+        })
+        print(resp.json())
+        resp.raise_for_status()
+        data = supabase.table("notes").delete().eq("id", page_id).execute()
+        
+        return True
+        
+
     
     def delete_all_notes(self, chat_id: int) -> bool:
         return self.delete_notes(chat_id, clear_all=True)

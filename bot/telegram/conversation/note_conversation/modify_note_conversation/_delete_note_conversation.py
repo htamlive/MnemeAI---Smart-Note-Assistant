@@ -28,12 +28,9 @@ class DeleteNoteConversation(ModifyNoteConversation):
         query: CallbackQuery = update.callback_query
         await query.answer()
 
-        note_idx = query.data.split(PATTERN_DELIMITER)[1]
-        keyboard = self.get_confirmation_keyboard(note_idx)
-
-        current_text = query.message.text
-        await query.edit_message_text(text=current_text, reply_markup=InlineKeyboardMarkup(keyboard))
-        await query.message.reply_text("Are you really sure you want to delete?\n""Becareful, this action is irreversible.")
+        note_token = query.data.split('@')[1]
+        keyboard = self.get_confirmation_keyboard(note_token)
+        await query.edit_message_text(text="Are you really sure you want to delete?", reply_markup=InlineKeyboardMarkup(keyboard))
 
         return self.DELETE_ITEM
 
