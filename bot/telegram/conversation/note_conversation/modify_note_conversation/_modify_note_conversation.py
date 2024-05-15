@@ -50,7 +50,7 @@ class ModifyNoteConversation(CommandConversation):
 
         message = update.message if update.message else update.callback_query.message
 
-        await update.message.reply_text(
+        await message.reply_text(
             'Woohoo! Finished!\n\n<i>View your latest version with</i> /view_notes <i>and</i> /view_reminders',
             parse_mode='HTML'
             )
