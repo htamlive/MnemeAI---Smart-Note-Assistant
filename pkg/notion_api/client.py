@@ -124,10 +124,13 @@ class NotionClient:
     def get_notes(self, chat_id: int, starting_point: str = None) -> List[dict] | None:              
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
-        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
-            "page_size": 5,
-            "start_cursor": starting_point
-        })
+        
+        payload = {
+            "page_size": 5
+        }
+        if starting_point is not None:
+            payload['start_cursor'] = starting_point
+        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json=payload)
         
         # print(data)
         resp.raise_for_status()
