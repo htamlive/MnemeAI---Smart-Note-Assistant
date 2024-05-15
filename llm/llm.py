@@ -40,7 +40,7 @@ class LLM:
         return await self._llm_invoke(user_data, user_request, function_map, tool_interfaces)
 
     async def add_note(self, user_data: UserData, note_text: str) -> str | None:
-        function_map, tool_interfaces = self.tool_manager.get_tools([ToolType.ADD_NOTE])
+        function_map, tool_interfaces = self.tool_manager.get_tools([ToolType.CREATE_NOTES])
         return await self._llm_invoke(user_data, note_text, function_map, tool_interfaces)
     
     async def add_task(self, user_data: UserData, task_text: str) -> str | None:

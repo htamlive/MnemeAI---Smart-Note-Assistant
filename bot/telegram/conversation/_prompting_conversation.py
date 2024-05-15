@@ -4,7 +4,7 @@ from telegram.ext import (
 )
 
 from llm.models import UserData
-from llm._tools import get_notes_list
+from llm._tools import show_notes_list
 from ._command_conversation import CommandConversation
 from client import TelegramClient
 
@@ -31,7 +31,7 @@ class PromptingConversation(CommandConversation):
 
             # await add_note(user_data, "Julia is very good", "Julia is very good")
 
-            await get_notes_list(user_data)
+            await show_notes_list(user_data)
 
             return ConversationHandler.END
             

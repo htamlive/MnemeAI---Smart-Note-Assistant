@@ -26,7 +26,7 @@ class EditNoteDetailConversation(ModifyNoteConversation):
     async def receive_detail_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         detail_text = update.message.text
         await self.handle_receive_detail_text(update, context, detail_text)
-        # await self.on_finish_edit(update, context)
+        await self.on_finish_edit(update, context)
 
         return ConversationHandler.END
     

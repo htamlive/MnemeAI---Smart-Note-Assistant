@@ -9,6 +9,7 @@ from typing import List, Tuple
 from .authorization_client import Authorization_client
 from config import config
 import re
+from deprecatedFunction import deprecated
 
 class NotionClient:
     def __init__(self):
@@ -277,12 +278,14 @@ class NotionClient:
         notes: Notes = Notes(
             id=data['id'],
             title=title,
-            notes=content
+            notes=content,
+            parent=data['parent']['database_id'],
         )
         
         return notes
     
-    def patch_notes(self, chat_id:int, resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
+    @deprecated
+    def alt_patch_notes(self, chat_id:int, resource_token:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
         # headers = self.get_header(chat_id)
         # resource_id = self.get_database_id(chat_id)
         
@@ -324,7 +327,22 @@ class NotionClient:
 
         assert len(resp.data) > 0
         
-        return resp.data
+        return resp.data    
+
+    def patch_notes(self, chat_id:int, resource_token:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
+        
+        self.delete_notes(chat_id, resource_token)
+
+        notes: Notes = self.get_notes(chat_id, resource_token)
+
+        if not resource_name:
+            resource_name = notes.title
+
+        if not resource_desc:
+            resource_desc = notes.notes
+
+        self.post_notes(chat_id, resource_name, resource_desc)
+        
     
     def delete_notes(self, chat_id:int, resource_index:str = None, clear_all: bool = False) -> bool:
         headers = self.get_header(chat_id)

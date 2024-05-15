@@ -34,7 +34,7 @@ def get_note_option_keyboard(note_idx: str) -> list:
             InlineKeyboardButton('Edit Detail', callback_data=f'{Patterns.EDIT_NOTE_DETAIL.value}{note_idx}'),
             InlineKeyboardButton('Delete', callback_data=f'{Patterns.DELETE_NOTE.value}{note_idx}')
         ],
-        [InlineKeyboardButton('Back', callback_data='back')]
+        # [InlineKeyboardButton('Back', callback_data='back')]
     ]
     return keyboard
 
@@ -46,7 +46,7 @@ def get_reminder_option_keyboard(reminder_token: str) -> list:
             InlineKeyboardButton('Edit Time', callback_data=f'{Patterns.EDIT_REMINDER_TIME.value}{reminder_token}'),
             InlineKeyboardButton('Delete', callback_data=f'{Patterns.DELETE_REMINDER.value}{reminder_token}')
         ],
-        [InlineKeyboardButton('Back', callback_data='back')]
+        # [InlineKeyboardButton('Back', callback_data='back')]
     ]
     return keyboard
 

@@ -30,7 +30,17 @@ import time
 # from pkg.reminder.task_queues import queue_task
 
 from llm.llm import LLM
-from llm._tools import save_task_title, save_task_detail, delete_task, update_note, register_database_id, delete_notes
+from llm._tools import (
+    save_task_title, 
+    save_task_detail, 
+    delete_task, 
+    update_note, 
+    register_database_id, 
+    delete_notes,
+    save_notes_detail,
+    save_notes_title,
+    
+    )
 from llm.models import UserData
 
 from deprecatedFunction import deprecated
@@ -57,6 +67,7 @@ class DefaultClient:
         self.notion_client = NotionClient()
         self.llm = LLM()
 
+    @deprecated
     async def user_subscribe(self, chat_id):
         pass
 
@@ -74,20 +85,11 @@ class DefaultClient:
     # ================= Note =================
 
     async def save_note_title(self, chat_id, note_token, title_text):
-        return await update_note(
-            UserData(chat_id=chat_id, note_token=note_token),
-            note_id=note_token,
-            title=title_text,
-            client=self.notion_client,
-        )
+        return await save_notes_title(UserData(chat_id=chat_id, note_token=note_token), title_text, client=self.notion_client)
 
     async def save_note_detail(self, chat_id, note_idx, detail_text):
-        if note_idx < self.notion_client.get_len(chat_id):
-            data = self.notion_client.patch_notes(chat_id, note_idx, resource_desc=detail_text)
-        else:
-            data = self.notion_client.post_notes(chat_id, resource_desc=detail_text)
-            
-        return f"Detail saved: {detail_text}"
+        return await save_notes_detail(UserData(chat_id=chat_id, note_token=note_idx), detail_text, client=self.notion_client)
+    
 
     async def delete_notes(self, chat_id, note_token) -> str:
         return await delete_notes(UserData(chat_id=chat_id, note_token=note_token), client=self.notion_client)

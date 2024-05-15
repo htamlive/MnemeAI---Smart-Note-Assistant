@@ -3,7 +3,7 @@ from typing import List
 
 from telegram import InlineKeyboardMarkup
 
-from bot.telegram.ui_templates import get_reminder_option_keyboard, render_html_reminder_detail, show_notes_list, show_reminders_list
+from bot.telegram.ui_templates import get_note_option_keyboard, get_reminder_option_keyboard, render_html_note_detail, render_html_reminder_detail, show_notes_list, show_reminders_list
 from config.config import TELEGRAM_SEND_ENDPOINT
 from llm.models import UserData
 from pkg.google_task_api.client import GoogleTaskClient
@@ -240,12 +240,18 @@ async def delete_task(user_data: UserData, task_name: str | None = None, google_
 
     return f"Deleted task: {task_name}"
 
-async def add_note(user_data: UserData, title: str, content: str, client: NotionClient = NotionClient()) -> str:
+async def create_notes(user_data: UserData, title: str, content: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
     resp = await sync_to_async(client.post_notes)(chat_id, title, content)
     
     return f"Added note: {title}, Note: {content}"
+
+async def save_notes_title(user_data: UserData, title: str, client: NotionClient = NotionClient()) -> str:
+    return await update_note(user_data, title=title, client=client)
+
+async def save_notes_detail(user_data: UserData, content: str, client: NotionClient = NotionClient()) -> str:
+    return await update_note(user_data, content=content, client=client)
 
 async def update_note(user_data: UserData, title:str = None, content: str = None, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id    
@@ -254,7 +260,7 @@ async def update_note(user_data: UserData, title:str = None, content: str = None
     
     return f"note is updated"
 
-async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
+async def show_notes_detail(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     note_id = user_data.note_token    
     chat_id = user_data.chat_id
     resp = await sync_to_async(client.get_notes)(chat_id, note_id)
@@ -262,10 +268,23 @@ async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) 
     
     title = " ".join([string['plain_text'] for string in props['Name']['title']])
     content = " ".join([string['plain_text'] for string in props['Description']['rich_text']])
+
+    endpoint = TELEGRAM_SEND_ENDPOINT
+
+    payload = {
+        'chat_id': chat_id,
+        'text': render_html_note_detail(title, content), 
+        'reply_markup': InlineKeyboardMarkup(get_note_option_keyboard(note_id)).to_json(),
+        'parse_mode': 'HTML',
+    }
+    payload['parse_mode'] = 'HTML'
+    payload['reply_markup'] = payload['reply_markup'].to_json()
+
+    response = requests.post(endpoint, json=payload)
     
     return f"Show note sucessfully"
 
-async def get_notes_list(user_data: UserData, client: NotionClient = NotionClient(), starting_point: str | None = None) -> str:
+async def show_notes_list(user_data: UserData, client: NotionClient = NotionClient(), starting_point: str | None = None) -> str:
     chat_id = user_data.chat_id
     
     list_notes: ListNotes = await sync_to_async(client.get_notes_list)(chat_id, starting_point)

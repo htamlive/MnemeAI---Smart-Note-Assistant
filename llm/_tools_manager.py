@@ -11,8 +11,13 @@ class ToolType(enum.Enum):
     SAVE_TASK_TIME = "save_task_time"
     SHOW_TASK_DETAIL = "show_task_detail"
     SHOW_TASK_LIST = "show_task_list"
-    ADD_NOTE = "add_note"
-    GET_NOTE = "get_note"
+
+    CREATE_NOTES = "create_notes"
+    DELETE_NOTES = "delete_notes"
+    SAVE_NOTES_TITLE = "save_notes_title"
+    SAVE_NOTES_DETAIL = "save_notes_detail"
+    SHOW_NOTES_LIST = "show_notes_list"
+    SHOW_NOTES_DETAIL = "show_notes_detail"
 
 class ToolManager():
     def __init__(self):
@@ -24,8 +29,13 @@ class ToolManager():
             ToolType.SAVE_TASK_TIME: save_task_time,
             ToolType.SHOW_TASK_DETAIL: show_task_detail,
             ToolType.SHOW_TASK_LIST: show_task_list,
-            ToolType.ADD_NOTE: add_note,
-            ToolType.GET_NOTE: get_notes_list,
+
+            ToolType.CREATE_NOTES: create_notes,
+            ToolType.DELETE_NOTES: delete_notes,
+            ToolType.SAVE_NOTES_TITLE: save_notes_title,
+            ToolType.SAVE_NOTES_DETAIL: save_notes_detail,
+            ToolType.SHOW_NOTES_LIST: show_notes_list,
+            ToolType.SHOW_NOTES_DETAIL: show_notes_detail
         }
 
 
@@ -63,7 +73,7 @@ class ToolManager():
             tool_type = self.tool_type_lookup.get(function_name)
 
             if tool_type is None:
-                raise Exception("Invalid tool definition")
+                raise Exception(f"Invalid tool definition: '{function_name}' not found in ToolType enum")
             
             self.function_interfaces[tool_type] = function_interface
             

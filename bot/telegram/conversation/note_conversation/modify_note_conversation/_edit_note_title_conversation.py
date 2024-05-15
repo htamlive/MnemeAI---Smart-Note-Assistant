@@ -32,7 +32,7 @@ class EditNoteTitleConversation(ModifyNoteConversation):
         title_text = update.message.text
         await self.handle_receive_title_text(update, context, title_text)
 
-        self.on_finish_edit(update, context)
+        await self.on_finish_edit(update, context)
 
         return ConversationHandler.END
     
