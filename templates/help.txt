@@ -18,8 +18,7 @@ Authorizing commands:
 /google_authorization - <i>Authorize Google account</i>
 
 Connect to Notion:
-/notion_db - <i>Connect to a Notion database</i>
-/notion_page - <i>Create and connect a database in that page</i>
+/notion_page - <i>Connect to the user Notion page</i>
 
 Cancel command:
 /cancel - <i>Cancel the current operation</i>

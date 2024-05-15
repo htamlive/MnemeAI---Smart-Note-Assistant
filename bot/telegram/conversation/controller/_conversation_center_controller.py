@@ -35,11 +35,11 @@ class ConversationCenterController:
         self.conversation_handler = ConversationHandler(
             entry_points=[
                 CommandHandler(Commands.PROMPTING.value, self.prompting_conversation.start_conversation),
-                CommandHandler(Commands.NOTION_REQ_DB.value, self.notion_db_request_conversation.start_conversation),
+                # CommandHandler(Commands.NOTION_REQ_DB.value, self.notion_db_request_conversation.start_conversation),
                 CommandHandler(Commands.NOTION_REQ_PAGE.value, self.notion_page_request_conversation.start_conversation)
             ] + self.note_conversation_controller.get_entry_points() + self.reminder_conversation_controller.get_entry_points(),
             states = {
-                NOTION_REQ_DB: [command_handler] + self.notion_db_request_conversation.states,
+                # NOTION_REQ_DB: [command_handler] + self.notion_db_request_conversation.states,
                 NOTION_REQ_PAGE: [command_handler] + self.notion_page_request_conversation.states
 
             } | self.note_conversation_controller.get_states_dict(command_handler) | self.reminder_conversation_controller.get_states_dict(command_handler),
@@ -72,8 +72,8 @@ class ConversationCenterController:
         if command.startswith('/'+Commands.PROMPTING.value):
             return await self.prompting_conversation.start_conversation(update, context)
         
-        if command.startswith('/'+Commands.NOTION_REQ_DB.value):
-            return await self.notion_db_request_conversation.start_conversation(update, context)
+        # if command.startswith('/'+Commands.NOTION_REQ_DB.value):
+        #     return await self.notion_db_request_conversation.start_conversation(update, context)
         
         if command.startswith('/'+Commands.NOTION_REQ_PAGE.value):
             return await self.notion_page_request_conversation.start_conversation(update, context)

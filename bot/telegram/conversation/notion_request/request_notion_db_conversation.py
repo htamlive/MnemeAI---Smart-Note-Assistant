@@ -28,8 +28,8 @@ class RequestNotionDBConversation(CommandConversation):
         return ConversationHandler.END
     
 
-    async def _handle_receive_data(self, update: Update, context: ContextTypes.DEFAULT_TYPE, data: str, message: Message) -> None:
+    async def _handle_receive_data(self, update: Update, context: ContextTypes.DEFAULT_TYPE, token: str, message: Message) -> None:
         chat_id = update.message.chat_id
-        response_text = await self.client.handle_receive_notion_database_token(chat_id, data)
+        response_text = await self.client.handle_receive_notion_database_token(chat_id, token)
         
         await message.edit_text(response_text)
