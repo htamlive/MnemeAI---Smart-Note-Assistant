@@ -19,5 +19,6 @@ class Note:
 
 @dataclass
 class ListNotes:
-    items: List[Note]
-    startingPoint: Optional[int]
+    data: List
+    startingPoint: Optional[str]
+    has_more: Optional[bool]

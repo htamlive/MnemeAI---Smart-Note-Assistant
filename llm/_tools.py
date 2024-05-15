@@ -17,6 +17,8 @@ from pkg.notion_api.client import NotionClient
 
 from asgiref.sync import sync_to_async
 
+from pkg.notion_api.model import ListNotes
+
 async def check_google_task_auth(user_data: UserData, google_task_client: GoogleTaskClient | None = None) -> bool:
     chat_id = user_data.chat_id
     if google_task_client is None:
@@ -238,7 +240,6 @@ async def delete_task(user_data: UserData, task_name: str | None = None, google_
 
     return f"Deleted task: {task_name}"
 
-
 async def add_note(user_data: UserData, title: str, content: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
@@ -265,15 +266,15 @@ async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient =
     
     return f"Got note: {title}, Note: {content}"
 
-async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
+async def get_notes_list(user_data: UserData, client: NotionClient = NotionClient(), starting_point: str | None = None) -> str:
     chat_id = user_data.chat_id
     
-    resp = await sync_to_async(client.get_notes)(chat_id)
+    list_notes: ListNotes = await sync_to_async(client.get_notes_list)(chat_id, starting_point)
 
     titles = []
     notes_tokens = []
 
-    for q in resp:
+    for q in list_notes.data:
         token = q['id']
         title = q['title']
 
@@ -283,7 +284,9 @@ async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) 
     
     endpoint = TELEGRAM_SEND_ENDPOINT
 
-    payload = show_notes_list(chat_id, titles, notes_tokens)
+    next_page_token = list_notes.startingPoint
+
+    payload = show_notes_list(chat_id, titles, notes_tokens, next_page_token)
     payload['parse_mode'] = 'HTML'
     payload['reply_markup'] = payload['reply_markup'].to_json()
 
@@ -294,8 +297,7 @@ async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) 
     
     return "List has been shown. Let some time for the user to see the list."
     
-
-async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
+async def delete_notes(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     note_id = client.extract_notion_id(note_id)
     
@@ -303,11 +305,11 @@ async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClien
     props = resp['properties']
     
     title = " ".join([string['plain_text'] for string in props['Name']['title']])
-    content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
+    # content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
     
-    return f"Got note: {title}, Note: {content}"
+    return f"Note {title} is deleted"
 
-async def delete_note(user_data: UserData, client: NotionClient = NotionClient()) -> str:
+async def delete_all_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
     await sync_to_async(client.delete_all_notes)(chat_id)

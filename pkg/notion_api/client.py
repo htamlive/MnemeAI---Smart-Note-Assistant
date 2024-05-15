@@ -1,6 +1,8 @@
 import os
 import requests
 import dotenv
+
+from pkg.notion_api.model import ListNotes
 from .utils import generate_embeddings
 from ..database.client import supabase
 from typing import List, Tuple
@@ -75,7 +77,7 @@ class NotionClient:
         return data[0]['database_id']
     
     def get_len(self, chat_id: int):
-        return len(self.get_notes(chat_id))
+        return len(self.get_notes_list(chat_id))
     
     def register_database_id(self, chat_id: int, resource_id: str):
         resource_id = self.extract_notion_id(resource_id)
@@ -121,16 +123,15 @@ class NotionClient:
         assert len(resp.data) > 0
         return resp.data
         
-    def get_notes(self, chat_id: int, starting_point: str = None) -> List[dict] | None:              
+    def get_notes_list(self, chat_id: int, starting_point: str = None) -> ListNotes | None:              
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
-        
-        payload = {
+
+        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
             "page_size": 5
         }
-        if starting_point is not None:
-            payload['start_cursor'] = starting_point
-        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json=payload)
+        | ({"start_cursor": starting_point} if starting_point else {})
+        )
         
         # print(data)
         resp.raise_for_status()
@@ -164,15 +165,21 @@ class NotionClient:
             for q, emb, content in zip(queries, embeddings, all_string_values)]).execute()
         
         assert len(resp.data) > 0
+
+        result: ListNotes = ListNotes(
+            data=resp.data,
+            startingPoint=data['next_cursor'],
+            has_more=data['has_more']
+        )
         
-        return resp.data, data['next_cursor'], data['has_more']
+        return result
     
     def get_note_content(self, chat_id, note_idx) -> str:
 
         # title = pagination_test_data[note_idx]["title"]
         # description = pagination_test_data[note_idx]["description"]
         
-        data = self.get_notes(chat_id)
+        data = self.get_notes_list(chat_id)
         assert note_idx < len(data)
         title = data[note_idx]["title"]
         description = data[note_idx]["description"]

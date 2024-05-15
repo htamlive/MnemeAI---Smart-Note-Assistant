@@ -112,12 +112,13 @@ def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_
         'parse_mode': 'HTML'
     }
 
-def show_notes_list(chat_id: int, titles: list, note_tokens: list, starting_point: int = 0) -> dict:
+def show_notes_list(chat_id: int, titles: list, note_tokens: list, starting_point: str = None) -> dict:
     keyboards = []
     for title, token in zip(titles, note_tokens):
         keyboards.append([InlineKeyboardButton(title, callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{token}')])
 
-    keyboards.append([InlineKeyboardButton('show more', callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{starting_point}')])
+    if starting_point:
+        keyboards.append([InlineKeyboardButton('show more', callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{starting_point}')])
 
     count_items = len(titles)
 

@@ -45,19 +45,19 @@ class DeleteNoteConversation(ModifyNoteConversation):
         if query.data.startswith(Patterns.CONFIRM_DELETE_NOTE.value):
             chat_id = query.message.chat_id
 
-            note_idx = query.data.split(PATTERN_DELIMITER)[1]
-            await self.client_delete(chat_id, note_idx)
+            note_token = query.data.split(PATTERN_DELIMITER)[1]
+            await self.client_delete(chat_id, note_token)
             await self.on_finish_edit(update, context)
 
             return ConversationHandler.END
         elif query.data.startswith(Patterns.CANCEL_DELETE_NOTE.value):
-            note_idx = query.data.split(PATTERN_DELIMITER)[1]
-            await self.restore_item_content(query, note_idx)
+            note_token = query.data.split(PATTERN_DELIMITER)[1]
+            await self.restore_item_content(query, note_token)
 
             return self.VIEW_ITEMS
 
     async def client_delete(self, chat_id: int, idx: int) -> None:
-        await self.client.delete_note(chat_id, idx)
+        await self.client.delete_notes(chat_id, idx)
 
     async def restore_item_content(self, query: CallbackQuery, note_idx: str) -> None:
         chat_id = query.message.chat_id
