@@ -3,7 +3,7 @@ from typing import List
 
 from telegram import InlineKeyboardMarkup
 
-from bot.telegram.ui_templates import get_reminder_option_keyboard, render_html_reminder_detail, show_reminders_list
+from bot.telegram.ui_templates import get_reminder_option_keyboard, render_html_reminder_detail, show_notes_list, show_reminders_list
 from config.config import TELEGRAM_SEND_ENDPOINT
 from llm.models import UserData
 from pkg.google_task_api.client import GoogleTaskClient
@@ -137,7 +137,7 @@ async def show_task_list(user_data: UserData, google_task_client: GoogleTaskClie
     if(response.status_code != 200):
         return "Error: Cannot show the list."
     
-    return "List has been shown. Tell the user to choose a task."
+    return "List has been shown. Let some time for the user to see the list."
 
 async def save_task_title(user_data: UserData, title_text: str, google_task_client: GoogleTaskClient | None = None) -> str:
 
@@ -265,19 +265,36 @@ async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient =
     
     return f"Got note: {title}, Note: {content}"
 
-async def get_note(user_data: UserData, client: NotionClient = NotionClient()) -> List[str]:
+async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
     
     resp = await sync_to_async(client.get_notes)(chat_id)
-    
-    prompts = []
+
+    titles = []
+    notes_tokens = []
+
     for q in resp:
         props = q['properties']
+        token = q['id']
         title = " ".join([string['plain_text'] for string in props['Name']['title']])
-        content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
-        prompts.append(f"Got note: {title}, Note: {content}")
-        
-    return prompts
+
+        notes_tokens.append(token)
+        titles.append(title)
+
+    
+    endpoint = TELEGRAM_SEND_ENDPOINT
+
+    payload = show_notes_list(chat_id, titles, notes_tokens)
+    payload['parse_mode'] = 'HTML'
+    payload['reply_markup'] = payload['reply_markup'].to_json()
+
+    response = requests.post(endpoint, json=payload)
+
+    if(response.status_code != 200):
+        return "Error: Cannot show the list."
+    
+    return "List has been shown. Let some time for the user to see the list."
+    
 
 async def delete_note_idx(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id
