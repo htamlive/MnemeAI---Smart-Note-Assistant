@@ -274,9 +274,8 @@ async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) 
     notes_tokens = []
 
     for q in resp:
-        props = q['properties']
         token = q['id']
-        title = " ".join([string['plain_text'] for string in props['Name']['title']])
+        title = q['title']
 
         notes_tokens.append(token)
         titles.append(title)
