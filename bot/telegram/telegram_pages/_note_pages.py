@@ -23,15 +23,15 @@ class NotePages:
         paginator: InlineKeyboardPaginator = await self.init_preview_pages(chat_id)
         chat_id = update.effective_chat.id
         message = await update.message.reply_text(
-            text= await self.client_get_content(chat_id, 1),
+            text= await self.client_get_content(chat_id, None),
             reply_markup=paginator.markup,
             parse_mode='HTML'
         )
 
         context.user_data['review_pages_message_id'] = message.message_id
 
-    def client_get_content(self, chat_id, note_idx) -> str:
-        return self.client.get_note_content(chat_id, note_idx)
+    def client_get_content(self, chat_id, note_token) -> str:
+        return self.client.get_note_content(chat_id, note_token)
     
     async def client_get_total_pages(self, chat_id: int) -> int:
         return await self.client.get_total_note_pages(chat_id)

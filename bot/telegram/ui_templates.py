@@ -2,7 +2,7 @@ import datetime
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR
+from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR, DETAIL_NOTE_CHAR
 
 def create_preview_pages(num_pages: int, page_idx: int, pattern = NOTE_PAGE_CHAR + '#{page}') -> InlineKeyboardPaginator:
     return InlineKeyboardPaginator(
@@ -115,7 +115,7 @@ def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_
 def show_notes_list(chat_id: int, titles: list, note_tokens: list, starting_point: str = None) -> dict:
     keyboards = []
     for title, token in zip(titles, note_tokens):
-        keyboards.append([InlineKeyboardButton(title, callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{token}')])
+        keyboards.append([InlineKeyboardButton(title, callback_data=f'{DETAIL_NOTE_CHAR}{PAGE_DELIMITER}{token}')])
 
     if starting_point:
         keyboards.append([InlineKeyboardButton('show more', callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{starting_point}')])
@@ -148,3 +148,11 @@ def render_html_reminder_detail(due: datetime, title: str, description: str) -> 
 
     return html_render
 
+def render_html_note_detail(title: str, content: str) -> str:
+    html_render = \
+        "<b>📘 YOUR NOTE:</b>\n" \
+        "──────────────────\n\n<b>"\
+        f"🔸 <i>{title}</i></b>\n"\
+        f"\n🖊️ <i>Content</i>:\n{content}\n"\
+        # f"\n🗓️ Date Recorded:\n{date.strftime('%Y-%m-%d %H:%M')}"
+    return html_render

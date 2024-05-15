@@ -67,7 +67,6 @@ class ViewNotesConversation(CommandConversation):
                 message_id=context.user_data['prev_review_message']['message_id']
             )
 
-
         query = update.callback_query
         message = await query.message.reply_text(
             text=note_content,
@@ -108,9 +107,8 @@ class ViewNotesConversation(CommandConversation):
 
 
 
-    def client_get_content(self, chat_id: int, idx: str | None) -> str:
-        # may need to change
-        return self.client.get_note_content(chat_id, idx)
+    async def client_get_content(self, chat_id: int, token: str | None) -> str:
+        return await self.client.get_note_content(chat_id, token)
 
 
 

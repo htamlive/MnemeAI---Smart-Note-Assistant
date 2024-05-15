@@ -254,17 +254,17 @@ async def update_note(user_data: UserData, note_id: str, title:str = None, conte
     
     return f"Updated note"
 
-async def get_note_idx(user_data: UserData, note_id: str, client: NotionClient = NotionClient()) -> str:
-    chat_id = user_data.chat_id
+async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
+    note_id = user_data.note_token
     note_id = client.extract_notion_id(note_id)
     
-    resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
-    props = resp['properties']
+    # resp = await sync_to_async(client.get_notes)(chat_id, note_id)
+    # props = resp['properties']
     
-    title = " ".join([string['plain_text'] for string in props['Name']['title']])
-    content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
+    # title = " ".join([string['plain_text'] for string in props['Name']['title']])
+    # content = "".join([string['rich_text'] for string in props['Description']['rich_text']])
     
-    return f"Got note: {title}, Note: {content}"
+    return f"Show note sucessfully"
 
 async def get_notes_list(user_data: UserData, client: NotionClient = NotionClient(), starting_point: str | None = None) -> str:
     chat_id = user_data.chat_id
@@ -301,7 +301,7 @@ async def delete_notes(user_data: UserData, note_id: str, client: NotionClient =
     chat_id = user_data.chat_id
     note_id = client.extract_notion_id(note_id)
     
-    resp = await sync_to_async(client.get_notes_idx)(chat_id, note_id)
+    resp = await sync_to_async(client.get_notes)(chat_id, note_id)
     props = resp['properties']
     
     title = " ".join([string['plain_text'] for string in props['Name']['title']])

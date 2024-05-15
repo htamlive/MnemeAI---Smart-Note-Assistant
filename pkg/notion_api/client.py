@@ -2,7 +2,7 @@ import os
 import requests
 import dotenv
 
-from pkg.notion_api.model import ListNotes
+from pkg.notion_api.model import ListNotes, Notes
 from .utils import generate_embeddings
 from ..database.client import supabase
 from typing import List, Tuple
@@ -257,7 +257,7 @@ class NotionClient:
         
         return resp.data
     
-    def get_notes_idx(self, chat_id: int, resource_idx: str):
+    def get_notes(self, chat_id: int, resource_idx: str):
         headers = self.get_header(chat_id)
         
         resp = requests.get(f'https://api.notion.com/v1/pages/{resource_idx}', headers=headers)
@@ -265,9 +265,19 @@ class NotionClient:
         resp.raise_for_status()
         
         data = resp.json()
-        assert data is not None
+
+        props = data['properties']
         
-        return data
+        title = " ".join([string['plain_text'] for string in props['Name']['title']])
+        content = " ".join([string['plain_text'] for string in props['Description']['rich_text']])
+        
+        notes: Notes = Notes(
+            id=data['id'],
+            title=title,
+            notes=content
+        )
+        
+        return notes
     
     def patch_notes(self, chat_id:int, resource_index:int, resource_name:str = "",resource_desc:str = "") -> dict | None:
         # headers = self.get_header(chat_id)
@@ -295,7 +305,7 @@ class NotionClient:
         
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
         
-        page_content = self.get_notes_idx(chat_id, resource_index)
+        page_content = self.get_notes(chat_id, resource_index)
         
         resp = supabase.table("notes").upsert(
             {

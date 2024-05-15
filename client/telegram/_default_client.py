@@ -9,13 +9,13 @@ import dotenv
 import pytz
 
 # import datetime
-from bot.telegram.ui_templates import show_notes_list
+from bot.telegram.ui_templates import render_html_note_detail, show_notes_list
 from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
 from telegram import Update
 from pkg.msg_brokers.celery import send_notification
-from pkg.notion_api.model import ListNotes
+from pkg.notion_api.model import ListNotes, Notes
 from test import pagination_test_data
 from config import *
 from urllib.parse import quote
@@ -92,20 +92,6 @@ class DefaultClient:
     async def delete_notes(self, chat_id, note_token) -> str:
         return await delete_notes(UserData(chat_id=chat_id, note_token=note_token), client=self.notion_client)
 
-    async def get_note_content_at_page(self, chat_id, starting_point: int) -> str:
-        resp = await sync_to_async(self.notion_client.get_notes_list)(chat_id)
-
-        titles = []
-        notes_tokens = []
-
-        for q in resp:
-            title = q['title']
-            token = q['id']
-
-            notes_tokens.append(token)
-            titles.append(title)
-        return self.notion_client.get_notes_list(chat_id)
-
     @deprecated
     def extract_note_idx(self, note_idx_text) -> int:
         """
@@ -118,15 +104,14 @@ class DefaultClient:
     async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes: 
         return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
 
-    def get_note_content(self, chat_id, note_token) -> str:
+    async def get_note_content(self, chat_id, note_token) -> str:
+        print("get_note_content")
 
-        # Remember to convert to 0-based index
-        note_idx = self.extract_note_idx(note_token)
+        notes: Notes = await sync_to_async(self.notion_client.get_notes)(chat_id, note_token)
 
-        # title = pagination_test_data[note_idx]["title"]
-        # description = pagination_test_data[note_idx]["description"]
-        
-        return self.notion_client.get_note_content(chat_id, note_idx)
+        print(notes)
+        return render_html_note_detail(notes.title, notes.notes)
+    
 
     @deprecated
     def get_total_note_pages(self, chat_id: int) -> int:
