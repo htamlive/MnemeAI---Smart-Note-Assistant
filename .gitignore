@@ -20,3 +20,5 @@ secrets.txt
 # ignore env files
 .env
 *.xenv
+
+*.pem
