@@ -5,6 +5,8 @@ from telegram.ext import (
 from .._command_conversation import CommandConversation
 from client import TelegramClient
 
+from deprecatedFunction import deprecated
+
 class RequestNotionPageConversation(CommandConversation):
     def __init__(self, NOTION_REQ_PAGE: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(debug)
@@ -28,8 +30,9 @@ class RequestNotionPageConversation(CommandConversation):
         return ConversationHandler.END
     
 
+    @deprecated
     async def _handle_receive_data(self, update: Update, context: ContextTypes.DEFAULT_TYPE, token: str, message: Message) -> None:
         chat_id = update.message.chat_id
-        response_text = await self.client.handle_receive_notion_page_token(chat_id, token)
-        
+        # response_text = await self.client.handle_receive_notion_page_token(chat_id, token)
+        response_text = "This function is deprecated"
         await message.edit_text(response_text)

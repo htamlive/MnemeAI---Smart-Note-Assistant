@@ -25,7 +25,7 @@ class ToolManager():
             ToolType.SHOW_TASK_DETAIL: show_task_detail,
             ToolType.SHOW_TASK_LIST: show_task_list,
             ToolType.ADD_NOTE: add_note,
-            ToolType.GET_NOTE: get_note,
+            ToolType.GET_NOTE: get_notes,
         }
 
 

@@ -30,10 +30,13 @@ class ReminderPages(NotePages):
     
     async def client_get_total_pages(self, chat_id: int) -> int:
         return await self.client.get_total_reminder_pages(chat_id)
+    
+    async def client_get_page_content(self, chat_id, page_token):
+        return await self.client.get_reminder_page_content(chat_id, page_token)
 
     async def show_preview_page(self, query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, cur_page_token: str | None = None) -> None:
         chat_id = query.message.chat_id
-        page_content: ListTask | None = await self._client_get_page_content(chat_id, cur_page_token)
+        page_content: ListTask | None = await self.client_get_page_content(chat_id, cur_page_token)
 
         items: List[Task] = page_content.items
 

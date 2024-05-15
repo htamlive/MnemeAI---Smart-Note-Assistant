@@ -112,6 +112,31 @@ def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_
         'parse_mode': 'HTML'
     }
 
+def show_notes_list(chat_id: int, titles: list, note_tokens: list, starting_point: int = 0) -> dict:
+    keyboards = []
+    for title, token in zip(titles, note_tokens):
+        keyboards.append([InlineKeyboardButton(title, callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{token}')])
+
+    keyboards.append([InlineKeyboardButton('show more', callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{starting_point}')])
+
+    count_items = len(titles)
+
+    text = 'Here are your notes:\n'
+    if count_items > 1:
+        text = 'Here are your notes:\n'
+    elif count_items == 1:
+        text = 'Here is your note:\n'
+    elif count_items == 0:
+        text = 'There is no note yet'
+
+    return {
+        'chat_id': chat_id,
+        'text': text,
+        'reply_markup': InlineKeyboardMarkup(keyboards),
+        'parse_mode': 'HTML'
+    }
+
+
 def render_html_reminder_detail(due: datetime, title: str, description: str) -> str:
     html_render = \
         "<b>📌 YOUR REMINDERS:</b>\n" \

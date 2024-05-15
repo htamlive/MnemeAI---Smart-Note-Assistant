@@ -4,7 +4,7 @@ from telegram.ext import (
 )
 
 from llm.models import UserData
-from llm._tools import add_note
+from llm._tools import get_notes
 from ._command_conversation import CommandConversation
 from client import TelegramClient
 
@@ -30,6 +30,10 @@ class PromptingConversation(CommandConversation):
         
 
             # await add_note(user_data, "Julia is very good", "Julia is very good")
+
+            await get_notes(user_data)
+
+            return ConversationHandler.END
             
             response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
 

@@ -9,11 +9,13 @@ import dotenv
 import pytz
 
 # import datetime
+from bot.telegram.ui_templates import show_notes_list
 from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
 from telegram import Update
 from pkg.msg_brokers.celery import send_notification
+from pkg.notion_api.model import ListNotes
 from test import pagination_test_data
 from config import *
 from urllib.parse import quote
@@ -28,25 +30,10 @@ import time
 # from pkg.reminder.task_queues import queue_task
 
 from llm.llm import LLM
-from llm._tools import save_task_title, save_task_detail, delete_task, update_note, register_database_id, register_page_database
+from llm._tools import save_task_title, save_task_detail, delete_task, update_note, register_database_id
 from llm.models import UserData
 
-import warnings
-import functools
-
-def deprecated(func):
-    """This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used."""
-    @functools.wraps(func)
-    def new_func(*args, **kwargs):
-        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
-        warnings.warn("Call to deprecated function {}.".format(func.__name__),
-                      category=DeprecationWarning,
-                      stacklevel=2)
-        warnings.simplefilter('default', DeprecationWarning)  # reset filter
-        return func(*args, **kwargs)
-    return new_func
+from deprecatedFunction import deprecated
 
 
 class DefaultClient:
@@ -106,7 +93,18 @@ class DefaultClient:
         self.notion_client.delete_all_notes(chat_id)
         return f"Note deleted at page {page}"
 
-    def get_note_content_at_page(self, chat_id, page) -> str:
+    async def get_note_content_at_page(self, chat_id, starting_point: int) -> str:
+        resp = await sync_to_async(self.notion_client.get_notes)(chat_id)
+
+        titles = []
+        notes_tokens = []
+
+        for q in resp:
+            title = q['title']
+            token = q['id']
+
+            notes_tokens.append(token)
+            titles.append(title)
         return self.notion_client.get_notes(chat_id)
 
     def extract_note_idx(self, note_idx_text) -> int:
@@ -116,6 +114,11 @@ class DefaultClient:
 
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
+    
+    async def get_note_page_content(self, chat_id: int, starting_point: int = 0): 
+        return await sync_to_async(self.notion_client.get_notes)(chat_id, starting_point)
+
+
 
     def get_note_content(self, chat_id, note_token) -> str:
 
@@ -173,7 +176,7 @@ class DefaultClient:
         prompt = f"Set reminder time: {time_text}"
         return await self.llm.save_task_time(UserData(chat_id=chat_id, reminder_token=reminder_token), prompt)
 
-    async def get_note_page_content(self, chat_id, page_token) -> ListTask | None:
+    async def get_reminder_page_content(self, chat_id, page_token) -> ListTask | None:
         return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
 
     @deprecated
@@ -249,9 +252,9 @@ class DefaultClient:
             client=self.notion_client,
         )
 
-    async def handle_receive_notion_page_token(self, chat_id: int, page_token: str) -> str:
-        return await register_page_database(
-            UserData(chat_id=chat_id),
-            page_token,
-            client=self.notion_client,
-        )
+    # async def handle_receive_notion_page_token(self, chat_id: int, page_token: str) -> str:
+    #     return await register_page_database(
+    #         UserData(chat_id=chat_id),
+    #         page_token,
+    #         client=self.notion_client,
+    #     )

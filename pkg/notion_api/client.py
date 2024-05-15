@@ -121,21 +121,16 @@ class NotionClient:
         assert len(resp.data) > 0
         return resp.data
         
-    def get_notes(self, chat_id: int) -> List[dict] | None:              
+    def get_notes(self, chat_id: int, starting_point: int = 0) -> List[dict] | None:              
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
-        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
-            "sorts": [
-                {
-                "property": "Last edited time",
-                "direction": "descending"
-                }
-            ],
-        })
+        resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers)
         
+
+        # print(data)
         resp.raise_for_status()
-        
         data = resp.json()
+        
         queries = data['results']
         
         all_string_values = []
