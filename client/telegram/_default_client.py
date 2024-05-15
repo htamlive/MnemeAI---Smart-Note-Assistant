@@ -30,7 +30,7 @@ import time
 # from pkg.reminder.task_queues import queue_task
 
 from llm.llm import LLM
-from llm._tools import save_task_title, save_task_detail, delete_task, update_note, register_database_id
+from llm._tools import save_task_title, save_task_detail, delete_task, update_note, register_database_id, delete_notes
 from llm.models import UserData
 
 from deprecatedFunction import deprecated
@@ -89,12 +89,11 @@ class DefaultClient:
             
         return f"Detail saved: {detail_text}"
 
-    async def delete_note(self, chat_id, page) -> str:
-        self.notion_client.delete_all_notes(chat_id)
-        return f"Note deleted at page {page}"
+    async def delete_notes(self, chat_id, note_token) -> str:
+        return await delete_notes(UserData(chat_id=chat_id, note_token=note_token), client=self.notion_client)
 
     async def get_note_content_at_page(self, chat_id, starting_point: int) -> str:
-        resp = await sync_to_async(self.notion_client.get_notes)(chat_id)
+        resp = await sync_to_async(self.notion_client.get_notes_list)(chat_id)
 
         titles = []
         notes_tokens = []
@@ -105,8 +104,9 @@ class DefaultClient:
 
             notes_tokens.append(token)
             titles.append(title)
-        return self.notion_client.get_notes(chat_id)
+        return self.notion_client.get_notes_list(chat_id)
 
+    @deprecated
     def extract_note_idx(self, note_idx_text) -> int:
         """
         May use LLM to extract note index from text
@@ -115,10 +115,8 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
     
-    async def get_note_page_content(self, chat_id: int, starting_point: int = 0): 
-        return await sync_to_async(self.notion_client.get_notes)(chat_id, starting_point)
-
-
+    async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes: 
+        return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
 
     def get_note_content(self, chat_id, note_token) -> str:
 
@@ -132,7 +130,7 @@ class DefaultClient:
 
     @deprecated
     def get_total_note_pages(self, chat_id: int) -> int:
-        data = self.notion_client.get_notes(chat_id)
+        data = self.notion_client.get_notes_list(chat_id)
         return len(data)
 
     # ================= Reminder/Task =================
