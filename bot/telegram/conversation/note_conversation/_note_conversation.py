@@ -28,5 +28,6 @@ class NoteConversation(CommandConversation):
     
     async def handle_receive_note_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_text: str) -> None:
         chat_id = update.message.chat_id
+        message = await update.message.reply_text("Got it! Please wait a moment.")
         response_text = await self.client.save_note(chat_id, note_text)
-        await update.message.reply_text(response_text)
+        await message.edit_text(response_text)

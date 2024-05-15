@@ -23,12 +23,12 @@ class RemindConversation(CommandConversation):
     
     async def receive_remind_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         remind_text = update.message.text
-        message = await update.message.reply_text("Got it! Please wait a moment.")
-        await self._handle_receive_remind_text(update, context, remind_text, message)
+        await self._handle_receive_remind_text(update, context, remind_text)
         return ConversationHandler.END
     
 
-    async def _handle_receive_remind_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, remind_text: str, message: Message) -> None:
+    async def _handle_receive_remind_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, remind_text: str) -> None:
+        message = await update.message.reply_text("Got it! Please wait a moment.")
         chat_id = update.message.chat_id
         response_text = await self.client.save_remind(chat_id, remind_text)
         

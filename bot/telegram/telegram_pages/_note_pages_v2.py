@@ -49,16 +49,17 @@ class NotePages:
 
         # it is callback query
 
-        list_notes: ListNotes = await self.client.get_note_page_content(chat_id, starting_point)
+        list_notes: ListNotes | None = await self.client.get_note_page_content(chat_id, starting_point)
         titles = []
         notes_tokens = []
 
-        for q in list_notes.data:
-            title = q['title']
-            token = q['id']
+        if(list_notes):
+            for q in list_notes.data:
+                title = q['title']
+                token = q['id']
 
-            notes_tokens.append(token)
-            titles.append(title)
+                notes_tokens.append(token)
+                titles.append(title)
 
         if not titles:
             # edit message

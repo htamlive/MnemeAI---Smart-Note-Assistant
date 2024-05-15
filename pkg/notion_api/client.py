@@ -151,26 +151,29 @@ class NotionClient:
                     
             all_string_values.append(string_values)
             
-        embeddings = generate_embeddings([" ".join(strings) for strings in all_string_values])
-        
-        resp = supabase.table("notes").upsert([
-            {
-                "id": q['id'],
-                "chat_id": chat_id,
-                "parent_id": q['parent']['database_id'],
-                "title": content[-1],
-                "description": content[0],
-                "embedding": emb
-            } 
-            for q, emb, content in zip(queries, embeddings, all_string_values)]).execute()
-        
-        assert len(resp.data) > 0
+        embeddings = generate_embeddings([" ".join(strings) for strings in all_string_values]) if all_string_values else []
 
-        result: ListNotes = ListNotes(
-            data=resp.data,
-            startingPoint=data['next_cursor'],
-            has_more=data['has_more']
-        )
+        result = None
+
+        if(embeddings != []):
+            resp = supabase.table("notes").upsert([
+                {
+                    "id": q['id'],
+                    "chat_id": chat_id,
+                    "parent_id": q['parent']['database_id'],
+                    "title": content[-1],
+                    "description": content[0],
+                    "embedding": emb
+                } 
+                for q, emb, content in zip(queries, embeddings, all_string_values)]).execute()
+        
+            assert len(resp.data) > 0
+
+            result: ListNotes = ListNotes(
+                data=resp.data,
+                startingPoint=data['next_cursor'],
+                has_more=data['has_more']
+            )
         
         return result
     

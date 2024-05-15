@@ -256,6 +256,7 @@ async def update_note(user_data: UserData, title:str = None, content: str = None
 
 async def get_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     note_id = user_data.note_token    
+    chat_id = user_data.chat_id
     resp = await sync_to_async(client.get_notes)(chat_id, note_id)
     props = resp['properties']
     
