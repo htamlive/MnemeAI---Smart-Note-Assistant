@@ -3,7 +3,7 @@ from typing import List
 
 from telegram import InlineKeyboardMarkup
 
-from bot.telegram.ui_templates import get_note_option_keyboard, get_reminder_option_keyboard, render_html_note_detail, render_html_reminder_detail, show_notes_list, show_reminders_list
+from bot.telegram.ui_templates import get_note_option_keyboard, get_reminder_option_keyboard, render_html_note_detail, render_html_reminder_detail, show_notes_list_template, show_reminders_list
 from config.config import TELEGRAM_SEND_ENDPOINT
 from llm.models import UserData
 from pkg.google_task_api.client import GoogleTaskClient
@@ -259,7 +259,7 @@ async def update_note(user_data: UserData, title:str = None, content: str = None
     try:
         resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
     except Exception as e:
-        return f'Cannot update this. Use /view_notes to get the latest notes.'
+        return f'Cannot update this. Please view the latest notes.'
     
     return f"note is updated"
 
@@ -269,18 +269,18 @@ async def show_notes_detail(user_data: UserData, client: NotionClient = NotionCl
     try:
         notes = await sync_to_async(client.get_notes)(chat_id, note_id)
     except Exception as e:
-        return f'Cannot view this. Ask the user to use /view_notes to get the latest notes.'
+        return f'Cannot view this. Ask the user to view the latest notes.'
 
 
     endpoint = TELEGRAM_SEND_ENDPOINT
 
     payload = {
         'chat_id': chat_id,
-        'text': render_html_note_detail(notes.title, notes.content),
+        'text': render_html_note_detail(notes.title, notes.notes),
         
         'parse_mode': 'HTML',
     } | (
-        {'reply_markup': InlineKeyboardMarkup(get_note_option_keyboard(note_id)).to_json(),} if not notes.deleted else {}
+        {'reply_markup': InlineKeyboardMarkup(get_note_option_keyboard(note_id))} if not notes.deleted else {}
     ) 
     payload['parse_mode'] = 'HTML'
     payload['reply_markup'] = payload['reply_markup'].to_json()
@@ -288,7 +288,7 @@ async def show_notes_detail(user_data: UserData, client: NotionClient = NotionCl
     response = requests.post(endpoint, json=payload)
 
     if(response.status_code != 200):
-        return "Note detail cannot be shown. Ask the user to use /view_notes to get the latest notes."
+        return "Note detail cannot be shown. Ask the user to view the latest notes."
     
     
     return f"Show note sucessfully"
@@ -313,7 +313,7 @@ async def show_notes_list(user_data: UserData, client: NotionClient = NotionClie
 
     next_page_token = list_notes.startingPoint
 
-    payload = show_notes_list(chat_id, titles, notes_tokens, next_page_token)
+    payload = show_notes_list_template(chat_id, titles, notes_tokens, next_page_token)
     payload['parse_mode'] = 'HTML'
     payload['reply_markup'] = payload['reply_markup'].to_json()
 
@@ -322,7 +322,7 @@ async def show_notes_list(user_data: UserData, client: NotionClient = NotionClie
     if(response.status_code != 200):
         return "Error: Cannot show the list."
     
-    return "List has been shown. Let some time for the user to see the list."
+    return "User has been shown the list. Ask the user what to do next."
     
 async def delete_notes(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id

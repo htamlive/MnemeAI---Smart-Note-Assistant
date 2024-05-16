@@ -9,7 +9,7 @@ import dotenv
 import pytz
 
 # import datetime
-from bot.telegram.ui_templates import render_html_note_detail, show_notes_list
+from bot.telegram.ui_templates import render_html_note_detail, show_notes_list_template
 from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext

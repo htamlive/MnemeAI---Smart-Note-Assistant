@@ -14,6 +14,7 @@ from .._prompting_conversation import PromptingConversation
 from client import TelegramClient
 
 from config import *
+import re
 
 
 class ConversationCenterController:
@@ -58,18 +59,23 @@ class ConversationCenterController:
     async def check_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         command = update.message.text
         if command.startswith('/'+Commands.NOTE.value):
+            context.args = re.split(r'\s+', command)[1:]
             return await self.note_conversation_controller.factory[NOTE_TEXT].start_conversation(update, context)
         
         if command.startswith('/'+Commands.VIEW_NOTES.value):
             return await self.note_conversation_controller.factory[VIEW_NOTES].start_conversation(update, context)
         
         if command.startswith('/'+Commands.REMINDER.value):
+            context.args = re.split(r'\s+', command)[1:]
             return await self.reminder_conversation_controller.factory[REMIND_TEXT].start_conversation(update, context)
         
         if command.startswith('/'+Commands.VIEW_REMINDERS.value):
             return await self.reminder_conversation_controller.factory[VIEW_REMINDERS].start_conversation(update, context) 
         
         if command.startswith('/'+Commands.PROMPTING.value):
+            # get the args after the command /ah
+            context.args = re.split(r'\s+', command)[1:]
+
             return await self.prompting_conversation.start_conversation(update, context)
         
         # if command.startswith('/'+Commands.NOTION_REQ_DB.value):

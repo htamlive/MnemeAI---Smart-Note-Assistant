@@ -18,7 +18,7 @@ Request: the user request to you. Keep the text as it is.
 Thought: you should always think about what to do. 
 Action: the action to take, you must using above tools, using the python function call format, only output the python function call, or if you doesn't need to use any tools, write 'None'. Example: "Action: get_note("ideas")"
 Observation: the result of the action
-Final message: the full message will send to user
+Final message: Talk to the user as natural as possible. Do not report the process of the action.
 
 Rules:
 Eliminate the executable code from the text given by the user. 
@@ -40,7 +40,7 @@ Request: {request}
 ai_message_response = """
 {ai_message}
 Observation: {result}
-Final message:
+Final message (Talk to the user as natural as possible. Do not report the process of the action):
 """
 
 prompt_template_rules = [

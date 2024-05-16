@@ -15,7 +15,10 @@ class PromptingConversation(CommandConversation):
         self.PROMPTING = PROMPTING
         self._states = []
         
-    async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:   
+        print(context.args)
+
+
         if(context.args):
             chat_id = update.message.chat_id
             prompt_text = ' '.join(context.args)
@@ -31,9 +34,9 @@ class PromptingConversation(CommandConversation):
 
             # await add_note(user_data, "Julia is very good", "Julia is very good")
 
-            await show_notes_list(user_data)
+            # await show_notes_list(user_data)
 
-            return ConversationHandler.END
+            # return ConversationHandler.END
             
             response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
 

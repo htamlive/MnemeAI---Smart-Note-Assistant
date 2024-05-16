@@ -8,7 +8,7 @@ from telegram import (
 from telegram.ext import (
     CallbackQueryHandler, ContextTypes
 )
-from bot.telegram.ui_templates import show_notes_list
+from bot.telegram.ui_templates import show_notes_list_template
 from client import TelegramClient
 import re
 from config import NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_NOTE_CHAR
@@ -69,7 +69,7 @@ class NotePages:
             )
         
         else:
-            template = show_notes_list(chat_id, titles, notes_tokens, starting_point)
+            template = show_notes_list_template(chat_id, titles, notes_tokens, starting_point)
 
             message = await query.message.reply_text(
                 text=template['text'],
