@@ -288,39 +288,23 @@ class NotionClient:
         return notes
     
     @deprecated
-    def alt_patch_notes(self, chat_id:int, resource_index:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
-        # headers = self.get_header(chat_id)
-        # resource_id = self.get_database_id(chat_id)
+    def alt_patch_notes(self, chat_id:int, page_id:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
+        headers = self.get_header(chat_id)
+        resource_id = self.get_database_id(chat_id)
         
-        # resp = requests.post(f'https://api.notion.com/v1/databases/{resource_id}/query', headers=headers, json={
-        #     "sorts": [
-        #         {
-        #         "property": "Last edited time",
-        #         "direction": "descending"
-        #         }
-        #     ],
-        # })
+        page_content = self.get_notes(chat_id, page_id)
         
-        # data = resp.json()
-        # queries = data['results']
+        data = self.get_data(resource_id, resource_name, resource_desc)
         
-        # assert len(queries) <= resource_index, "Index must be within query length"
-        
-        # page_id = queries[resource_index]['id']
-                
-        # data = self.get_data(resource_id, resource_name, resource_desc)
-        
-        # resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json=data)
+        resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json=data)
         
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
         
-        page_content = self.get_notes(chat_id, resource_index)
-        
         resp = supabase.table("notes").upsert(
             {
-                "id": page_content['id'],
+                "id": page_content.id,
                 "chat_id": chat_id,
-                "parent_id": page_content['parent']['database_id'],
+                "parent_id": page_content.parent,
                 "title": resource_name,
                 "description": resource_desc,
                 "content": resource_name + " " + resource_desc,
@@ -334,7 +318,7 @@ class NotionClient:
 
     def patch_notes(self, chat_id:int, resource_token:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
         
-        self.delete_notes(chat_id, resource_token)
+        # self.delete_notes(chat_id, resource_token)
 
         notes: Notes = self.get_notes(chat_id, resource_token)
 
