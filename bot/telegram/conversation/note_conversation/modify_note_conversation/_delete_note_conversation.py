@@ -58,14 +58,21 @@ class DeleteNoteConversation(ModifyNoteConversation):
 
     async def restore_item_content(self, query: CallbackQuery, note_idx: str) -> None:
         chat_id = query.message.chat_id
-        item_content = await self.client_get_content(chat_id, note_idx)
-        keyboard = self.get_option_keyboard(note_idx)
-        print(item_content)
-        await query.edit_message_text(
-            text=item_content,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='HTML'
-        )
+        try:
+            item_content = await self.client_get_content(chat_id, note_idx)
+            keyboard = self.get_option_keyboard(note_idx)
+            print(item_content)
+            await query.edit_message_text(
+                text=item_content,
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode='HTML'
+            )
+        except Exception as e:
+            print(e)
+            query.message.delete()
+            await query.message.reply_text(
+                text="Cannot view this note. Please view the latest version with /view_notes"
+            )
 
     def get_option_keyboard(self, idx: int) -> list[list[InlineKeyboardButton]]:
         return get_note_option_keyboard(idx)

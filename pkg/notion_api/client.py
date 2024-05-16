@@ -270,6 +270,8 @@ class NotionClient:
         
         data = resp.json()
 
+        print(data)
+
         props = data['properties']
         
         title = " ".join([string['plain_text'] for string in props['Name']['title']])
@@ -280,12 +282,13 @@ class NotionClient:
             title=title,
             notes=content,
             parent=data['parent']['database_id'],
+            deleted=data['archived'],
         )
         
         return notes
     
     @deprecated
-    def alt_patch_notes(self, chat_id:int, resource_token:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
+    def alt_patch_notes(self, chat_id:int, resource_index:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
         # headers = self.get_header(chat_id)
         # resource_id = self.get_database_id(chat_id)
         

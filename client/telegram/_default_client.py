@@ -107,13 +107,11 @@ class DefaultClient:
         return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
 
     async def get_note_content(self, chat_id, note_token) -> str:
-        print("get_note_content")
-
         notes: Notes = await sync_to_async(self.notion_client.get_notes)(chat_id, note_token)
 
-        print(notes)
         return render_html_note_detail(notes.title, notes.notes)
-    
+            
+
 
     @deprecated
     def get_total_note_pages(self, chat_id: int) -> int:

@@ -56,22 +56,33 @@ class ViewNotesConversation(CommandConversation):
         # return ConversationHandler.END
 
 
-    async def _response_modifying_options(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_content, token) -> None:
-        keyboard = self.get_option_keyboard(token)
+    async def _response_modifying_options(self, update: Update, context: ContextTypes.DEFAULT_TYPE, token) -> None:
+
+        query = update.callback_query
+        await query.answer()
+        chat_id = query.message.chat_id
 
         if('prev_review_message' in context.user_data):
             await context.bot.delete_message(
                 chat_id=update.effective_chat.id,
                 message_id=context.user_data['prev_review_message']['message_id']
             )
+        try:
+            note_content = await self.client_get_content(chat_id, token)
 
-        query = update.callback_query
-        message = await query.message.reply_text(
-            text=note_content,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='HTML'
-        )
+            keyboard = self.get_option_keyboard(token)
 
+            query = update.callback_query
+            message = await query.message.reply_text(
+                text=note_content,
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode='HTML'
+            )
+
+        except Exception as e:
+            print(e)
+            message = await query.message.reply_text("Cannot view this note. Please view the latest version with /view_notes")
+        
         self.update_review_message_tracker(context, message.message_id, note_content, token)
 
     def update_review_message_tracker(self, context, message_id, text_html, token) -> None:
@@ -85,17 +96,7 @@ class ViewNotesConversation(CommandConversation):
         return get_note_option_keyboard(note_idx)
 
     async def _handle_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE, token: str | None = None) -> None:
-        query = update.callback_query
-        await query.answer()
-        chat_id = query.message.chat_id
-        try:
-            content = await self.client_get_content(chat_id, token)
-        except Exception as e:
-            content = str(e)
-            await query.message.reply_text(content)
-            return
-
-        await self._response_modifying_options(update, context, content, token)
+        await self._response_modifying_options(update, context, token)
 
     async def _preview_detail_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query_data = update.callback_query.data

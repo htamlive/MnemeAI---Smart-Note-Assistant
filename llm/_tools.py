@@ -256,31 +256,40 @@ async def save_notes_detail(user_data: UserData, content: str, client: NotionCli
 async def update_note(user_data: UserData, title:str = None, content: str = None, client: NotionClient = NotionClient()) -> str:
     chat_id = user_data.chat_id    
     note_id = user_data.note_token
-    resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
+    try:
+        resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
+    except Exception as e:
+        return f'Cannot update this. Use /view_notes to get the latest notes.'
     
     return f"note is updated"
 
 async def show_notes_detail(user_data: UserData, client: NotionClient = NotionClient()) -> str:
     note_id = user_data.note_token    
     chat_id = user_data.chat_id
-    resp = await sync_to_async(client.get_notes)(chat_id, note_id)
-    props = resp['properties']
-    
-    title = " ".join([string['plain_text'] for string in props['Name']['title']])
-    content = " ".join([string['plain_text'] for string in props['Description']['rich_text']])
+    try:
+        notes = await sync_to_async(client.get_notes)(chat_id, note_id)
+    except Exception as e:
+        return f'Cannot view this. Ask the user to use /view_notes to get the latest notes.'
+
 
     endpoint = TELEGRAM_SEND_ENDPOINT
 
     payload = {
         'chat_id': chat_id,
-        'text': render_html_note_detail(title, content), 
-        'reply_markup': InlineKeyboardMarkup(get_note_option_keyboard(note_id)).to_json(),
+        'text': render_html_note_detail(notes.title, notes.content),
+        
         'parse_mode': 'HTML',
-    }
+    } | (
+        {'reply_markup': InlineKeyboardMarkup(get_note_option_keyboard(note_id)).to_json(),} if not notes.deleted else {}
+    ) 
     payload['parse_mode'] = 'HTML'
     payload['reply_markup'] = payload['reply_markup'].to_json()
 
     response = requests.post(endpoint, json=payload)
+
+    if(response.status_code != 200):
+        return "Note detail cannot be shown. Ask the user to use /view_notes to get the latest notes."
+    
     
     return f"Show note sucessfully"
 
