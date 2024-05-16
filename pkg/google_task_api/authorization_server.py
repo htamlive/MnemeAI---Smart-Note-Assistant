@@ -26,7 +26,11 @@ app_credential = decode_json_base64(encoded_key)
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account and requires requests to use an SSL connection.
-SCOPES = ["https://www.googleapis.com/auth/tasks"]
+SCOPES = [
+    "https://www.googleapis.com/auth/tasks",
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/calendar.events",
+]
 API_SERVICE_NAME = "tasks"
 API_VERSION = "v1"
 

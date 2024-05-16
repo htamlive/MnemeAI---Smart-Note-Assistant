@@ -6,6 +6,7 @@ from enum import Enum
 
 class ServiceType(Enum):
     GOOGLE_TASK_API = "google_task_api"
+    GOOGLE_CALENDAR_API = "google_calendar_api"
     NOTION = "notion"
 
 class Authz(models.Model):

@@ -10,6 +10,7 @@ import pytz
 
 # import datetime
 from bot.telegram.ui_templates import show_notes_list
+from pkg.google_calendar_api.client import GoogleCalendarApi
 from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
@@ -19,7 +20,6 @@ from pkg.notion_api.model import ListNotes
 from test import pagination_test_data
 from config import *
 from urllib.parse import quote
-from pkg.google_task_api.client import GoogleTaskClient as GoogleTaskClient, Task
 from pkg.google_task_api.authorization_client import Authorization_client
 from pkg.notion_api.client import NotionClient
 from asgiref.sync import sync_to_async
@@ -52,7 +52,7 @@ class DefaultClient:
 
         self.API_BASE_URL = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api
-        self.google_task_client = GoogleTaskClient()
+        self.google_task_client = GoogleCalendarApi()
         self.authorization_client = Authorization_client()
         self.notion_client = NotionClient()
         self.llm = LLM()
@@ -62,10 +62,7 @@ class DefaultClient:
 
     async def save_note(self, chat_id, note_text) -> str:
         prompt = f"Add note: {note_text}"
-        return await self.llm.add_note(
-            UserData(chat_id=chat_id),
-            prompt,
-        )
+        return await self.llm.execute_prompting(UserData(chat_id=chat_id), prompt)
 
     async def save_remind(self, chat_id, remind_text) -> str:
         prompt = f"Add reminder: {remind_text}"
@@ -73,20 +70,19 @@ class DefaultClient:
 
     # ================= Note =================
 
-    async def save_note_title(self, chat_id, note_token, title_text):
-        return await update_note(
-            UserData(chat_id=chat_id, note_token=note_token),
-            note_id=note_token,
-            title=title_text,
-            client=self.notion_client,
-        )
+    async def save_note_title(self, chat_id, note_idx, title_text):
+        if note_idx < self.notion_client.get_len(chat_id):
+            data = self.notion_client.patch_notes(chat_id, note_idx, resource_name=title_text)
+        else:
+            data = self.notion_client.post_notes(chat_id, resource_name=title_text)
+        return f"Title saved: {title_text}"
 
     async def save_note_detail(self, chat_id, note_idx, detail_text):
         if note_idx < self.notion_client.get_len(chat_id):
             data = self.notion_client.patch_notes(chat_id, note_idx, resource_desc=detail_text)
         else:
             data = self.notion_client.post_notes(chat_id, resource_desc=detail_text)
-            
+
         return f"Detail saved: {detail_text}"
 
     async def delete_notes(self, chat_id, note_token) -> str:
@@ -114,8 +110,11 @@ class DefaultClient:
 
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
-    
-    async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes: 
+
+    async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes:
+        return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
+
+    async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes:
         return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
 
     def get_note_content(self, chat_id, note_token) -> str:
@@ -125,7 +124,7 @@ class DefaultClient:
 
         # title = pagination_test_data[note_idx]["title"]
         # description = pagination_test_data[note_idx]["description"]
-        
+
         return self.notion_client.get_note_content(chat_id, note_idx)
 
     @deprecated
@@ -163,10 +162,10 @@ class DefaultClient:
 
     async def delete_reminder(self, chat_id, token) -> str:
         return await delete_task(UserData(chat_id=chat_id, reminder_token=token), google_task_client=self.google_task_client)
-    
+
     async def save_reminder_title(self, chat_id: int, reminder_token: str, title_text: str) -> str:
         return await save_task_title(UserData(chat_id=chat_id, reminder_token=reminder_token), title_text, google_task_client=self.google_task_client)
-    
+
     async def save_reminder_detail(self, chat_id: int, reminder_token: str, detail_text: str) -> str:
         return await save_task_detail(UserData(chat_id=chat_id, reminder_token=reminder_token), detail_text, google_task_client=self.google_task_client)
 
@@ -174,8 +173,10 @@ class DefaultClient:
         prompt = f"Set reminder time: {time_text}"
         return await self.llm.save_task_time(UserData(chat_id=chat_id, reminder_token=reminder_token), prompt)
 
+    async def get_note_page_content(self, chat_id, page_token) -> ListTask | None:
+        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token)
     async def get_reminder_page_content(self, chat_id, page_token) -> ListTask | None:
-        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
+        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token)
 
     @deprecated
     async def remove_task(self, chat_id: int, token: str) -> None:
@@ -198,7 +199,7 @@ class DefaultClient:
         if tasks is None:
             return 0
         return len(tasks.items)
-    
+
 
     # ================= Other =================
 
@@ -224,10 +225,16 @@ class DefaultClient:
             # (notify_assignees, 5)
         ]
 
+    async def get_notion_authorization_url(self, chat_id: int) -> str:
+        return await sync_to_async(self.notion_client.auth_client.get_auth_url)(chat_id)
+
     async def get_google_authorization_url(self, chat_id: int) -> str:
         url = await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
-    
+
+    async def check_notion_authorization(self, chat_id: int) -> bool:
+        return await sync_to_async(self.notion_client.auth_client.get_credentials)(chat_id) is not None
+
     async def check_google_authorization(self, chat_id: int) -> bool:
 
         credential = await sync_to_async(self.authorization_client.get_credentials)(
