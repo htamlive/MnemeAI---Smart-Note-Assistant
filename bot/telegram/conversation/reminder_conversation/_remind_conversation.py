@@ -30,10 +30,14 @@ class RemindConversation(CommandConversation):
     
 
     async def _handle_receive_remind_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, remind_text: str) -> None:
+
+        if not 'user_system_data' in context.user_data:
+            message = await update.message.reply_text("Please start the bot first with /start")
+            return
+
         message = await update.message.reply_text("Got it! Please wait a moment.")
-        chat_id = update.message.chat_id
         response_text = await self.client.save_remind(
-            user_data=UserData(chat_id=chat_id, timezone=context.user_data.get('timezone', None)),
+            user_data=context.user_data['user_system_data'],
             remind_text=remind_text
             )
         
