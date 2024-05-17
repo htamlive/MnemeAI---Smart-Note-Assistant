@@ -4,6 +4,8 @@ from telegram import (
 from telegram.ext import (
     Application, CommandHandler, ContextTypes, CallbackQueryHandler, CallbackContext
 )
+
+from llm.models import UserData
 from .conversation import ConversationCenterController
 from client import TelegramClient
 from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup
@@ -49,6 +51,10 @@ class Telebot:
             keyboard = [['/timezone'], ['/notion_authorization'], ['/google_authorization'], ['/show_time'], ['/help']]
             reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
+            if(not context.user_data.get('user_system_data', None)):
+                context.user_data['user_system_data'] = UserData(chat_id=update.effective_chat.id)
+
+
             welcome_text = open('templates/welcome.txt', 'r').read()
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
@@ -86,7 +92,14 @@ class Telebot:
 
     def init_show_time_command(self) -> None:
         async def show_time(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-            timezone = context.user_data.get('timezone', None)
+            
+            user_data = context.user_data.get('user_system_data', None)
+
+            if not user_data:
+                await update.message.reply_text("Please use /start command to start the bot.")
+                return
+
+            timezone = user_data.timezone
             if timezone:
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,

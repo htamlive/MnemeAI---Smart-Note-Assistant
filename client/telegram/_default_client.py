@@ -196,6 +196,9 @@ class DefaultClient:
 
         # return response["result"]["response_text"], response["result"]["next_state"]
 
+    async def receive_user_timezone_from_text(self, user_data: UserData, timezone_text: str) -> str:
+        return await self.llm.update_timezone(user_data, f'Update timezone with the given offset: {timezone_text}')
+
     def get_jobs_from_start(self, update: Update) -> list:
         async def notify_assignees(context: CallbackContext) -> None:
             # await context.bot.send_message(chat_id=update.effective_chat.id, text='Hello')
