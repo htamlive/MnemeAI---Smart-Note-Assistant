@@ -1,18 +1,12 @@
-from typing import List
 from telegram import (
-    InlineKeyboardMarkup,
     Update,
-    InlineKeyboardButton,
     CallbackQuery
     )
-from telegram.ext import (
-    CallbackQueryHandler, ContextTypes
-)
+from telegram.ext import ContextTypes
+
 from bot.telegram.ui_templates import show_notes_list_template
 from client import TelegramClient
-import re
-from config import NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_NOTE_CHAR
-from pkg.google_task_api.model import ListTask, Task
+from config import NOTE_PAGE_CHAR, PAGE_DELIMITER
 from pkg.notion_api.model import ListNotes
 
 class NotePages:
@@ -22,10 +16,7 @@ class NotePages:
         # self.init_note_pages()
 
     async def view_note_page_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        
-
         await self.show_preview_page(update, context)
-
     
     async def client_get_page_content(self, chat_id, page_token):
         return await self.client.get_note_page_content(chat_id, page_token)
@@ -39,16 +30,12 @@ class NotePages:
     async def _preview_page_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query
         await query.answer()
-        print('preview page callback')
         if self.check_match_pattern(query):
             page_token = query.data.split(PAGE_DELIMITER)[1]
             await self.show_preview_page(query, context, page_token)
 
     async def show_preview_page(self, query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, starting_point: str | None = None) -> None:
         chat_id = query.message.chat_id
-
-        # it is callback query
-
         list_notes: ListNotes | None = await self.client.get_note_page_content(chat_id, starting_point)
         titles = []
         notes_tokens = []

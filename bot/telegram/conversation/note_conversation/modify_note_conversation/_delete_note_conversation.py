@@ -63,7 +63,7 @@ class DeleteNoteConversation(ModifyNoteConversation):
         try:
             item_content = await self.client_get_content(chat_id, note_idx)
             keyboard = self.get_option_keyboard(note_idx)
-            print(item_content)
+            # print(item_content)
             await query.edit_message_text(
                 text=item_content,
                 reply_markup=InlineKeyboardMarkup(keyboard),

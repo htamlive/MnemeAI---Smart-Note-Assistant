@@ -85,6 +85,7 @@ def create_review_reminder_json(chat_id: int, reminder_text: str, reminder_idx: 
         'parse_mode': 'HTML'
     }
 
+@deprecated
 def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_page_token: str, cur_page_token: str | None = None) -> dict:
     keyboards = []
     for title, token in zip(titles, reminder_tokens):

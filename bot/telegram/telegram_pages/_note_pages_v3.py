@@ -14,6 +14,7 @@ import re
 from config import NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_NOTE_CHAR
 from pkg.google_task_api.model import ListTask, Task
 from pkg.notion_api.model import ListNotes
+from bot.telegram.utils import extract_hidden_tokens
 
 class NotePages:
     def __init__(self, client: TelegramClient) -> None:
@@ -22,8 +23,6 @@ class NotePages:
         # self.init_note_pages()
 
     async def view_note_page_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        
-
         await self.show_preview_page(update, context)
 
     
@@ -40,15 +39,13 @@ class NotePages:
         query = update.callback_query
         await query.answer()
         if self.check_match_pattern(query):
-            page_token = query.data.split(PAGE_DELIMITER)[1]
+            page_token = extract_hidden_tokens(query.message.entities)
             await self.show_preview_page(query, context, page_token)
 
     async def show_preview_page(self, query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, starting_point: str | None = None) -> None:
         chat_id = query.message.chat_id
 
-        # it is callback query
-
-        list_notes: ListNotes | None = await self.client.get_note_page_content(chat_id, starting_point)
+        list_notes: ListNotes | None = await self.client_get_page_content(chat_id, starting_point)
         titles = []
         notes_tokens = []
 
