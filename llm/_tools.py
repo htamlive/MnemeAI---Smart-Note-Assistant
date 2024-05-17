@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from typing import List
 
+import pytz
 from telegram import InlineKeyboardMarkup
 
 from bot.telegram.ui_templates import get_note_option_keyboard, get_reminder_option_keyboard, render_html_note_detail, render_html_reminder_detail, show_notes_list_template, show_reminders_list
@@ -24,6 +25,18 @@ async def check_google_task_auth(user_data: UserData, google_task_client: Google
     if google_task_client is None:
         google_task_client = GoogleTaskClient()
     return await sync_to_async(google_task_client.check_auth)(chat_id)
+
+async def update_timezone_utc(user_data: UserData, offset: int = 0) -> str:
+    if offset == 0:
+        user_data.timezone = pytz.timezone('Etc/GMT')
+    else:
+        if offset > 0:
+            user_data.timezone = pytz.timezone(f'Etc/GMT-{abs(offset)}')
+        else:
+            user_data.timezone = pytz.timezone(f'Etc/GMT+{abs(offset)}')
+
+    current_time = datetime.now(user_data.timezone)
+    return f"Timezone updated to UTC{offset:+d} and current time is {current_time.strftime('%H:%M %A %d %B %Y')}"
 
 async def create_task(user_data: UserData, title: str, body: str, due, google_task_client: GoogleTaskClient | None = None) -> str:
     

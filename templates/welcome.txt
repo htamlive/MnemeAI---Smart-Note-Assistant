@@ -1,7 +1,21 @@
 Welcome to the <b>MnemeAI bot</b>! Enjoy fast note taking empowered by LLM. 
 
 Here is what to do first!
-Type /notion_authorization to connect your Notion account.
-Type /google_authorization to connect your Google account.
+
+<b> Set timezone </b>
+- Use /timezone to set your timezone. This is an <b>important</b> step for the bot to work properly.
+
+<b> Taking Notes </b>
+1. Use /notion_authorization to connect your Notion account.
+2. Choose a Notion page to save your notes.
+3. Use /notion_page and paste the url of that Notion page.
+
+
+<b> Add Reminders </b>
+1. Use /google_authorization to connect your Google account.
+2. Use /share_location to share your location with the bot. This is used to find the appropriate time zone.
+
+
+
 Type /help to see available commands.
 

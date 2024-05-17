@@ -103,7 +103,6 @@ class ViewNotesConversation(CommandConversation):
         token = query_data.split(PAGE_DELIMITER)[1]
         await self._handle_preview(update, context, token)
 
-
     async def client_get_content(self, chat_id: int, token: str | None) -> str:
         return await self.client.get_note_content(chat_id, token)
 

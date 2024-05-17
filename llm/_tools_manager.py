@@ -19,6 +19,8 @@ class ToolType(enum.Enum):
     SHOW_NOTES_LIST = "show_notes_list"
     SHOW_NOTES_DETAIL = "show_notes_detail"
 
+    UPDATE_TIMEZONE_UTC = "update_timezone_utc"
+
 class ToolManager():
     def __init__(self):
         self.function_map: dict[ToolType, callable] = {
@@ -35,7 +37,9 @@ class ToolManager():
             ToolType.SAVE_NOTES_TITLE: save_notes_title,
             ToolType.SAVE_NOTES_DETAIL: save_notes_detail,
             ToolType.SHOW_NOTES_LIST: show_notes_list,
-            ToolType.SHOW_NOTES_DETAIL: show_notes_detail
+            ToolType.SHOW_NOTES_DETAIL: show_notes_detail,
+
+            ToolType.UPDATE_TIMEZONE_UTC: update_timezone_utc
         }
 
 

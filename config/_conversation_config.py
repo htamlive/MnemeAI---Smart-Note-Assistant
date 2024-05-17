@@ -4,8 +4,9 @@ from telegram.ext import ConversationHandler
     VIEW_NOTES, EDIT_NOTE_TITLE, EDIT_NOTE_DETAIL, DELETE_NOTE,
     VIEW_REMINDERS, EDIT_REMINDER_TITLE, EDIT_REMINDER_DETAIL, EDIT_REMINDER_TIME, DELETE_REMINDER,
     PROMPTING,
-    NOTION_REQ_DB, NOTION_REQ_PAGE
-    ) = range(14)
+    NOTION_REQ_DB, NOTION_REQ_PAGE,
+    TIMEZONE_REQ
+    ) = range(15)
 
 END = ConversationHandler.END
 
@@ -19,6 +20,7 @@ class Commands(Enum):
     PROMPTING = "ah"
     NOTION_REQ_DB = "notion_db"
     NOTION_REQ_PAGE = "notion_page"
+    TIMEZONE_REQ = "timezone"
 
 PATTERN_DELIMITER = "@"
 PAGE_DELIMITER = "#"

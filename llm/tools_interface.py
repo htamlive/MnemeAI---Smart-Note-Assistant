@@ -264,5 +264,20 @@ def show_notes_detail() -> str:
     >>> get_note_detail()
     """
     pass
+#
+def update_timezone_utc(offset: int) -> str:
+    """
+    Updates the user's timezone offset in UTC.
 
+    Args:
+    offset (int): The timezone offset in hours.
+
+    Returns:
+    (str): A message indicating the timezone has been updated.
+
+    Example:
+    >>> update_timezone_utc(3)
+    >>> update_timezone_utc(-5)
+    """
+    pass
 

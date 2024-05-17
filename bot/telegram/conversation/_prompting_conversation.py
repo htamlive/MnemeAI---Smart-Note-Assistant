@@ -4,7 +4,7 @@ from telegram.ext import (
 )
 
 from llm.models import UserData
-from llm._tools import show_notes_list
+from llm._tools import show_notes_list, update_timezone_utc
 from ._command_conversation import CommandConversation
 from client import TelegramClient
 
@@ -23,20 +23,27 @@ class PromptingConversation(CommandConversation):
             chat_id = update.message.chat_id
             prompt_text = ' '.join(context.args)
 
-            user_data: UserData = UserData()
+            user_data: UserData = context.user_data.get('user_system_data', None)
 
-            user_data.chat_id = chat_id
+            if(user_data is None):
+                await update.message.reply_text("Please use /start to get started.")
+                return None
+
             if('prev_review_message' in context.user_data):
                 data = context.user_data['prev_review_message']
                 user_data.reminder_token = data.get('reminder_token', None)
                 user_data.note_token = data.get('note_token', None)
+            
+
         
 
             # await add_note(user_data, "Julia is very good", "Julia is very good")
 
             # await show_notes_list(user_data)
-
-            # return ConversationHandler.END
+            #print location
+            # print(update.message.location)
+            # print(await update_timezone_utc(user_data, 7))
+            return ConversationHandler.END
             
             response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
 

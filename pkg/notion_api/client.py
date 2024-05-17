@@ -287,8 +287,8 @@ class NotionClient:
         
         return notes
     
-    @deprecated
-    def alt_patch_notes(self, chat_id:int, page_id:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
+    # @deprecated
+    def patch_notes(self, chat_id:int, page_id:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
         headers = self.get_header(chat_id)
         resource_id = self.get_database_id(chat_id)
         
@@ -297,6 +297,12 @@ class NotionClient:
         data = self.get_data(resource_id, resource_name, resource_desc)
         
         resp = requests.patch(f'https://api.notion.com/v1/pages/{page_id}', headers=headers, json=data)
+
+        if not resource_name:
+            resource_name = page_content.title
+
+        if not resource_desc:
+            resource_desc = page_content.notes
         
         embeddings = generate_embeddings(resource_name + " " + resource_desc)
         
@@ -316,7 +322,7 @@ class NotionClient:
         
         return resp.data    
 
-    def patch_notes(self, chat_id:int, resource_token:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
+    def alt_patch_notes(self, chat_id:int, resource_token:str, resource_name:str | None = None,resource_desc:str | None = None) -> dict | None:
         
         # self.delete_notes(chat_id, resource_token)
 

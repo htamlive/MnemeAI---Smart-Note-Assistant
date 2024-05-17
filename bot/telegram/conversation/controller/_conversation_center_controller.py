@@ -10,6 +10,7 @@ from ..notion_request.request_notion_db_conversation import RequestNotionDBConve
 from ..notion_request.request_page_conversation import RequestNotionPageConversation
 
 from .._prompting_conversation import PromptingConversation
+from .._timezone_request_conversation import TimezoneRequestConversation
 
 from client import TelegramClient
 
@@ -29,6 +30,7 @@ class ConversationCenterController:
 
         self.prompting_conversation = PromptingConversation(PROMPTING, self.client)
 
+        self.timezone_request_conversation = TimezoneRequestConversation(TIMEZONE_REQ, self.client)
         # self.init_preview_page_callbacks()
 
         command_handler = MessageHandler(filters.COMMAND, self.check_command)
@@ -36,14 +38,17 @@ class ConversationCenterController:
         self.conversation_handler = ConversationHandler(
             entry_points=[
                 CommandHandler(Commands.PROMPTING.value, self.prompting_conversation.start_conversation),
+                CommandHandler(Commands.TIMEZONE_REQ.value, self.timezone_request_conversation.start_conversation),
                 # CommandHandler(Commands.NOTION_REQ_DB.value, self.notion_db_request_conversation.start_conversation),
                 CommandHandler(Commands.NOTION_REQ_PAGE.value, self.notion_page_request_conversation.start_conversation)
             ] + self.note_conversation_controller.get_entry_points() + self.reminder_conversation_controller.get_entry_points(),
             states = {
                 # NOTION_REQ_DB: [command_handler] + self.notion_db_request_conversation.states,
-                NOTION_REQ_PAGE: [command_handler] + self.notion_page_request_conversation.states
+                NOTION_REQ_PAGE: [command_handler] + self.notion_page_request_conversation.states,
+                TIMEZONE_REQ: [command_handler] + self.timezone_request_conversation.states,
 
-            } | self.note_conversation_controller.get_states_dict(command_handler) | self.reminder_conversation_controller.get_states_dict(command_handler),
+            } | self.note_conversation_controller.get_states_dict(command_handler)
+              | self.reminder_conversation_controller.get_states_dict(command_handler),
             fallbacks=[
                 CommandHandler('cancel', self.cancel)
             ]
@@ -77,6 +82,9 @@ class ConversationCenterController:
             context.args = re.split(r'\s+', command)[1:]
 
             return await self.prompting_conversation.start_conversation(update, context)
+        
+        if command.startswith('/'+Commands.TIMEZONE_REQ.value):
+            return await self.timezone_request_conversation.start_conversation(update, context)
         
         # if command.startswith('/'+Commands.NOTION_REQ_DB.value):
         #     return await self.notion_db_request_conversation.start_conversation(update, context)

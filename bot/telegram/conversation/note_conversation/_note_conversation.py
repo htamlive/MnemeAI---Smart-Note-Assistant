@@ -2,6 +2,8 @@ from telegram import Update
 from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
+
+from llm.models import UserData
 from .._command_conversation import CommandConversation
 from client import TelegramClient
 
@@ -29,5 +31,8 @@ class NoteConversation(CommandConversation):
     async def handle_receive_note_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_text: str) -> None:
         chat_id = update.message.chat_id
         message = await update.message.reply_text("Got it! Please wait a moment.")
-        response_text = await self.client.save_note(chat_id, note_text)
+        response_text = await self.client.save_note(
+            user_data=UserData(chat_id=chat_id, timezone=context.user_data.get('timezone', None)),
+            note_text=note_text
+            )
         await message.edit_text(response_text)
