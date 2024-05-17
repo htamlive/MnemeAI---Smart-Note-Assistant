@@ -90,12 +90,12 @@ class Telebot:
             if timezone:
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text=f'The current time is {datetime.now(timezone)}'
+                    text=f'The current time is {datetime.now(timezone).strftime("%H:%M")}'
                 )
             else:
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text='Please set your timezone first by using /set_timezone'
+                    text='Please set your timezone first by using /timezone'
                 )
         self.application.add_handler(CommandHandler('show_time', show_time))
 

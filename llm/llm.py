@@ -73,7 +73,7 @@ class LLM:
                 tool_response = await self.tool_executor.execute_from_string(user_data, response_1.content, function_map)
 
                 chain_2 = self.prompt_template_2 | self.model | final_message_parser
-                response_2: str = chain_2.invoke({"ai_message": response_1.content, "result": tool_response, "tools": tool_interfaces, "request": user_request, "datetime": self.get_current_datetime()})
+                response_2: str = chain_2.invoke({"ai_message": response_1.content, "result": tool_response, "tools": tool_interfaces, "request": user_request, "datetime": self.get_current_datetime(timezone)})
 
                 return response_2
             except Exception as e:
