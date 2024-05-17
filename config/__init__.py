@@ -22,12 +22,15 @@ __all__=[
     'DETAIL_REMINDER_CHAR',
     'MAX_RESULTS',
     'NOTION_REQ_DB',
-    'NOTION_REQ_PAGE'
+    'NOTION_REQ_PAGE',
+    'TIMEZONE_REQ'
 
 ]
 
 from ._conversation_config import EDIT_NOTE_DETAIL, EDIT_NOTE_TITLE, NOTE_TEXT, PROMPTING, REMIND_TEXT, VIEW_NOTES, END, DELETE_NOTE
 from ._conversation_config import EDIT_REMINDER_DETAIL, EDIT_REMINDER_TIME, EDIT_REMINDER_TITLE, VIEW_REMINDERS, DELETE_REMINDER
+
+from ._conversation_config import TIMEZONE_REQ
 
 from ._conversation_config import NOTION_REQ_DB, NOTION_REQ_PAGE
 

@@ -1,3 +1,4 @@
+from llm.models import UserData
 from ...note_conversation.modify_note_conversation import ModifyNoteConversation
 from client import TelegramClient
 from telegram import Update, CallbackQuery
@@ -27,21 +28,25 @@ class EditReminderTimeConversation(ModifyNoteConversation):
     
     async def receive_time_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         time_text = update.message.text
-        await self.handle_receive_time(update, context, time_text)
+        await self._handle_receive_time(update, context, time_text)
 
         await self.on_finish_edit(update, context)
 
         return ConversationHandler.END
     
-    async def handle_receive_time(self, update: Update, context: ContextTypes.DEFAULT_TYPE, time_text: str) -> None:
+    async def _handle_receive_time(self, update: Update, context: ContextTypes.DEFAULT_TYPE, time_text: str) -> None:
         chat_id = update.message.chat_id
         note_idx = context.user_data['item_idx']
 
-        response_text = await self.save_time(chat_id, note_idx, time_text)
+        timezone = context.user_data.get('timezone', None)
+
+        response_text = await self.client_save_time(chat_id, note_idx, time_text, timezone)
         await update.message.reply_text(response_text)
 
-    async def save_time(self, chat_id: int, idx: int, time: str) -> str:
-        return await self.client_save_time(chat_id, idx, time)
+
     
-    async def client_save_time(self, chat_id: int, idx: int, time_text: str) -> str:
-        return await self.client.save_reminder_time(chat_id, idx, time_text)
+    async def client_save_time(self, chat_id: int, token: int, time_text: str, timezone: str) -> str:
+        return await self.client.save_reminder_time(
+            user_data=UserData(chat_id=chat_id, timezone=timezone, reminder_token=token),
+            time_text=time_text
+        )

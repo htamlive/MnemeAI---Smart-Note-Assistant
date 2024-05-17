@@ -71,16 +71,13 @@ class DefaultClient:
     async def user_subscribe(self, chat_id):
         pass
 
-    async def save_note(self, chat_id, note_text) -> str:
+    async def save_note(self, user_data: UserData, note_text) -> str:
         prompt = f"Add note: {note_text}"
-        return await self.llm.add_note(
-            UserData(chat_id=chat_id),
-            prompt,
-        )
+        return await self.llm.add_note(user_data, prompt)
 
-    async def save_remind(self, chat_id, remind_text) -> str:
+    async def save_remind(self, user_data: UserData, remind_text) -> str:
         prompt = f"Add reminder: {remind_text}"
-        return await self.llm.add_task(UserData(chat_id=chat_id), prompt)
+        return await self.llm.add_task(user_data, prompt)
 
     # ================= Note =================
 
@@ -155,9 +152,9 @@ class DefaultClient:
     async def save_reminder_detail(self, chat_id: int, reminder_token: str, detail_text: str) -> str:
         return await save_task_detail(UserData(chat_id=chat_id, reminder_token=reminder_token), detail_text, google_task_client=self.google_task_client)
 
-    async def save_reminder_time(self, chat_id: int, reminder_token: str, time_text: str) -> str:
+    async def save_reminder_time(self, user_data, time_text: str) -> str:
         prompt = f"Set reminder time: {time_text}"
-        return await self.llm.save_task_time(UserData(chat_id=chat_id, reminder_token=reminder_token), prompt)
+        return await self.llm.save_task_time(user_data, prompt)
 
     async def get_reminder_page_content(self, chat_id, page_token) -> ListTask | None:
         return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 

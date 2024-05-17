@@ -20,5 +20,9 @@ Authorizing commands:
 Connect to Notion:
 /notion_page - <i>Connect to the user Notion page</i>
 
+Time and Timezone commands:
+/show_time - <>Show the current time in your timezone</i>
+/timezone - <i>Set your timezone</i>
+
 Cancel command:
 /cancel - <i>Cancel the current operation</i>

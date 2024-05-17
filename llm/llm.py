@@ -28,8 +28,8 @@ class LLM:
 
         self.tool_manager = ToolManager()
     
-    def get_current_datetime(self) -> str:
-        current_datetime = datetime.datetime.now()
+    def get_current_datetime(self, timezone: str) -> str:
+        current_datetime = datetime.datetime.now(timezone)
 
         return f"{current_datetime.strftime('%Y-%m-%d %H:%M:%S %A')}"
 
@@ -54,6 +54,12 @@ class LLM:
         return await self._llm_invoke(user_data, time_text, function_map, tool_interfaces)
 
     async def _llm_invoke(self, user_data: UserData, user_request: str, function_map: dict[str, callable], tool_interfaces: str) -> str:
+        
+        timezone = user_data.timezone
+
+        if(not timezone):
+            return "Error: Timezone not set. Please set your timezone first using /timezone command. The time zone will be stored in each user's session."
+        
         def final_message_parser(ai_message: AIMessage) -> str:
             return ai_message.content
         
@@ -62,7 +68,7 @@ class LLM:
             try:
                 chain_1 = self.prompt_template_1 | self.model
 
-                response_1: AIMessage = chain_1.invoke({"tools": tool_interfaces, "request": user_request, "datetime": self.get_current_datetime()})
+                response_1: AIMessage = chain_1.invoke({"tools": tool_interfaces, "request": user_request, "datetime": self.get_current_datetime(timezone)})
                 
                 tool_response = await self.tool_executor.execute_from_string(user_data, response_1.content, function_map)
 

@@ -30,12 +30,18 @@ class PromptingConversation(CommandConversation):
                 data = context.user_data['prev_review_message']
                 user_data.reminder_token = data.get('reminder_token', None)
                 user_data.note_token = data.get('note_token', None)
+            
+            user_data.timezone = context.user_data.get('timezone', None)
+
+            print(user_data.timezone)
         
 
             # await add_note(user_data, "Julia is very good", "Julia is very good")
 
             # await show_notes_list(user_data)
-
+            #print location
+            # print(update.message.location)
+            
             # return ConversationHandler.END
             
             response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
