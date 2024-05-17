@@ -19,7 +19,7 @@ class EditReminderTimeConversation(ModifyNoteConversation):
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query: CallbackQuery = update.callback_query
         await query.answer()
-        reminder_idx = query.data.split(PATTERN_DELIMITER)[1]
+        reminder_idx = super().extract_hidden_token(query)
         
         context.user_data['item_idx'] = reminder_idx
         await query.message.reply_text("Please send me the new time of your note.")

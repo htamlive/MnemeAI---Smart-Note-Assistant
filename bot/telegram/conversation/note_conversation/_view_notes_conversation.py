@@ -1,3 +1,4 @@
+import base64
 from .._command_conversation import CommandConversation
 from telegram import (
     Update, InlineKeyboardMarkup
@@ -9,6 +10,7 @@ from telegram.ext import (
 from config import PAGE_DELIMITER, DETAIL_NOTE_CHAR, NOTE_PAGE_CHAR
 from ...telegram_pages import NotePages
 from client import TelegramClient
+from bot.telegram.utils import extract_hidden_url_data, get_hidden_url_html
 
 from bot.telegram.ui_templates import get_note_option_keyboard
 
@@ -47,8 +49,6 @@ class ViewNotesConversation(CommandConversation):
         query = update.callback_query
         await query.answer()
 
-
-
     async def receive_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         received_text = update.message.text
         await self.handle_preview(update, context, received_text)
@@ -68,9 +68,28 @@ class ViewNotesConversation(CommandConversation):
                 message_id=context.user_data['prev_review_message']['message_id']
             )
         try:
-            note_content = await self.client_get_content(chat_id, token)
+            message = update.callback_query.message
 
-            keyboard = self.get_option_keyboard(token)
+            note_token = None
+            url = None
+
+            for entity in message.entities:
+                if(entity.type == 'text_link'):
+                    url = entity.url
+                    if(url.startswith('tg://btn/')):
+
+                        note_tokens = extract_hidden_url_data(url)
+                        note_token = note_tokens[int(token)]
+
+                        break
+
+            if(not note_token):
+                raise Exception('No text link found')
+
+            hidden_url_html = get_hidden_url_html([note_token])
+            note_content = hidden_url_html + await self.client_get_content(chat_id, note_token)
+
+            keyboard = self.get_option_keyboard(0)
 
             query = update.callback_query
             message = await query.message.reply_text(
@@ -78,6 +97,7 @@ class ViewNotesConversation(CommandConversation):
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode='HTML'
             )
+
 
         except Exception as e:
             print(e)

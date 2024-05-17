@@ -24,7 +24,7 @@ class DeleteReminderConversation(DeleteNoteConversation):
         query: CallbackQuery = update.callback_query
         await query.answer()
 
-        reminder_idx = query.data.split('@')[1]
+        reminder_idx = super().extract_hidden_token(query)
         keyboard = self.get_confirmation_keyboard(reminder_idx)
         await query.edit_message_text(text="Are you really sure you want to delete?", reply_markup=InlineKeyboardMarkup(keyboard))
 

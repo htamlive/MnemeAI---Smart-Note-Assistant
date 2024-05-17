@@ -21,7 +21,7 @@ class EditNoteTitleConversation(ModifyNoteConversation):
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query: CallbackQuery = update.callback_query
         await query.answer()
-        note_idx = query.data.split(PATTERN_DELIMITER)[1]
+        note_idx = self.extract_hidden_token(query)
         
         context.user_data['item_idx'] = note_idx
         await query.message.reply_text("Please send me the new title of your note.")

@@ -2,6 +2,7 @@ from ..._command_conversation import (
     CommandConversation
 )
 from telegram import (
+    CallbackQuery,
     InlineKeyboardButton,
     Update
 )
@@ -10,11 +11,20 @@ from telegram.ext import (
 )
 
 from telegram import InlineKeyboardMarkup
+from config import PATTERN_DELIMITER
+from bot.telegram.utils import extract_hidden_tokens
 
 class ModifyNoteConversation(CommandConversation):
 
     def __init__(self, debug=True) -> None:
         super().__init__(debug)
+
+    def extract_hidden_token(self, query: CallbackQuery) -> str:
+        token = query.data.split(PATTERN_DELIMITER)[1]
+
+        tokens = extract_hidden_tokens(query.message.entities)
+
+        return tokens[int(token)]
 
     async def on_finish_edit(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 

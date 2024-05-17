@@ -87,7 +87,6 @@ class TimezoneRequestConversation(CommandConversation):
         
         timezone = pytz.timezone(tf.timezone_at(lng=location['longitude'], lat=location['latitude']))
 
-        # get offset
         offset = timezone.utcoffset(datetime.now()).total_seconds() / 3600
         offset = round(offset)
 

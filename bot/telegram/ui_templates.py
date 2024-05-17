@@ -1,6 +1,8 @@
 import datetime
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+import base64
+from deprecatedFunction import deprecated
 
 from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR, DETAIL_NOTE_CHAR
 
@@ -112,7 +114,46 @@ def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_
         'parse_mode': 'HTML'
     }
 
+def show_reminders_list_v2(chat_id: int, titles: list, reminder_tokens: list, next_page_token: str, cur_page_token: str | None = None) -> dict:
+
+    encoded_tokens = map(lambda token: token.encode(), reminder_tokens + ([next_page_token] if next_page_token else []))
+
+    raw_data = b'\0'.join(encoded_tokens)
+
+    link = base64.urlsafe_b64encode(raw_data).decode()
+
+    content = f'<a href="tg://btn/{link}">\u200b</a>'
+
+    keyboards = []
+    for idx, title in enumerate(titles):
+        keyboards.append([InlineKeyboardButton(title, callback_data=f'{DETAIL_REMINDER_CHAR}{PAGE_DELIMITER}{idx}')])
+
+    if next_page_token:
+        keyboards.append([InlineKeyboardButton('Show more', callback_data=f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}{len(titles)}')])
+
+    count_items = len(titles)
+
+    if cur_page_token is None:
+        if count_items > 1:
+            content += 'Here are your reminders:\n'
+        elif count_items == 1:
+            content += 'Here is your reminder:\n'
+        elif count_items == 0:
+            content += 'There is no reminder yet'
+    else:
+        content += 'Here are more of your reminders:\n'
+
+    return {
+        'chat_id': chat_id,
+        'text': content,
+        'reply_markup': InlineKeyboardMarkup(keyboards),
+        'parse_mode': 'HTML'
+    }
+
+@deprecated
 def show_notes_list_template(chat_id: int, titles: list, note_tokens: list, starting_point: str = None) -> dict:
+
+
     keyboards = []
     for title, token in zip(titles, note_tokens):
         keyboards.append([InlineKeyboardButton(title, callback_data=f'{DETAIL_NOTE_CHAR}{PAGE_DELIMITER}{token}')])
@@ -137,6 +178,42 @@ def show_notes_list_template(chat_id: int, titles: list, note_tokens: list, star
         'parse_mode': 'HTML'
     }
 
+def show_notes_list_template_v2(chat_id: int, titles: list, note_tokens: list, starting_point: str = None) -> dict:
+
+    encoded_tokens = map(lambda token: token.encode(), note_tokens + ([starting_point] if starting_point else []))
+
+    raw_data = b'\0'.join(encoded_tokens)
+
+    link = base64.urlsafe_b64encode(raw_data).decode()
+
+    content = f'<a href="tg://btn/{link}">\u200b</a>'
+
+    keyboards = []
+    for idx, title in enumerate(titles):
+        keyboards.append([InlineKeyboardButton(title, callback_data=f'{DETAIL_NOTE_CHAR}{PAGE_DELIMITER}{idx}')])
+
+    count_items = len(titles)
+
+    if starting_point:
+        keyboards.append([InlineKeyboardButton('show more', callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{count_items}')])
+
+
+    text = 'Here are your notes:\n'
+    if count_items > 1:
+        text = 'Here are your notes:\n'
+    elif count_items == 1:
+        text = 'Here is your note:\n'
+    elif count_items == 0:
+        text = 'There is no note yet'
+
+    content += text
+
+    return {
+        'chat_id': chat_id,
+        'text': content,
+        'reply_markup': InlineKeyboardMarkup(keyboards),
+        'parse_mode': 'HTML'
+    }
 
 def render_html_reminder_detail(due: datetime, title: str, description: str) -> str:
     html_render = \

@@ -13,6 +13,7 @@ from ._modify_note_conversation import ModifyNoteConversation
 from client import TelegramClient
 
 from bot.telegram.ui_templates import get_note_option_keyboard, get_delete_note_confirmation_keyboard
+from bot.telegram.utils import extract_hidden_tokens
 
 from config import PATTERN_DELIMITER, Patterns
 
@@ -28,7 +29,8 @@ class DeleteNoteConversation(ModifyNoteConversation):
         query: CallbackQuery = update.callback_query
         await query.answer()
 
-        note_token = query.data.split('@')[1]
+        note_token = self.extract_hidden_token(query)
+
         keyboard = self.get_confirmation_keyboard(note_token)
         await query.edit_message_text(text="Are you really sure you want to delete?", reply_markup=InlineKeyboardMarkup(keyboard))
 

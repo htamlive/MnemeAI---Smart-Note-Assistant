@@ -17,8 +17,8 @@ class EditNoteDetailConversation(ModifyNoteConversation):
         query = update.callback_query
         await query.answer()
 
-        note_idx = query.data.split(PATTERN_DELIMITER)[1]
-        context.user_data['item_idx'] = note_idx
+        note_token = self.extract_hidden_token(query)
+        context.user_data['item_idx'] = note_token
 
         await query.message.reply_text("Please send me the new detail of your note.")
         return self.EDIT_DETAIL
