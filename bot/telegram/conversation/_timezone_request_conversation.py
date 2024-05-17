@@ -47,11 +47,11 @@ class TimezoneRequestConversation(CommandConversation):
             await update.message.reply_text("Please use /start command to start the bot.")
             return
         
-        location_text = update.message.text
+        timezone_text = update.message.text
 
         user_data = context.user_data['user_system_data']
         
-        response =  await self.client.receive_user_timezone_from_text(user_data, location_text)
+        response =  await self.client.receive_user_timezone_from_text(user_data, timezone_text)
 
         context.user_data['user_system_data'] = user_data
 
@@ -87,7 +87,11 @@ class TimezoneRequestConversation(CommandConversation):
         
         timezone = pytz.timezone(tf.timezone_at(lng=location['longitude'], lat=location['latitude']))
 
-        user_data.timezone = timezone
+        # get offset
+        offset = timezone.utcoffset(datetime.now()).total_seconds() / 3600
+        offset = round(offset)
+
+        user_data.timezone = pytz.timezone(f'Etc/GMT-{abs(offset)}')
 
         context.user_data['timezone'] = timezone
         current_time = datetime.now(timezone).strftime("%H:%M")
