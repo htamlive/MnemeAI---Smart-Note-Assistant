@@ -1,6 +1,7 @@
 import datetime
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+import base64
 
 from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR
 
@@ -84,9 +85,22 @@ def create_review_reminder_json(chat_id: int, reminder_text: str, reminder_idx: 
     }
 
 def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_page_token: str, cur_page_token: str | None = None) -> dict:
+    
+
+    encoded_tokens = map(lambda token: token.encode(), reminder_tokens)
+
+    raw_data = b'\0'.join(encoded_tokens)
+
+    link = base64.urlsafe_b64encode(raw_data).decode()
+
+    content = f'<a href="tg://btn/{link}">\u200b</a>'
+
+
+
+    
     keyboards = []
-    for title, token in zip(titles, reminder_tokens):
-        keyboards.append([InlineKeyboardButton(title, callback_data=f'{DETAIL_REMINDER_CHAR}{PAGE_DELIMITER}{token}')])
+    for idx, title in enumerate(titles):
+        keyboards.append([InlineKeyboardButton(title, callback_data= f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}{idx}')])
     
     if next_page_token:
         keyboards.append([InlineKeyboardButton('Show more', callback_data=f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}{next_page_token}')])
@@ -105,9 +119,11 @@ def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_
         # show text for more reminders
         text = 'Here are more of your reminders:\n'
 
+    content += text
+
     return {
         'chat_id': chat_id,
-        'text': text,
+        'text': content,
         'reply_markup': InlineKeyboardMarkup(keyboards),
         'parse_mode': 'HTML'
     }

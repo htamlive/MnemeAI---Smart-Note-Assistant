@@ -11,6 +11,7 @@ from ...telegram_pages import NotePages
 from client import TelegramClient
 
 from bot.telegram.ui_templates import get_note_option_keyboard
+import base64
 
 class ViewNotesConversation(CommandConversation):
     def __init__(self, VIEW_NOTES: int, EDIT_TITLE: int, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
@@ -48,7 +49,6 @@ class ViewNotesConversation(CommandConversation):
     async def view_note_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
-
 
 
     async def receive_preview(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -103,10 +103,23 @@ class ViewNotesConversation(CommandConversation):
     async def _preview_detail_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query_data = update.callback_query.data
         token = query_data.split(PAGE_DELIMITER)[1]
-        await self._handle_preview(update, context, token)
 
+        message = update.callback_query.message
 
+        for entity in message.entities:
+            if(entity.type == 'text_link'):
+                url = entity.url
+                if(url.startswith('tg://btn/')):
+                    encoded_data = url.split('tg://btn/')[1]
 
+                    raw_data = base64.urlsafe_b64decode(encoded_data.encode()).split(b'\0')
+
+                    token = raw_data[int(token)].decode()
+
+                    await self._handle_preview(update, context, token)
+                    return
+
+        await message.reply_text('Cannot find the reminder, please use /view_reminders to view the latest reminders.')
 
     def client_get_content(self, chat_id: int, idx: str | None) -> str:
         # may need to change
