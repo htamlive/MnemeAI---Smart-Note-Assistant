@@ -1,21 +1,19 @@
-Welcome to the <b>MnemeAI bot</b>! Enjoy fast note taking empowered by LLM. 
-
-Here is what to do first!
-
-<b> Set timezone </b>
-- Use /timezone to set your timezone. This is an <b>important</b> step for the bot to work properly.
-
-<b> Taking Notes </b>
-1. Use /notion_authorization to connect your Notion account.
-2. Choose a Notion page to save your notes.
-3. Use /notion_page and paste the url of that Notion page.
+<b>🎉 Welcome to MnemeAI Bot! 🎉</b>
 
 
-<b> Add Reminders </b>
-1. Use /google_authorization to connect your Google account.
-2. Use /share_location to share your location with the bot. This is used to find the appropriate time zone.
+<b>Let's get started:</b>
 
 
+1. Set Your Timezone:
+- 📍 Use /timezone to set your timezone. This is <b>crucial</b> for accurate reminders and scheduling.
 
-Type /help to see available commands.
+2. Taking Notes:
+- 🔗 Connect your Notion account with /notion_authorization.
+- 📄 Select a Notion page to save your notes.
+- 🔍 Use /notion_page and paste the URL of your chosen Notion page.
 
+3. Add Reminders:
+- 🔗 Connect your Google account with /google_authorization.
+- 🌍 Use /share_location to share your location. This helps set the correct timezone for reminders.
+
+For a full list of commands, type /help.

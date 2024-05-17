@@ -55,7 +55,7 @@ class Telebot:
                 context.user_data['user_system_data'] = UserData(chat_id=update.effective_chat.id)
 
 
-            welcome_text = open('templates/welcome.txt', 'r').read()
+            welcome_text = open('templates/welcome.txt', 'r', encoding='utf-8').read()
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text= welcome_text,
@@ -77,7 +77,7 @@ class Telebot:
 
 
     def init_help_command(self) -> None:
-        help_text = open('templates/help.txt', 'r').read()
+        help_text = open('templates/help.txt', 'r', encoding='utf-8').read()
 
         async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             keyboard = [['/start']]

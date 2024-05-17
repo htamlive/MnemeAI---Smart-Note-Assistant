@@ -1,28 +1,28 @@
-Basic commands:
-/start - <i>Start the bot and get a welcome message</i>
-/help - <i>Get help and see available commands</i>
+<b>🌟 Basic Commands 🌟</b><br>
+- /start - <i>Start the bot and receive a warm welcome</i><br>
+- /help - <i>Get assistance and explore available commands</i><br><br>
 
-Add note and reminder commands:
-/note - <i>Add a note</i>
-/remind - <i>Set a reminder</i>
+<b>✏️ Add Note and Reminder Commands ✏️</b><br>
+- /note - <i>Add a quick note</i><br>
+- /remind - <i>Schedule a helpful reminder</i><br><br>
 
-View and edit notes and reminders commands:
-/view_notes - <i>View all notes and edit</i>
-/view_reminders - <i>View all reminders and edit</i>
+<b>📚 View and Edit Notes and Reminders 📚</b><br>
+- /view_notes - <i>Browse and manage your notes</i><br>
+- /view_reminders - <i>Check and edit your reminders</i><br><br>
 
-<b>Let me be your assistant! (Prompting)</b>
-/ah - <i>Tell me to do</i>
+<b>🤖 Assistant at Your Service! 🤖</b><br>
+- /ah - <i>Delegate tasks and let me assist you</i><br><br>
 
-Authorizing commands:
-/notion_authorization - <i>Authorize Notion account</i>
-/google_authorization - <i>Authorize Google account</i>
+<b>🔑 Authorization Commands 🔑</b><br>
+- /notion_authorization - <i>Authorize your Notion account</i><br>
+- /google_authorization - <i>Connect with your Google account</i><br><br>
 
-Connect to Notion:
-/notion_page - <i>Connect to the user Notion page</i>
+<b>🔗 Connect to Notion 🔗</b><br>
+- /notion_page - <i>Link to your Notion page</i><br><br>
 
-Time and Timezone commands:
-/show_time - <>Show the current time in your timezone</i>
-/timezone - <i>Set your timezone</i>
+<b>⏰ Time and Timezone Commands ⏰</b><br>
+- /show_time - <i>Display current time in your timezone</i><br>
+- /timezone - <i>Set your preferred timezone</i><br><br>
 
-Cancel command:
-/cancel - <i>Cancel the current operation</i>
+<b>❌ Cancel Command ❌</b><br>
+- /cancel - <i>Abort the ongoing operation</i><br>

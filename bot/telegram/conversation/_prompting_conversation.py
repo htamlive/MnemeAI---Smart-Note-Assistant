@@ -43,7 +43,7 @@ class PromptingConversation(CommandConversation):
             #print location
             # print(update.message.location)
             # print(await update_timezone_utc(user_data, 7))
-            return ConversationHandler.END
+            # return ConversationHandler.END
             
             response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
 
