@@ -84,7 +84,7 @@ async def create_task(
     )
     # Setting up the Celery task
     timezone_info = pytz.timezone(timezone)
-    countdown = datetime.fromisoformat(result.due) - datetime.now(timezone_info)
+    countdown = datetime.fromisoformat(result.start) - datetime.now(timezone_info)
     await sync_to_async(send_notification.apply_async)(
         args=(chat_id, result.id),
         countdown=countdown.total_seconds(),
