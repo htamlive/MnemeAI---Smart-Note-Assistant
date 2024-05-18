@@ -104,7 +104,7 @@ class ViewNotesConversation(CommandConversation):
                 parse_mode='HTML'
             )
 
-            self.update_review_message_tracker(context, message.message_id, note_content, token)
+            self.update_review_message_tracker(context, message.message_id, note_content, item_token)
 
         except Exception as e:
             print(e)
