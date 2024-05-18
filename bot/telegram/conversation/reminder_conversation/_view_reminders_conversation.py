@@ -9,7 +9,7 @@ from bot.telegram.telegram_pages import NotePages, ReminderPages
 from bot.telegram.ui_templates import get_reminder_option_keyboard, render_html_reminder_detail
 from config import REMINDER_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR
 from telegram import Update
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler
 
 from client import TelegramClient
 
@@ -26,6 +26,12 @@ class ViewRemindersConversation(ViewNotesConversation):
         
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
+        success, message_text = self.check_data_requirement(context)
+
+        if not success:
+            await update.message.reply_text(message_text)
+            return ConversationHandler.END
+
         await self.previewing_pages.show_preview_page(update, context)
         return self.VIEW_ITEMS
 
@@ -38,8 +44,11 @@ class ViewRemindersConversation(ViewNotesConversation):
     def share_preview_page_callback(self) -> CallbackQueryHandler:
         return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
 
-    async def client_get_content(self, chat_id: int, token: str) -> str:
-        title, description, due = await self.client.get_reminder_content(UserData(chat_id=chat_id, reminder_token=token))
+    async def client_get_content(self, context, chat_id: str, token: str) -> str:
+
+        user_data = context.user_data['user_system_data']
+
+        title, description, due = await self.client.get_reminder_content(UserData(chat_id=chat_id, reminder_token=token, timezone=user_data.timezone))
         html_render = render_html_reminder_detail(due, title, description)
         return html_render
 

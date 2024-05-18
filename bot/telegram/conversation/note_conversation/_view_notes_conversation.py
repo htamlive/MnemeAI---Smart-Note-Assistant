@@ -1,4 +1,6 @@
 import base64
+
+from llm.models import UserData
 from .._command_conversation import CommandConversation
 from telegram import (
     Update, InlineKeyboardMarkup
@@ -41,6 +43,10 @@ class ViewNotesConversation(CommandConversation):
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
+        if('user_system_data' not in context.user_data):
+            await update.message.reply_text("Please /start the bot first")
+
+
         await self.previewing_pages.view_note_page_command(update, context)
 
         return self.VIEW_ITEMS
@@ -70,7 +76,7 @@ class ViewNotesConversation(CommandConversation):
         try:
             message = update.callback_query.message
 
-            note_token = None
+            item_token = None
             url = None
 
             for entity in message.entities:
@@ -79,15 +85,15 @@ class ViewNotesConversation(CommandConversation):
                     if(url.startswith('tg://btn/')):
 
                         note_tokens = extract_hidden_url_data(url)
-                        note_token = note_tokens[int(token)]
+                        item_token = note_tokens[int(token)]
 
                         break
 
-            if(not note_token):
+            if(not item_token):
                 raise Exception('No text link found')
 
-            hidden_url_html = get_hidden_url_html([note_token])
-            note_content = hidden_url_html + await self.client_get_content(chat_id, note_token)
+            hidden_url_html = get_hidden_url_html([item_token])
+            note_content = hidden_url_html + await self.client_get_content(context, chat_id, item_token)
 
             keyboard = self.get_option_keyboard(0)
 
@@ -123,8 +129,9 @@ class ViewNotesConversation(CommandConversation):
         token = query_data.split(PAGE_DELIMITER)[1]
         await self._handle_preview(update, context, token)
 
-    async def client_get_content(self, chat_id: int, token: str | None) -> str:
-        return await self.client.get_note_content(chat_id, token)
+    async def client_get_content(self, context, chat_id: str, token: str):
+        user_data = UserData(chat_id=chat_id, note_token=token)
+        return await self.client.get_note_content(user_data)
 
 
 
