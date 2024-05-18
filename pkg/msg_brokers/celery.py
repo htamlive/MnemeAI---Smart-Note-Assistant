@@ -6,7 +6,7 @@ import dotenv
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 
 app = Celery(
-    "tasks", broker="redis://localhost:6379/0", broker_connection_retry_on_startup=True
+    "tasks", broker="redis://localhost:6379/tcp", broker_connection_retry_on_startup=True
 )
 
 
