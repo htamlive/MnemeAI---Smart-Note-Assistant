@@ -11,7 +11,7 @@ services:
 
   authorization_server:
     build: .
-    command: python test_authorization_server.py
+    command: bash -c "python run_google_auth_server.py && python run_notion_auth_server.py"
     volumes:
       - .:/usr/src/app
     depends_on:
