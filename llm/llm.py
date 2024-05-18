@@ -84,12 +84,16 @@ class LLM:
         def final_message_parser(ai_message: AIMessage) -> str:
             return ai_message.content
         
+        current_time = self.get_current_datetime(timezone)
+
+        print(f'Timezone from _llm_invoke: {timezone}, current_time: {current_time}')
+        
         @chain
         async def custom_chain(user_request: str) -> str | None:
             try:
                 chain_1 = self.prompt_template_1 | self.model
 
-                response_1: AIMessage = chain_1.invoke({"tools": tool_interfaces, "request": user_request, "datetime": self.get_current_datetime(timezone)})
+                response_1: AIMessage = chain_1.invoke({"tools": tool_interfaces, "request": user_request, "datetime": current_time})
                 
                 tool_response = await self.tool_executor.execute_from_string(user_data, response_1.content, function_map)
 
