@@ -2,6 +2,7 @@
 
 from bot.telegram.utils import check_data_requirement
 from client import TelegramClient
+from llm.models import UserData
 from ...note_conversation.modify_note_conversation._delete_note_conversation import DeleteNoteConversation
 from client import TelegramClient
 from telegram import Update, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
@@ -20,7 +21,7 @@ class DeleteReminderConversation(DeleteNoteConversation):
         await self.client.delete_reminder(chat_id, idx)
 
     async def client_get_content(self, chat_id: int, idx: int) -> str:
-        return await self.client.get_reminder_content(chat_id, idx)
+        return await self.client.get_reminder_content(UserData(chat_id=chat_id, reminder_token=idx))
 
     def check_data_requirement(self, context) -> tuple:
         return check_data_requirement(context)

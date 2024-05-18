@@ -2,6 +2,8 @@
 from client import TelegramClient
 from telegram.ext import CallbackQueryHandler
 
+from llm.models import UserData
+
 from ..note_conversation._view_notes_conversation import ViewNotesConversation
 from bot.telegram.telegram_pages import NotePages, ReminderPages
 from bot.telegram.ui_templates import get_reminder_option_keyboard, render_html_reminder_detail
@@ -37,7 +39,7 @@ class ViewRemindersConversation(ViewNotesConversation):
         return CallbackQueryHandler(self.previewing_pages.preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
 
     async def client_get_content(self, chat_id: int, token: str) -> str:
-        title, description, due = await self.client.get_reminder_content(chat_id, token)
+        title, description, due = await self.client.get_reminder_content(UserData(chat_id=chat_id, reminder_token=token))
         html_render = render_html_reminder_detail(due, title, description)
         return html_render
 

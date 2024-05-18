@@ -1,4 +1,5 @@
 
+from llm.models import UserData
 from ._note_pages import NotePages
 
 from client import TelegramClient
@@ -26,8 +27,9 @@ class ReminderPages(NotePages):
         chat_id = update.effective_chat.id
         paginator: InlineKeyboardPaginator = await self.init_preview_pages(chat_id)
         chat_id = update.effective_chat.id
+        
         message = await update.message.reply_text(
-            text= await self.client_get_content(chat_id, None),
+            text= await self.client_get_content(UserData(chat_id=chat_id), None),
             reply_markup=paginator.markup,
             parse_mode='HTML'
         )
@@ -45,8 +47,8 @@ class ReminderPages(NotePages):
         return query.data.startswith(f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
         return re.match(REMINDER_PAGE_CHAR + r'#(\d+)', query.data)
     
-    def client_get_content(self, chat_id, note_idx) -> str:
-        return self.client.get_reminder_content(chat_id, note_idx)
+    def client_get_content(self, user_data: UserData, note_token: str) -> str:
+        return self.client.get_reminder_content(user_data, note_token)
     
     async def client_get_total_pages(self, chat_id: int) -> int:
         return await self.client.get_total_reminder_pages(chat_id)
