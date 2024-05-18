@@ -6,6 +6,7 @@ from telegram.ext import (
 from timezonefinder import TimezoneFinder
 
 from bot.telegram.ui_templates import render_html_timezone_instructions
+from bot.telegram.utils import check_data_requirement
 from llm.models import UserData
 from ._command_conversation import CommandConversation
 from client import TelegramClient
@@ -24,10 +25,10 @@ class TimezoneRequestConversation(CommandConversation):
             ]
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        user_data = context.user_data.get('user_system_data', None)
+        success, message_text = check_data_requirement(context, check_timezone=False)
 
-        if not user_data:
-            await update.message.reply_text("Please use /start command to start the bot.")
+        if not success:
+            await update.message.reply_text(message_text)
             return ConversationHandler.END
 
 
@@ -43,9 +44,6 @@ class TimezoneRequestConversation(CommandConversation):
 
 
     async def client_receive_user_timezone_from_text(self, update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        if 'user_system_data' not in context.user_data:
-            await update.message.reply_text("Please use /start command to start the bot.")
-            return
         
 
         timezone_text = update.message.text

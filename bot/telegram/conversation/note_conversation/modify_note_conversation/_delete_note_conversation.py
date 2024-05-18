@@ -28,13 +28,14 @@ class DeleteNoteConversation(ModifyNoteConversation):
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
-        success, message = self.check_data_requirement(context)
-
-        if not success:
-            await update.message.reply_text(message)
-            return ConversationHandler.END
+        success, message_text = self.check_data_requirement(context)
 
         query: CallbackQuery = update.callback_query
+
+        if not success:
+            await query.message.reply_text(message_text)
+            return ConversationHandler.END
+
         await query.answer()
 
         note_token = self.extract_hidden_token(query)

@@ -17,13 +17,14 @@ class EditNoteDetailConversation(ModifyNoteConversation):
         
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
-        success, message = self.check_data_requirement(context)
+        success, message_text = self.check_data_requirement(context)
 
+
+        query = update.callback_query
         if not success:
-            await update.message.reply_text(message)
+            await query.message.reply_text(message_text)
             return ConversationHandler.END
         
-        query = update.callback_query
         await query.answer()
 
         note_token = self.extract_hidden_token(query)

@@ -3,8 +3,8 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
 
+from bot.telegram.utils import check_data_requirement
 from llm.models import UserData
-from llm._tools import show_notes_list, retrieve_knowledge_from_notes
 from ._command_conversation import CommandConversation
 from client import TelegramClient
 
@@ -16,8 +16,11 @@ class PromptingConversation(CommandConversation):
         self._states = []
         
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:   
-        print(context.args)
+        success, message = check_data_requirement(context)
 
+        if not success:
+            await update.message.reply_text(message)
+            return ConversationHandler.END
 
         if(context.args):
             prompt_text = ' '.join(context.args)
