@@ -39,4 +39,8 @@ def update_tz(offset):
 
 tz = pytz.timezone('Etc/GMT-7')
 # print(str(tz.tzname(datetime.now(tz))))
-print(datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S %A'))
+# print(datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S %A'))
+
+due = "2022-10-10 17:42"
+
+datetime.strptime(due, "%Y-%m-%d %H:%M").isoformat() + "Z"

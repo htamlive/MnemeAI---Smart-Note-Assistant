@@ -3,6 +3,7 @@ from datetime import datetime
 from dacite import from_dict
 import google.oauth2.credentials
 import googleapiclient.discovery
+import pytz
 from pkg.google_calendar_api.model import CalendarEvent, CalendarEventList
 from pkg.google_task_api.authorization_client import Authorization_client
 from pkg.google_task_api.model import ListTask, Task
@@ -68,14 +69,19 @@ class GoogleCalendarApi:
             return None
         event = _map_task_to_event(task)
         timezone = "Etc/GMT" + task.timezone[7:]
+        tz = pytz.timezone(timezone)
+
+        due_datetime = datetime.strptime(task.due, "%Y-%m-%d %H:%M")
+        due_datetime = tz.localize(due_datetime)
         event.end.dateTime = (
-            datetime.strptime(task.due, "%Y-%m-%d %H:%M").isoformat() + "Z"
+            due_datetime.isoformat() + "Z"
         )
         # event.end.dateTime = event.end.dateTime.replace("Z", f"+{timezone}:00")
+
         e = self.encapsulate(
             event,
             timezone,
-            datetime.now().isoformat() + "Z",
+            datetime.now(tz).isoformat() + "Z",
         )
         event = service.events().insert(calendarId="primary", body=e).execute()
         print("Event created: %s" % (event.get("htmlLink")))
