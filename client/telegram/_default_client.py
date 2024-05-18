@@ -169,7 +169,7 @@ class DefaultClient:
         prompt = f"Set reminder time: {time_text}"
         return await self.llm.save_task_time(user_data, prompt)
 
-    async def get_reminder_page_content(self, chat_id, page_token) -> ListTask | None:
+    async def get_reminder_page_content(self, chat_id, page_token, timezone) -> ListTask | None:
         return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token)
 
 
