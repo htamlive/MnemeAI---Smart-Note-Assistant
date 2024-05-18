@@ -128,14 +128,20 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    async def get_reminder_content(self, chat_id, reminder_token) -> Tuple[str, str, str]:  # [title, description, due
+    async def get_reminder_content(self, user_data: UserData, reminder_token) -> Tuple[str, str, str]:  # [title, description, due
         client = self.google_task_client
+        chat_id = user_data.chat_id
         task = await sync_to_async(client.get_task)(chat_id=chat_id, task_id=reminder_token)
 
-        reminder = await sync_to_async(ReminderCeleryTask.objects.get)(chat_id=chat_id, reminder_id=reminder_token)
+        tz: str = task.timezone
+        due_str: str = task.due
 
-        # get time zone dynamically
-        due = dj_timezone.localtime(reminder.due).strftime("Due time: %H:%M %A %d %B %Y")
+        # use due_str and tz to get the due time
+        due = "No due time"
+        if due_str:
+            due = datetime.datetime.strptime(due_str, "%Y-%m-%dT%H:%M:%S.%f%z")
+            due = due.astimezone(pytz.timezone(tz))
+            due = due.strftime("%Y-%m-%d %H:%M")
 
         title, description = task.title, task.notes
 
