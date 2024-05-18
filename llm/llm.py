@@ -29,7 +29,12 @@ class LLM:
         self.tool_manager = ToolManager()
     
     def get_current_datetime(self, timezone: str) -> str:
+
         current_datetime = datetime.datetime.now(timezone)
+
+        print(f'Timezone from get_current_datetime: {timezone}')
+
+        print(current_datetime)
 
         return f"{current_datetime.strftime('%Y-%m-%d %H:%M:%S %A')}"
 

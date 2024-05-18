@@ -37,6 +37,6 @@ def update_tz(offset):
     return pytz.FixedOffset(offset)
 
 
-tz = pytz.timezone('Etc/GMT-7')
+tz = pytz.timezone('Etc/GMT-0')
 # print(str(tz.tzname(datetime.now(tz))))
 print(datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S %A'))

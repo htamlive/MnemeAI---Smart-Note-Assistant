@@ -128,9 +128,10 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    async def get_reminder_content(self, user_data: UserData, reminder_token) -> Tuple[str, str, str]:  # [title, description, due
+    async def get_reminder_content(self, user_data: UserData) -> Tuple[str, str, str]:  # [title, description, due
         client = self.google_task_client
         chat_id = user_data.chat_id
+        reminder_token = user_data.reminder_token
         task = await sync_to_async(client.get_task)(chat_id=chat_id, task_id=reminder_token)
 
         tz: str = task.timezone
