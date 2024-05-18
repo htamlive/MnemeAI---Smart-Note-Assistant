@@ -2,9 +2,6 @@
 This section is for importing the necessary modules and libraries for the tools manager.
 Do not declare functions or use hash comments in this section.
 '''
-
-import datetime
-
 #
 def show_notes_detail(queries_str: str) -> str:
     """
@@ -107,12 +104,12 @@ def save_task_detail(detail_text: str) -> str:
     """
     pass
 #
-def save_task_time(time: datetime) -> str:
+def save_task_time(time: str) -> str:
     """
     Saves the due date and time of a task.
 
     Args: 
-    time (datetime): The new due date and time for the task.
+    time (str): The new due date and time for the task. Format: "YYYY-MM-DD HH:MM"
 
     Returns:
     (str): A message indicating the time has been saved.
