@@ -10,6 +10,6 @@ class EditReminderTitleConversation(EditNoteTitleConversation):
 
     async def client_save_title(self, chat_id: int, idx: int, title: str) -> str:
         return await self.client.save_reminder_title(chat_id, idx, title)
-    
-    def check_data_requirement(self, context: CallbackContext.DEFAULT_TYPE) -> tuple:
+
+    def check_data_requirement(self, context) -> tuple:
         return check_data_requirement(context)

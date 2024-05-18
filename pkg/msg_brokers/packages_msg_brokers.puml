@@ -1,0 +1,8 @@
+@startuml packages_msg_brokers
+set namespaceSeparator none
+package "SmartNoteAssistant.pkg.msg_brokers" as SmartNoteAssistant.pkg.msg_brokers #77AADD {
+}
+package "SmartNoteAssistant.pkg.msg_brokers.celery" as SmartNoteAssistant.pkg.msg_brokers.celery #77AADD {
+}
+SmartNoteAssistant.pkg.msg_brokers.celery --> SmartNoteAssistant.pkg.msg_brokers.celery
+@enduml

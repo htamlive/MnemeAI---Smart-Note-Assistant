@@ -1,0 +1,151 @@
+@startuml classes_bot
+set namespaceSeparator none
+class "CommandConversation" as SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation #77AADD {
+  debug : bool
+  states
+  {abstract}start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "ConversationCenterController" as SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController #77AADD {
+  client
+  conversation_handler
+  note_conversation_controller
+  notion_db_request_conversation
+  notion_page_request_conversation
+  prompting_conversation
+  reminder_conversation_controller
+  timezone_request_conversation
+  add_conversation_handler(application) -> None
+  cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  check_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "ConversationHandler" as telegram.ext._handlers.conversationhandler.ConversationHandler #99DDFF {
+  END : Final[int]
+  TIMEOUT : Final[int]
+  WAITING : Final[int]
+  allow_reentry
+  block : DVType[bool]
+  conversation_timeout
+  entry_points
+  fallbacks
+  map_to_parent
+  name
+  per_chat
+  per_message
+  per_user
+  persistent
+  states
+  timeout_jobs : Dict[ConversationKey, Job[Any]]
+  check_update(update: object) -> Optional[_CheckUpdateType[CCT]]
+  handle_update(update: Update, application: 'Application[Any, CCT, Any, Any, Any, Any]', check_result: _CheckUpdateType[CCT], context: CCT) -> Optional[object]
+}
+class "NoteConversationController" as SmartNoteAssistant.bot.telegram.conversation.controller._note_conversation_controller.NoteConversationController #77AADD {
+  factory : dict[int, ModifyNoteConversation]
+  get_callbacks() -> list[CallbackQueryHandler]
+  get_entry_points() -> list[CommandHandler]
+  get_states_dict(command_handler) -> dict
+  share_preview_page_callback(application) -> None
+}
+class "NotePages" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages.NotePages #77AADD {
+  client
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_content(chat_id, note_token) -> str
+  client_get_total_pages(chat_id: int) -> int
+  init_preview_pages(chat_id: int, page: int) -> InlineKeyboardPaginator
+  preview_page_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+  preview_page_query_callback(query: CallbackQuery) -> None
+  view_note_page_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+}
+class "NotePages" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2.NotePages #77AADD {
+  client
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_page_content(chat_id, page_token)
+  client_get_total_pages(chat_id: int) -> int
+  show_preview_page(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, starting_point: str | None) -> None
+  view_note_page_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+}
+class "PromptingConversation" as SmartNoteAssistant.bot.telegram.conversation._prompting_conversation.PromptingConversation #77AADD {
+  PROMPTING : int
+  client
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "ReminderConversationController" as SmartNoteAssistant.bot.telegram.conversation.controller._reminder_conversation_controller.ReminderConversationController #77AADD {
+  factory : dict[int, ModifyNoteConversation]
+  get_callbacks()
+  get_entry_points()
+  get_states_dict(command_handler)
+  share_preview_page_callback(application) -> None
+}
+class "ReminderPages" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages.ReminderPages #77AADD {
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_content(chat_id, note_idx) -> str
+  client_get_total_pages(chat_id: int) -> int
+  get_option_keyboard(note_idx: str) -> list
+  init_preview_pages(chat_id, page: int) -> InlineKeyboardPaginator
+  view_note_page_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+}
+class "ReminderPages" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2.ReminderPages #77AADD {
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_page_content(chat_id, page_token)
+  client_get_total_pages(chat_id: int) -> int
+  get_option_keyboard(note_idx: str) -> list
+  show_preview_page(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, cur_page_token: str | None) -> None
+}
+class "RequestNotionDBConversation" as SmartNoteAssistant.bot.telegram.conversation.notion_request.request_notion_db_conversation.RequestNotionDBConversation #77AADD {
+  NOTION_REQ_DB : int
+  client
+  receive_user_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "RequestNotionPageConversation" as SmartNoteAssistant.bot.telegram.conversation.notion_request.request_page_conversation.RequestNotionPageConversation #77AADD {
+  NOTION_REQ_PAGE : int
+  client
+  receive_user_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "Telebot" as SmartNoteAssistant.bot.telegram._telebot.Telebot #77AADD {
+  application
+  client
+  conservation_controller
+  init_conversation_controller(client: TelegramClient) -> None
+  init_google_authorization_command() -> None
+  init_help_command() -> None
+  init_notion_authorization_command() -> None
+  init_notion_register_page() -> None
+  init_show_time_command() -> None
+  init_start_command() -> None
+  init_test_routine_notification() -> None
+  run_polling() -> None
+}
+class "TimezoneRequestConversation" as SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation.TimezoneRequestConversation #77AADD {
+  TIMEZONE_REQ : int
+  client
+  client_receive_user_timezone_from_text(update, context: ContextTypes.DEFAULT_TYPE) -> int
+  receive_user_location_from_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "TrackingDict" as telegram.ext._utils.trackingdict.TrackingDict #99DDFF {
+  DELETED
+  clear() -> None
+  mark_as_accessed(key: _KT) -> None
+  pop(key: _KT, default: _VT) -> _VT
+  pop_accessed_keys() -> Set[_KT]
+  pop_accessed_write_items() -> List[Tuple[_KT, _VT]]
+  setdefault(key: _KT, default: Optional[_T]) -> _T
+  update_no_track(mapping: Mapping[_KT, _VT]) -> None
+}
+SmartNoteAssistant.bot.telegram.conversation._prompting_conversation.PromptingConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation.TimezoneRequestConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_notion_db_conversation.RequestNotionDBConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_page_conversation.RequestNotionPageConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages.ReminderPages --|> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages.NotePages
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2.ReminderPages --|> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2.NotePages
+SmartNoteAssistant.bot.telegram.conversation._prompting_conversation.PromptingConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : prompting_conversation
+SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation.TimezoneRequestConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : timezone_request_conversation
+SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController --* SmartNoteAssistant.bot.telegram._telebot.Telebot : conservation_controller
+SmartNoteAssistant.bot.telegram.conversation.controller._note_conversation_controller.NoteConversationController --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : note_conversation_controller
+SmartNoteAssistant.bot.telegram.conversation.controller._reminder_conversation_controller.ReminderConversationController --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : reminder_conversation_controller
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_notion_db_conversation.RequestNotionDBConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : notion_db_request_conversation
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_page_conversation.RequestNotionPageConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : notion_page_request_conversation
+telegram.ext._handlers.conversationhandler.ConversationHandler --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : conversation_handler
+telegram.ext._utils.trackingdict.TrackingDict --* telegram.ext._handlers.conversationhandler.ConversationHandler : _conversations
+@enduml

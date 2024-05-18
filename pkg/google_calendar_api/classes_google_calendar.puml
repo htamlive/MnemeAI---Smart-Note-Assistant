@@ -1,0 +1,195 @@
+@startuml classes_google_calendar
+set namespaceSeparator none
+class "Attachment" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Attachment #77AADD {
+  fileId : Optional[str]
+  fileUrl : Optional[str]
+  iconLink : Optional[str]
+  mimeType : Optional[str]
+  title : Optional[str]
+}
+class "Attendee" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Attendee #77AADD {
+  additionalGuests : Optional[int]
+  comment : Optional[str]
+  displayName : Optional[str]
+  email : Optional[str]
+  id : Optional[str]
+  optional : Optional[bool]
+  organizer : Optional[bool]
+  resource : Optional[bool]
+  responseStatus : Optional[str]
+  self : Optional[bool]
+}
+class "CalendarEvent" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent #77AADD {
+  anyoneCanAddSelf : Optional[bool]
+  attachments
+  attendees : Optional[List[Attendee]]
+  attendeesOmitted : Optional[bool]
+  colorId : Optional[str]
+  conferenceData : Optional[ConferenceData]
+  created : Optional[str]
+  creator : Optional[Person]
+  description : Optional[str]
+  end : Optional[DateTime]
+  endTimeUnspecified : Optional[bool]
+  etag : Optional[str]
+  eventType : Optional[str]
+  extendedProperties : Optional[ExtendedProperties]
+  focusTimeProperties : Optional[FocusTimeProperties]
+  gadget : Optional[Gadget]
+  guestsCanInviteOthers : Optional[bool]
+  guestsCanModify : Optional[bool]
+  guestsCanSeeOtherGuests : Optional[bool]
+  hangoutLink : Optional[str]
+  htmlLink : Optional[str]
+  iCalUID : Optional[str]
+  id : Optional[str]
+  kind : Optional[str]
+  location : Optional[str]
+  locked : Optional[bool]
+  organizer : Optional[Person]
+  originalStartTime : Optional[DateTime]
+  outOfOfficeProperties : Optional[OutOfOfficeProperties]
+  privateCopy : Optional[bool]
+  recurrence : Optional[List[str]]
+  recurringEventId : Optional[str]
+  reminders : Optional[Dict[str, Union[bool, List[Reminder]]]]
+  sequence : Optional[int]
+  source : Optional[Source]
+  start : Optional[DateTime]
+  status : Optional[str]
+  summary : Optional[str]
+  transparency : Optional[str]
+  updated : Optional[str]
+  visibility : Optional[str]
+  workingLocationProperties : Optional[WorkingLocationProperties]
+}
+class "CalendarEventList" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList #77AADD {
+  accessRole : Optional[str]
+  defaultReminders
+  description : Optional[str]
+  etag : Optional[str]
+  items
+  kind : Optional[str]
+  nextPageToken : Optional[str]
+  nextSyncToken : Optional[str]
+  summary : Optional[str]
+  timeZone : Optional[str]
+  updated : Optional[str]
+}
+class "ConferenceData" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ConferenceData #77AADD {
+  conferenceId : Optional[str]
+  conferenceSolution : Optional[ConferenceSolution]
+  createRequest : Optional[CreateRequest]
+  entryPoints : Optional[List[EntryPoint]]
+  notes : Optional[str]
+  signature : Optional[str]
+}
+class "ConferenceSolution" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ConferenceData.ConferenceSolution #77AADD {
+  iconUri : Optional[str]
+  key : Optional[Key]
+  name : Optional[str]
+}
+class "ConferenceSolutionKey" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ConferenceData.CreateRequest.ConferenceSolutionKey #77AADD {
+  type : Optional[str]
+}
+class "CreateRequest" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ConferenceData.CreateRequest #77AADD {
+  conferenceSolutionKey : Optional[ConferenceSolutionKey]
+  requestId : Optional[str]
+  status : Optional[Status]
+}
+class "CustomLocation" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.WorkingLocationProperties.CustomLocation #77AADD {
+  label : Optional[str]
+}
+class "DateTime" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.DateTime #77AADD {
+  date : Optional[str]
+  dateTime : Optional[str]
+  timeZone : Optional[str]
+}
+class "EntryPoint" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ConferenceData.EntryPoint #77AADD {
+  accessCode : Optional[str]
+  entryPointType : Optional[str]
+  label : Optional[str]
+  meetingCode : Optional[str]
+  passcode : Optional[str]
+  password : Optional[str]
+  pin : Optional[str]
+  uri : Optional[str]
+}
+class "ExtendedProperties" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ExtendedProperties #77AADD {
+  private : Optional[Dict[str, str]]
+  shared : Optional[Dict[str, str]]
+}
+class "FocusTimeProperties" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.FocusTimeProperties #77AADD {
+  autoDeclineMode : Optional[str]
+  chatStatus : Optional[str]
+  declineMessage : Optional[str]
+}
+class "Gadget" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Gadget #77AADD {
+  display : Optional[str]
+  height : Optional[int]
+  iconLink : Optional[str]
+  link : Optional[str]
+  preferences : Optional[Dict[str, str]]
+  title : Optional[str]
+  type : Optional[str]
+  width : Optional[int]
+}
+class "GoogleCalendarApi" as SmartNoteAssistant.pkg.google_calendar_api.client.GoogleCalendarApi #77AADD {
+  API_SERVICE_NAME : str
+  API_VERSION : str
+  SCOPES : list
+  authorization_client
+  build_service(chat_id: int)
+  check_auth(chat_id: int) -> bool
+  delete_task(chat_id: int, task_id: str) -> None
+  encapsulate(event, timezone, start)
+  get_task(chat_id: int, task_id: str) -> Task | None
+  insert_task(chat_id: int, task: Task) -> Task | None
+  list_tasks(chat_id: int, page_token: str) -> ListTask | None
+  update_task(chat_id: int, task_id: str, task: Task) -> None
+}
+class "Key" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ConferenceData.ConferenceSolution.Key #77AADD {
+  type : Optional[str]
+}
+class "OfficeLocation" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.WorkingLocationProperties.OfficeLocation #77AADD {
+  buildingId : Optional[str]
+  deskId : Optional[str]
+  floorId : Optional[str]
+  floorSectionId : Optional[str]
+  label : Optional[str]
+}
+class "OutOfOfficeProperties" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.OutOfOfficeProperties #77AADD {
+  autoDeclineMode : Optional[str]
+  declineMessage : Optional[str]
+}
+class "Person" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Person #77AADD {
+  displayName : Optional[str]
+  email : Optional[str]
+  id : Optional[str]
+  self : Optional[bool]
+}
+class "Reminder" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Reminder #77AADD {
+  method : Optional[str]
+  minutes : Optional[int]
+}
+class "Reminder" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList.Reminder #77AADD {
+  method : Optional[str]
+  minutes : Optional[int]
+}
+class "Source" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Source #77AADD {
+  title : Optional[str]
+  url : Optional[str]
+}
+class "Status" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.ConferenceData.CreateRequest.Status #77AADD {
+  statusCode : Optional[str]
+}
+class "WorkingLocationProperties" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.WorkingLocationProperties #77AADD {
+  customLocation : Optional[CustomLocation]
+  homeOffice : Optional[Union[str, None]]
+  officeLocation : Optional[OfficeLocation]
+  type : Optional[str]
+}
+SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent --* SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList : items
+SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Attachment --* SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent : attachments
+SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList.Reminder --* SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList : defaultReminders
+@enduml
