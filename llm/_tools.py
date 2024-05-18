@@ -83,11 +83,12 @@ async def create_task(
         state=ReminderCeleryTask.PENDING,
     )
     # Setting up the Celery task
-    mapped_datetime = datetime.strptime(due, "%Y-%m-%d %H:%M")
+    timezone_info = pytz.timezone(timezone)
+    countdown = datetime.fromisoformat(result.due) - datetime.now(timezone_info)
     await sync_to_async(send_notification.apply_async)(
         args=(chat_id, result.id),
-        countdown=(mapped_datetime - datetime.now()).total_seconds(),
-        expires=mapped_datetime + timedelta(minutes=5),
+        countdown=countdown.total_seconds(),
+        expires=countdown.total_seconds() + 5 * 60,
     )
     return f"Created task: {title}, Body: {body}, Due: {due}"
 
@@ -163,7 +164,8 @@ async def show_task_list(
         return "Error: Not authorized to create a task."
 
     tasks: ListTask = await sync_to_async(google_task_client.list_tasks)(
-        chat_id=chat_id
+        chat_id=chat_id,
+        timezone=timezone,
     )
 
     if tasks is None:
@@ -263,7 +265,7 @@ async def save_task_detail(
 
 async def save_task_time(
     user_data: UserData,
-    time: datetime,
+    time: str,
     google_task_client: GoogleCalendarApi | None = None,
 ) -> str:
 
@@ -289,10 +291,6 @@ async def save_task_time(
 
     await delete_task(
         user_data, task_name=event.title, google_task_client=google_task_client
-    )
-
-    await sync_to_async(google_task_client.delete_task)(
-        chat_id=chat_id, task_id=reminder_token
     )
 
     await create_task(
@@ -512,29 +510,31 @@ async def check_type(
 
     return resp
 
-async def retrieve_knowledge_from_notes(user_data: UserData, prompt, client: NotionClient = NotionClient()) -> str:
+
+async def retrieve_knowledge_from_notes(
+    user_data: UserData, prompt, client: NotionClient = NotionClient()
+) -> str:
     chat_id = user_data.chat_id
     json_obj = await sync_to_async(client.query)(chat_id, prompt)
 
     if json_obj is None:
         return "There is some error in retrieving the content"
 
-    choices = json_obj['choices']
+    choices = json_obj["choices"]
 
-    content = '\n\n'.join(map(lambda x: x['text'], choices))
+    content = "\n\n".join(map(lambda x: x["text"], choices))
 
     endpoint = TELEGRAM_SEND_ENDPOINT
 
     payload = {
-        'chat_id': chat_id,
-        'text': content,
-        'parse_mode': 'Markdown',
+        "chat_id": chat_id,
+        "text": content,
+        "parse_mode": "Markdown",
     }
 
     response = requests.post(endpoint, json=payload)
 
-    if(response.status_code != 200):
+    if response.status_code != 200:
         return "Error: Cannot show the content."
 
-
-    return 'Content has been retrieved'
+    return "Content has been retrieved"

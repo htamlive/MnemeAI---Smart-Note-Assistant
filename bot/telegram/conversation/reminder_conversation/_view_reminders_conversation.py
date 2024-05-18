@@ -1,4 +1,5 @@
 
+from bot.telegram.utils import check_data_requirement
 from client import TelegramClient
 from telegram.ext import CallbackQueryHandler
 
@@ -23,10 +24,10 @@ class ViewRemindersConversation(ViewNotesConversation):
             CallbackQueryHandler(self._preview_detail_callback, pattern=f'^{DETAIL_REMINDER_CHAR}{PAGE_DELIMITER}'),
             CallbackQueryHandler(self.previewing_pages._preview_page_callback, pattern=f'^{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}')
             ]
-        
+
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
-        success, message_text = self.check_data_requirement(context)
+        success, message_text = check_data_requirement(context)
 
         if not success:
             await update.message.reply_text(message_text)

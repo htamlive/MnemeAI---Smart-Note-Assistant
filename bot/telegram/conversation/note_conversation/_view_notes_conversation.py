@@ -50,7 +50,7 @@ class ViewNotesConversation(CommandConversation):
         await self.previewing_pages.view_note_page_command(update, context)
 
         return self.VIEW_ITEMS
-    
+
     async def view_note_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
@@ -104,12 +104,12 @@ class ViewNotesConversation(CommandConversation):
                 parse_mode='HTML'
             )
 
+            self.update_review_message_tracker(context, message.message_id, note_content, token)
 
         except Exception as e:
             print(e)
             message = await query.message.reply_text("Cannot view this note. Please view the latest version with /view_notes")
-        
-        self.update_review_message_tracker(context, message.message_id, note_content, token)
+
 
     def update_review_message_tracker(self, context, message_id, text_html, token) -> None:
         context.user_data['prev_review_message'] = {

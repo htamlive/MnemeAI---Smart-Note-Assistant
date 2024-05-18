@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from dacite import from_dict
 import google.oauth2.credentials
 import googleapiclient.discovery
@@ -42,11 +42,14 @@ class GoogleCalendarApi:
 
         return _map_event_to_task(from_dict(data=event, data_class=CalendarEvent))
 
-    def list_tasks(self, chat_id: int, page_token: str = None) -> ListTask | None:
+    def list_tasks(
+        self, chat_id: int, timezone: str, page_token: str = None
+    ) -> ListTask | None:
         service = self.build_service(chat_id)
         if service is None:
             return None
-        now = datetime.now().isoformat() + "Z"  # 'Z' indicates UTC time
+        tz = pytz.timezone(timezone)
+        now = datetime.now(tz).isoformat()
         events = (
             service.events()
             .list(
@@ -59,6 +62,7 @@ class GoogleCalendarApi:
             )
             .execute()
         )
+        print (events)
         return _map_calendar_list_to_task_list(
             from_dict(data=events, data_class=CalendarEventList)
         )
@@ -73,15 +77,13 @@ class GoogleCalendarApi:
 
         due_datetime = datetime.strptime(task.due, "%Y-%m-%d %H:%M")
         due_datetime = tz.localize(due_datetime)
-        event.end.dateTime = (
-            due_datetime.isoformat() + "Z"
-        )
+        event.end.dateTime = (due_datetime + timedelta(hours=2)).isoformat()
         # event.end.dateTime = event.end.dateTime.replace("Z", f"+{timezone}:00")
 
         e = self.encapsulate(
             event,
             timezone,
-            datetime.now(tz).isoformat() + "Z",
+            due_datetime.isoformat(),
         )
         event = service.events().insert(calendarId="primary", body=e).execute()
         print("Event created: %s" % (event.get("htmlLink")))

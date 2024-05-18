@@ -42,8 +42,7 @@ from llm._tools import (
     delete_notes,
     save_notes_detail,
     save_notes_title,
-
-    )
+)
 from llm.models import UserData
 
 from deprecatedFunction import deprecated
@@ -85,14 +84,23 @@ class DefaultClient:
     # ================= Note =================
 
     async def save_note_title(self, chat_id, note_token, title_text):
-        return await save_notes_title(UserData(chat_id=chat_id, note_token=note_token), title_text, client=self.notion_client)
+        return await save_notes_title(
+            UserData(chat_id=chat_id, note_token=note_token),
+            title_text,
+            client=self.notion_client,
+        )
 
     async def save_note_detail(self, chat_id, note_idx, detail_text):
-        return await save_notes_detail(UserData(chat_id=chat_id, note_token=note_idx), detail_text, client=self.notion_client)
-
+        return await save_notes_detail(
+            UserData(chat_id=chat_id, note_token=note_idx),
+            detail_text,
+            client=self.notion_client,
+        )
 
     async def delete_notes(self, chat_id, note_token) -> str:
-        return await delete_notes(UserData(chat_id=chat_id, note_token=note_token), client=self.notion_client)
+        return await delete_notes(
+            UserData(chat_id=chat_id, note_token=note_token), client=self.notion_client
+        )
 
     @deprecated
     def extract_note_idx(self, note_idx_text) -> int:
@@ -103,17 +111,21 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
 
-    async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes:
-        return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
+    async def get_note_page_content(
+        self, chat_id: int, starting_point: str | None = None
+    ) -> ListNotes:
+        return await sync_to_async(self.notion_client.get_notes_list)(
+            chat_id, starting_point
+        )
 
     async def get_note_content(self, user_data) -> str:
         chat_id = user_data.chat_id
         note_token = user_data.note_token
-        notes: Notes = await sync_to_async(self.notion_client.get_notes)(chat_id, note_token)
+        notes: Notes = await sync_to_async(self.notion_client.get_notes)(
+            chat_id, note_token
+        )
 
         return render_html_note_detail(notes.title, notes.notes)
-
-
 
     @deprecated
     def get_total_note_pages(self, chat_id: int) -> int:
@@ -130,12 +142,15 @@ class DefaultClient:
         # this is 1-based index -> 0-based index
         return int(reminder_idx_text) - 1
 
-    async def get_reminder_content(self, user_data: UserData) -> Tuple[str, str, str]:  # [title, description, due
+    async def get_reminder_content(
+        self, user_data: UserData
+    ) -> Tuple[str, str, str]:  # [title, description, due
         client = self.google_task_client
         chat_id = user_data.chat_id
         reminder_token = user_data.reminder_token
-        timezone = user_data.timezone
-        task = await sync_to_async(client.get_task)(chat_id=chat_id, task_id=reminder_token)
+        task = await sync_to_async(client.get_task)(
+            chat_id=chat_id, task_id=reminder_token
+        )
 
         tz: str = task.timezone
         due_str: str = task.due
@@ -143,7 +158,8 @@ class DefaultClient:
         # use due_str and tz to get the due time
         due = "No due time"
         if due_str:
-            due = datetime.datetime.strptime(due_str, "%Y-%m-%dT%H:%M:%S.%f%z")
+            # 2024-05-18T20:13:00+07:00
+            due = datetime.datetime.strptime(due_str, "%Y-%m-%dT%H:%M:%S%z")
             due = due.astimezone(pytz.timezone(tz))
             due = due.strftime("%Y-%m-%d %H:%M")
 
@@ -157,21 +173,39 @@ class DefaultClient:
         return await self.get_reminder_content(chat_id, page_token)
 
     async def delete_reminder(self, chat_id, token) -> str:
-        return await delete_task(UserData(chat_id=chat_id, reminder_token=token), google_task_client=self.google_task_client)
+        return await delete_task(
+            UserData(chat_id=chat_id, reminder_token=token),
+            google_task_client=self.google_task_client,
+        )
 
-    async def save_reminder_title(self, chat_id: int, reminder_token: str, title_text: str) -> str:
-        return await save_task_title(UserData(chat_id=chat_id, reminder_token=reminder_token), title_text, google_task_client=self.google_task_client)
+    async def save_reminder_title(
+        self, chat_id: int, reminder_token: str, title_text: str
+    ) -> str:
+        return await save_task_title(
+            UserData(chat_id=chat_id, reminder_token=reminder_token),
+            title_text,
+            google_task_client=self.google_task_client,
+        )
 
-    async def save_reminder_detail(self, chat_id: int, reminder_token: str, detail_text: str) -> str:
-        return await save_task_detail(UserData(chat_id=chat_id, reminder_token=reminder_token), detail_text, google_task_client=self.google_task_client)
+    async def save_reminder_detail(
+        self, chat_id: int, reminder_token: str, detail_text: str
+    ) -> str:
+        return await save_task_detail(
+            UserData(chat_id=chat_id, reminder_token=reminder_token),
+            detail_text,
+            google_task_client=self.google_task_client,
+        )
 
     async def save_reminder_time(self, user_data, time_text: str) -> str:
         prompt = f"Set reminder time: {time_text}"
         return await self.llm.save_task_time(user_data, prompt)
 
-    async def get_reminder_page_content(self, chat_id, page_token, timezone) -> ListTask | None:
-        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token)
-
+    async def get_reminder_page_content(
+        self, chat_id, page_token, timezone
+    ) -> ListTask | None:
+        return await sync_to_async(self.google_task_client.list_tasks)(
+            chat_id=chat_id, timezone=timezone.zone, page_token=page_token
+        )
 
     @deprecated
     async def remove_task(self, chat_id: int, token: str) -> None:
@@ -195,10 +229,11 @@ class DefaultClient:
             return 0
         return len(tasks.items)
 
-
     # ================= Other =================
 
-    async def process_prompt(self, user_data: UserData, prompt_text: str) -> Tuple[str, str]:
+    async def process_prompt(
+        self, user_data: UserData, prompt_text: str
+    ) -> Tuple[str, str]:
         # response = requests.post(
         #     f"{self.SERVER_URL}/prompt",
         #     json={"chat_id": chat_id, "prompt_text": prompt_text},
@@ -210,12 +245,20 @@ class DefaultClient:
 
         # return response["result"]["response_text"], response["result"]["next_state"]
 
-    async def receive_user_timezone_from_text(self, user_data: UserData, timezone_text: str) -> str:
-        return await self.llm.update_timezone(user_data, f'Update timezone with the given offset: {timezone_text}')
+    async def receive_user_timezone_from_text(
+        self, user_data: UserData, timezone_text: str
+    ) -> str:
+        return await self.llm.update_timezone(
+            user_data, f"Update timezone with the given offset: {timezone_text}"
+        )
 
-    async def receive_prompt_for_knowledge_retrieval(self, user_data: UserData, prompt_text: str) -> str:
+    async def receive_prompt_for_knowledge_retrieval(
+        self, user_data: UserData, prompt_text: str
+    ) -> str:
         prompt = prompt_query_knowledge_payload(prompt_text)
-        return await retrieve_knowledge_from_notes(user_data, prompt, self.notion_client)
+        return await retrieve_knowledge_from_notes(
+            user_data, prompt, self.notion_client
+        )
 
     def get_jobs_from_start(self, update: Update) -> list:
         async def notify_assignees(context: CallbackContext) -> None:
@@ -238,15 +281,18 @@ class DefaultClient:
         )
         return credential is not None
 
-
     async def get_notion_authorization_url(self, chat_id: int) -> str:
         return await sync_to_async(self.notion_client.auth_client.get_auth_url)(chat_id)
 
     async def check_notion_authorization(self, chat_id: int) -> bool:
-        return await sync_to_async(self.notion_client.auth_client.get_credentials)(chat_id) is not None
+        return (
+            await sync_to_async(self.notion_client.auth_client.get_credentials)(chat_id)
+            is not None
+        )
 
-
-    async def handle_receive_notion_database_token(self, chat_id: int, database_token: str) -> str:
+    async def handle_receive_notion_database_token(
+        self, chat_id: int, database_token: str
+    ) -> str:
         return await register_database_id(
             UserData(chat_id=chat_id),
             database_token,
