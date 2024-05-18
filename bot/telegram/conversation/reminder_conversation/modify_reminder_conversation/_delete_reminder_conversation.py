@@ -1,5 +1,6 @@
 
 
+from bot.telegram.utils import check_data_requirement
 from client import TelegramClient
 from ...note_conversation.modify_note_conversation._delete_note_conversation import DeleteNoteConversation
 from client import TelegramClient
@@ -7,6 +8,7 @@ from telegram import Update, CallbackQuery, InlineKeyboardButton, InlineKeyboard
 from telegram.ext import ContextTypes
 from config import Patterns, PATTERN_DELIMITER
 from telegram.ext import ConversationHandler
+from telegram.ext import CallbackContext
 
 from bot.telegram.ui_templates import get_reminder_option_keyboard, get_delete_reminder_confirmation_keyboard
 
@@ -20,7 +22,16 @@ class DeleteReminderConversation(DeleteNoteConversation):
     async def client_get_content(self, chat_id: int, idx: int) -> str:
         return await self.client.get_reminder_content(chat_id, idx)
     
+    def check_data_requirement(self, context: CallbackContext.DEFAULT_TYPE) -> tuple:
+        return check_data_requirement(context)
+
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        success, message = check_data_requirement(context)
+
+        if not success:
+            await update.message.reply_text(message)
+            return ConversationHandler.END
+
         query: CallbackQuery = update.callback_query
         await query.answer()
 

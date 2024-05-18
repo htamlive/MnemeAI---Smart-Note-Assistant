@@ -3,6 +3,7 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
 
+from bot.telegram.utils import check_data_requirement
 from llm.models import UserData
 from .._command_conversation import CommandConversation
 from client import TelegramClient
@@ -16,6 +17,13 @@ class RemindConversation(CommandConversation):
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_remind_text)]
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+
+        success, message = check_data_requirement(context)
+
+        if not success:
+            await update.message.reply_text(message)
+            return ConversationHandler.END
+
         if(context.args):
             remind_text = ' '.join(context.args)
             await self._handle_receive_remind_text(update, context, remind_text)
@@ -30,10 +38,6 @@ class RemindConversation(CommandConversation):
     
 
     async def _handle_receive_remind_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, remind_text: str) -> None:
-
-        if not 'user_system_data' in context.user_data:
-            message = await update.message.reply_text("Please start the bot first with /start")
-            return
 
         message = await update.message.reply_text("Got it! Please wait a moment.")
         response_text = await self.client.save_remind(

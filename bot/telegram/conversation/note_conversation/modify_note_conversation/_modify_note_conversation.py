@@ -12,12 +12,15 @@ from telegram.ext import (
 
 from telegram import InlineKeyboardMarkup
 from config import PATTERN_DELIMITER
-from bot.telegram.utils import extract_hidden_tokens
+from bot.telegram.utils import check_data_requirement, extract_hidden_tokens
 
 class ModifyNoteConversation(CommandConversation):
 
     def __init__(self, debug=True) -> None:
         super().__init__(debug)
+
+    def check_data_requirement(self, context: ContextTypes.DEFAULT_TYPE) -> tuple[bool, str]:
+        return check_data_requirement(context, check_timezone=False)
 
     def extract_hidden_token(self, query: CallbackQuery) -> str:
         token = query.data.split(PATTERN_DELIMITER)[1]

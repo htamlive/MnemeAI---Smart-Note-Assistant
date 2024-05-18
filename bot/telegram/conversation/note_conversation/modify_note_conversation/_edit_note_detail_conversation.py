@@ -2,6 +2,8 @@ from telegram import Update
 from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
+
+from bot.telegram.utils import check_data_requirement
 from ._modify_note_conversation import ModifyNoteConversation
 from client import TelegramClient
 from config import PATTERN_DELIMITER
@@ -14,6 +16,13 @@ class EditNoteDetailConversation(ModifyNoteConversation):
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_detail_text)]
         
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+
+        success, message = self.check_data_requirement(context)
+
+        if not success:
+            await update.message.reply_text(message)
+            return ConversationHandler.END
+        
         query = update.callback_query
         await query.answer()
 

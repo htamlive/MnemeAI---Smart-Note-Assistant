@@ -1,10 +1,12 @@
+from bot.telegram.utils import check_data_requirement
 from llm.models import UserData
 from ...note_conversation.modify_note_conversation import ModifyNoteConversation
 from client import TelegramClient
 from telegram import Update, CallbackQuery
 
+
 from telegram.ext import (
-    ContextTypes, ConversationHandler, MessageHandler, filters
+    ContextTypes, ConversationHandler, MessageHandler, filters, CallbackContext
 )
 
 from config import PATTERN_DELIMITER
@@ -17,6 +19,12 @@ class EditReminderTimeConversation(ModifyNoteConversation):
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_time_text)]
         
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        success, message = self.check_data_requirement(context)
+
+        if not success:
+            await update.message.reply_text(message)
+            return ConversationHandler.END
+
         query: CallbackQuery = update.callback_query
         await query.answer()
         reminder_idx = super().extract_hidden_token(query)
@@ -25,6 +33,9 @@ class EditReminderTimeConversation(ModifyNoteConversation):
         await query.message.reply_text("Please send me the new time of your note.")
         
         return self.EDIT_TITLE
+    
+    def check_data_requirement(self, context: CallbackContext.DEFAULT_TYPE) -> tuple:
+        return check_data_requirement(context)
     
     async def receive_time_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         time_text = update.message.text
