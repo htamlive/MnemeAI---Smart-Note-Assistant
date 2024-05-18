@@ -1,4 +1,7 @@
 import base64
+from typing import Tuple
+
+from llm.models import UserData
 
 def get_hidden_url_html(tokens: list) -> str:
     encoded_data = b'\0'.join([token.encode() for token in tokens])
@@ -18,3 +21,15 @@ def extract_hidden_tokens(entities) -> list:
             return extract_hidden_url_data(entity.url)
         
     raise Exception('No text link found')
+
+
+def check_data_requirement(context, check_timezone = True) ->Tuple[bool, str]:
+    if('user_system_data' not in context.user_data):
+        return False, 'Please initialize your user data first with /start'
+    
+    user_data : UserData = context.user_data['user_system_data']
+
+    if(check_timezone and not user_data.timezone):
+        return False, 'Please set your timezone first with /set_timezone'
+    
+    return True, 'OK'

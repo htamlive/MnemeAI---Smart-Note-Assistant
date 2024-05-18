@@ -379,7 +379,7 @@ class NotionClient:
         resource_id = self.get_database_id(chat_id)
         embeddings = generate_embeddings(prompt)
         
-        resp = supabase.rpc('match_documents_v2', {
+        resp = supabase.rpc('match_documents_v4', {
             "chat_id": chat_id,
             "database_id": resource_id,
             "query_embedding": embeddings[0], 

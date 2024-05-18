@@ -13,7 +13,7 @@ from ._modify_note_conversation import ModifyNoteConversation
 from client import TelegramClient
 
 from bot.telegram.ui_templates import get_note_option_keyboard, get_delete_note_confirmation_keyboard
-from bot.telegram.utils import extract_hidden_tokens
+from bot.telegram.utils import check_data_requirement, extract_hidden_tokens
 
 from config import PATTERN_DELIMITER, Patterns
 
@@ -25,7 +25,15 @@ class DeleteNoteConversation(ModifyNoteConversation):
         self.VIEW_ITEMS = VIEW_NOTES
         self._states = [CallbackQueryHandler(self.handle_confirmation)]
 
+
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+
+        success, message = self.check_data_requirement(context)
+
+        if not success:
+            await update.message.reply_text(message)
+            return ConversationHandler.END
+
         query: CallbackQuery = update.callback_query
         await query.answer()
 

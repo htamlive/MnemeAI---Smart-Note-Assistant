@@ -3,6 +3,7 @@ from telegram.ext import (
     ContextTypes, ConversationHandler, MessageHandler, filters
 )
 
+from bot.telegram.utils import check_data_requirement
 from llm.models import UserData
 from .._command_conversation import CommandConversation
 from client import TelegramClient
@@ -15,6 +16,13 @@ class NoteConversation(CommandConversation):
         self._states = [MessageHandler(filters.TEXT & ~filters.COMMAND, self.receive_note_text)]
         
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+
+        success, message = check_data_requirement(context)
+
+        if not success:
+            await update.message.reply_text(message)
+            return
+        
         if(context.args):
             note_text = ' '.join(context.args)
             await self.handle_receive_note_text(update, context, note_text)
