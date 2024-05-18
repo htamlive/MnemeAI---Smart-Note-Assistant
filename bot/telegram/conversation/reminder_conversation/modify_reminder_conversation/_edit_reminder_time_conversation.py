@@ -47,17 +47,17 @@ class EditReminderTimeConversation(ModifyNoteConversation):
 
     async def _handle_receive_time(self, update: Update, context: ContextTypes.DEFAULT_TYPE, time_text: str) -> None:
         chat_id = update.message.chat_id
-        note_idx = context.user_data['item_idx']
+        reminder_token = context.user_data['item_idx']
 
-        timezone = context.user_data.get('timezone', None)
+        user_data: UserData = context.user_data['user_system_data']
 
-        response_text = await self.client_save_time(chat_id, note_idx, time_text, timezone)
+        tmp_user_data = UserData(chat_id=chat_id, timezone=user_data.timezone, reminder_token=reminder_token)
+
+        response_text = await self.client_save_time(tmp_user_data, time_text)
         await update.message.reply_text(response_text)
 
-
-
-    async def client_save_time(self, chat_id: int, token: int, time_text: str, timezone: str) -> str:
+    async def client_save_time(self, user_data: UserData, time_text: str) -> str:
         return await self.client.save_reminder_time(
-            user_data=UserData(chat_id=chat_id, timezone=timezone, reminder_token=token),
+            user_data=user_data,
             time_text=time_text
         )
