@@ -21,8 +21,8 @@ class DeleteReminderConversation(DeleteNoteConversation):
 
     async def client_get_content(self, chat_id: int, idx: int) -> str:
         return await self.client.get_reminder_content(chat_id, idx)
-    
-    def check_data_requirement(self, context: CallbackContext.DEFAULT_TYPE) -> tuple:
+
+    def check_data_requirement(self, context) -> tuple:
         return check_data_requirement(context)
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -40,13 +40,13 @@ class DeleteReminderConversation(DeleteNoteConversation):
         await query.edit_message_text(text="Are you really sure you want to delete?", reply_markup=InlineKeyboardMarkup(keyboard))
 
         return self.DELETE_ITEM
-    
+
     def get_option_keyboard(self, note_idx: int) -> list:
         return get_reminder_option_keyboard(note_idx)
-    
+
     def get_confirmation_keyboard(self, note_idx: int) -> list:
         return get_delete_reminder_confirmation_keyboard(note_idx)
-    
+
     async def handle_confirmation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query: CallbackQuery = update.callback_query
         await query.answer()

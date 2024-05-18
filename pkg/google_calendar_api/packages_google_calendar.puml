@@ -1,0 +1,9 @@
+@startuml packages_google_calendar
+set namespaceSeparator none
+package "SmartNoteAssistant.pkg.google_calendar_api" as SmartNoteAssistant.pkg.google_calendar_api #77AADD {
+}
+package "SmartNoteAssistant.pkg.google_calendar_api.client" as SmartNoteAssistant.pkg.google_calendar_api.client #77AADD {
+}
+package "SmartNoteAssistant.pkg.google_calendar_api.model" as SmartNoteAssistant.pkg.google_calendar_api.model #77AADD {
+}
+@enduml

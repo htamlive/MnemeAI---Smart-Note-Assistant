@@ -1,0 +1,538 @@
+@startuml classes_test
+set namespaceSeparator none
+class "App" as SmartNoteAssistant.pkg.notion_api.authorization_server.App #AAAA00 {
+  app
+  run_server(host: str, port: int, debug: bool)
+}
+class "App" as SmartNoteAssistant.pkg.google_task_api.authorization_server.App #AAAA00 {
+  app
+  run(host: str, port: int, debug: bool)
+}
+class "AppGroup" as flask.cli.AppGroup #FFAABB {
+  name : str
+  command() -> t.Callable[[t.Callable[..., t.Any]], click.Command]
+  group() -> t.Callable[[t.Callable[..., t.Any]], click.Group]
+}
+class "Authorization_client" as SmartNoteAssistant.pkg.notion_api.authorization_client.Authorization_client #AAAA00 {
+  flow
+  service_type
+  create_flow() -> OAuth2Session
+  get_auth_url(chat_id: int) -> str
+  get_credentials(chat_id: int) -> str | None
+}
+class "Authorization_client" as SmartNoteAssistant.pkg.google_task_api.authorization_client.Authorization_client #AAAA00 {
+  flow
+  service_type
+  create_flow() -> google_auth_oauthlib.flow.Flow
+  get_auth_url(chat_id: int) -> str
+  get_credentials(chat_id: int) -> google.oauth2.credentials.Credentials | None
+  revoke_credentials(chat_id: int)
+}
+class "Authz" as SmartNoteAssistant.pkg.model.authz.Authz #AAAA00 {
+  chat_id
+  client_id
+  client_secret
+  created_at
+  current_state
+  refresh_token
+  service_type
+  token
+  updated_at
+}
+class "BigIntegerField" as django.db.models.fields.BigIntegerField #DDDDDD {
+  MAX_BIGINT : int
+  description
+  formfield()
+  get_internal_type()
+}
+class "BooleanField" as django.db.models.fields.BooleanField #DDDDDD {
+  default_error_messages : dict
+  description
+  empty_strings_allowed : bool
+  formfield()
+  get_internal_type()
+  get_prep_value(value)
+  to_python(value)
+}
+class "CharField" as django.db.models.fields.CharField #DDDDDD {
+  db_collation : NoneType
+  description
+  cast_db_type(connection)
+  check()
+  db_parameters(connection)
+  deconstruct()
+  formfield()
+  get_internal_type()
+  get_prep_value(value)
+  to_python(value)
+}
+class "CommandConversation" as SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation #99DDFF {
+  debug : bool
+  states
+  {abstract}start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "Commands" as SmartNoteAssistant.config._conversation_config.Commands #BBCC33 {
+  name
+}
+class "ConversationCenterController" as SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController #99DDFF {
+  client
+  conversation_handler
+  note_conversation_controller
+  notion_db_request_conversation
+  notion_page_request_conversation
+  prompting_conversation
+  reminder_conversation_controller
+  timezone_request_conversation
+  add_conversation_handler(application) -> None
+  cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  check_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "ConversationHandler" as telegram.ext._handlers.conversationhandler.ConversationHandler #77AADD {
+  END : Final[int]
+  TIMEOUT : Final[int]
+  WAITING : Final[int]
+  allow_reentry
+  block : DVType[bool]
+  conversation_timeout
+  entry_points
+  fallbacks
+  map_to_parent
+  name
+  per_chat
+  per_message
+  per_user
+  persistent
+  states
+  timeout_jobs : Dict[ConversationKey, Job[Any]]
+  check_update(update: object) -> Optional[_CheckUpdateType[CCT]]
+  handle_update(update: Update, application: 'Application[Any, CCT, Any, Any, Any, Any]', check_result: _CheckUpdateType[CCT], context: CCT) -> Optional[object]
+}
+class "DateTimeField" as django.db.models.fields.DateTimeField #DDDDDD {
+  default_error_messages : dict
+  description
+  empty_strings_allowed : bool
+  formfield()
+  get_db_prep_value(value, connection, prepared)
+  get_internal_type()
+  get_prep_value(value)
+  pre_save(model_instance, add)
+  to_python(value)
+  value_to_string(obj)
+}
+class "DefaultClient" as SmartNoteAssistant.client.telegram._default_client.DefaultClient #44BB99 {
+  API_BASE_URL
+  NOTION_AUTH_URL
+  SERVER_URL : NoneType
+  TELEBOT_TOKEN : NoneType
+  authorization_client
+  google_task_client
+  llm
+  notion_client
+  check_google_authorization(chat_id: int) -> bool
+  check_notion_authorization(chat_id: int) -> bool
+  delete_notes(chat_id, note_token) -> str
+  delete_reminder(chat_id, token) -> str
+  extract_note_idx(note_idx_text) -> int
+  get_google_authorization_url(chat_id: int) -> str
+  get_jobs_from_start(update: Update) -> list
+  get_note_content(chat_id, note_token) -> str
+  get_note_page_content(chat_id: int, starting_point: str | None) -> ListNotes
+  get_notion_authorization_url(chat_id: int) -> str
+  get_reminder_content(chat_id, reminder_token) -> Tuple[str, str, str]
+  get_reminder_content_at_page(chat_id, page_token) -> str
+  get_reminder_page_content(chat_id, page_token) -> ListTask | None
+  get_total_note_pages(chat_id: int) -> int
+  get_total_reminder_pages(chat_id: int) -> int
+  handle_receive_notion_database_token(chat_id: int, database_token: str) -> str
+  process_prompt(user_data: UserData, prompt_text: str) -> Tuple[str, str]
+  receive_user_timezone_from_text(user_data: UserData, timezone_text: str) -> str
+  remove_task(chat_id: int, token: str) -> None
+  save_note(user_data: UserData, note_text) -> str
+  save_note_detail(chat_id, note_idx, detail_text)
+  save_note_title(chat_id, note_token, title_text)
+  save_remind(user_data: UserData, remind_text) -> str
+  save_reminder_detail(chat_id: int, reminder_token: str, detail_text: str) -> str
+  save_reminder_time(user_data, time_text: str) -> str
+  save_reminder_title(chat_id: int, reminder_token: str, title_text: str) -> str
+  {abstract}user_subscribe(chat_id)
+}
+class "Flask" as flask.app.Flask #FFAABB {
+  cli
+  debug
+  default_config
+  request_class : type[Request]
+  response_class : type[Response]
+  secret_key : str
+  session_interface
+  app_context() -> AppContext
+  async_to_sync(func: t.Callable[..., t.Coroutine[t.Any, t.Any, t.Any]]) -> t.Callable[..., t.Any]
+  create_jinja_environment() -> Environment
+  create_url_adapter(request: Request | None) -> MapAdapter | None
+  dispatch_request() -> ft.ResponseReturnValue
+  do_teardown_appcontext(exc: BaseException | None) -> None
+  do_teardown_request(exc: BaseException | None) -> None
+  ensure_sync(func: t.Callable[..., t.Any]) -> t.Callable[..., t.Any]
+  finalize_request(rv: ft.ResponseReturnValue | HTTPException, from_error_handler: bool) -> Response
+  full_dispatch_request() -> Response
+  get_send_file_max_age(filename: str | None) -> int | None
+  handle_exception(e: Exception) -> Response
+  handle_http_exception(e: HTTPException) -> HTTPException | ft.ResponseReturnValue
+  handle_user_exception(e: Exception) -> HTTPException | ft.ResponseReturnValue
+  log_exception(exc_info: tuple[type, BaseException, TracebackType] | tuple[None, None, None]) -> None
+  make_default_options_response() -> Response
+  make_response(rv: ft.ResponseReturnValue) -> Response
+  make_shell_context() -> dict[str, t.Any]
+  open_instance_resource(resource: str, mode: str) -> t.IO[t.AnyStr]
+  open_resource(resource: str, mode: str) -> t.IO[t.AnyStr]
+  preprocess_request() -> ft.ResponseReturnValue | None
+  process_response(response: Response) -> Response
+  raise_routing_exception(request: Request) -> t.NoReturn
+  request_context(environ: WSGIEnvironment) -> RequestContext
+  run(host: str | None, port: int | None, debug: bool | None, load_dotenv: bool) -> None
+  send_static_file(filename: str) -> Response
+  test_cli_runner() -> FlaskCliRunner
+  test_client(use_cookies: bool) -> FlaskClient
+  test_request_context() -> RequestContext
+  update_template_context(context: dict[str, t.Any]) -> None
+  url_for() -> str
+  wsgi_app(environ: WSGIEnvironment, start_response: StartResponse) -> cabc.Iterable[bytes]
+}
+class "Flow" as google_auth_oauthlib.flow.Flow #99DDFF {
+  autogenerate_code_verifier : bool
+  client_config
+  client_type
+  code_verifier : NoneType, str
+  credentials
+  oauth2session
+  redirect_uri
+  authorization_url()
+  authorized_session()
+  fetch_token()
+  from_client_config(client_config, scopes)
+  from_client_secrets_file(client_secrets_file, scopes)
+}
+class "GoogleTaskClient" as SmartNoteAssistant.pkg.google_task_api.client.GoogleTaskClient #AAAA00 {
+  API_SERVICE_NAME : str
+  API_VERSION : str
+  SCOPES : list
+  authorization_client
+  build_service(chat_id: int)
+  check_auth(chat_id: int) -> bool
+  delete_task(chat_id: int, task_id: str) -> None
+  get_task(chat_id: int, task_id: str) -> Task | None
+  insert_task(chat_id: int, task: Task) -> Task | None
+  list_tasks(chat_id: int, completed_max: str, completed_min: str, due_max: str, due_min: str, max_results: int, page_token: str, show_completed: bool, show_deleted: bool, show_hidden: bool, updated_min: str) -> ListTask | None
+  update_task(chat_id: int, task_id: str, task: Task) -> Task | None
+}
+class "ImmutableDict" as werkzeug.datastructures.structures.ImmutableDict #44BB99 {
+  copy()
+}
+class "ListNotes" as SmartNoteAssistant.pkg.notion_api.model.ListNotes #AAAA00 {
+  data : List
+  has_more : Optional[bool]
+  startingPoint : Optional[str]
+}
+class "ListTask" as SmartNoteAssistant.pkg.google_task_api.model.ListTask #AAAA00 {
+  etag : str
+  items : List[Task]
+  kind : str
+  nextPageToken : Optional[str]
+}
+class "Meta" as SmartNoteAssistant.pkg.model.authz.Authz.Meta #AAAA00 {
+  db_table : str
+  unique_together : tuple
+}
+class "NoteConversationController" as SmartNoteAssistant.bot.telegram.conversation.controller._note_conversation_controller.NoteConversationController #99DDFF {
+  factory : dict[int, ModifyNoteConversation]
+  get_callbacks() -> list[CallbackQueryHandler]
+  get_entry_points() -> list[CommandHandler]
+  get_states_dict(command_handler) -> dict
+  share_preview_page_callback(application) -> None
+}
+class "NotePages" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages.NotePages #99DDFF {
+  client
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_content(chat_id, note_token) -> str
+  client_get_total_pages(chat_id: int) -> int
+  init_preview_pages(chat_id: int, page: int) -> InlineKeyboardPaginator
+  preview_page_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+  preview_page_query_callback(query: CallbackQuery) -> None
+  view_note_page_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+}
+class "NotePages" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2.NotePages #99DDFF {
+  client
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_page_content(chat_id, page_token)
+  client_get_total_pages(chat_id: int) -> int
+  show_preview_page(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, starting_point: str | None) -> None
+  view_note_page_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+}
+class "Notes" as SmartNoteAssistant.pkg.notion_api.model.Notes #AAAA00 {
+  deleted : Optional[bool]
+  hidden : Optional[bool]
+  id : Optional[str]
+  links : Optional[List[dict]]
+  notes : Optional[str]
+  parent : Optional[str]
+  position : Optional[str]
+  selfLink : Optional[str]
+  title : Optional[str]
+  updated : Optional[str]
+}
+class "NotionClient" as SmartNoteAssistant.pkg.notion_api.client.NotionClient #AAAA00 {
+  auth_client
+  len : NoneType
+  alt_patch_notes(chat_id: int, resource_token: str, resource_name: str | None, resource_desc: str | None) -> dict | None
+  check_type(chat_id: int, resource_id: str) -> str
+  delete_all_notes(chat_id: int) -> bool
+  delete_notes(chat_id: int, resource_index: str, clear_all: bool) -> bool
+  extract_notion_id(url: str)
+  get_data(resource_id: str, resource_name: str, resource_desc: str)
+  get_database_id(chat_id: int)
+  get_header(chat_id: int) -> dict
+  get_len(chat_id: int)
+  get_note_content(chat_id, note_idx) -> str
+  get_notes(chat_id: int, resource_idx: str)
+  get_notes_list(chat_id: int, starting_point: str) -> ListNotes | None
+  get_user(chat_id: int)
+  patch_notes(chat_id: int, page_id: str, resource_name: str | None, resource_desc: str | None) -> dict | None
+  post_notes(chat_id: int, resource_name: str, resource_desc: str) -> dict | None
+  query(chat_id: int, prompt: str) -> Tuple[dict, List[str]] | None
+  register_database_id(chat_id: int, resource_id: str)
+  register_page_database(chat_id: int, page_id: str, title: str)
+}
+class "NullSession" as flask.sessions.NullSession #FFAABB {
+  clear
+  pop
+  popitem
+  setdefault
+  update
+}
+class "OAuth2Session" as requests_oauthlib.oauth2_session.OAuth2Session #BBCC33 {
+  access_token
+  auth
+  authorized
+  auto_refresh_kwargs : dict
+  auto_refresh_url : NoneType
+  client_id
+  compliance_hook : dict
+  redirect_uri : NoneType
+  scope
+  state
+  token
+  token_updater : NoneType
+  authorization_url(url, state)
+  fetch_token(token_url, code, authorization_response, body, auth, username, password, method, force_querystring, timeout, headers, verify, proxies, include_client_id, client_secret, cert)
+  new_state()
+  refresh_token(token_url, refresh_token, body, auth, timeout, headers, verify, proxies)
+  register_compliance_hook(hook_type, hook)
+  request(method, url, data, headers, withhold_token, client_id, client_secret, files)
+  token_from_fragment(authorization_response)
+}
+class "OAuth2Token" as oauthlib.oauth2.rfc6749.tokens.OAuth2Token #AAAA00 {
+  additional_scopes
+  missing_scopes
+  old_scope
+  old_scopes
+  scope
+  scope_changed
+  scopes
+}
+class "Patterns" as SmartNoteAssistant.config._conversation_config.Patterns #BBCC33 {
+  name
+}
+class "PromptingConversation" as SmartNoteAssistant.bot.telegram.conversation._prompting_conversation.PromptingConversation #99DDFF {
+  PROMPTING : int
+  client
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "ReminderCeleryTask" as SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask #AAAA00 {
+  PENDING : str
+  REVOKED : str
+  chat_id
+  choices : list
+  completed
+  description
+  due
+  reminder_id
+  state
+  title
+  is_cancelled() -> bool
+  mark_completed()
+  revoke()
+}
+class "ReminderConversationController" as SmartNoteAssistant.bot.telegram.conversation.controller._reminder_conversation_controller.ReminderConversationController #99DDFF {
+  factory : dict[int, ModifyNoteConversation]
+  get_callbacks()
+  get_entry_points()
+  get_states_dict(command_handler)
+  share_preview_page_callback(application) -> None
+}
+class "ReminderPages" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages.ReminderPages #99DDFF {
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_content(chat_id, note_idx) -> str
+  client_get_total_pages(chat_id: int) -> int
+  get_option_keyboard(note_idx: str) -> list
+  init_preview_pages(chat_id, page: int) -> InlineKeyboardPaginator
+  view_note_page_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
+}
+class "ReminderPages" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2.ReminderPages #99DDFF {
+  check_match_pattern(query: CallbackQuery) -> bool
+  client_get_page_content(chat_id, page_token)
+  client_get_total_pages(chat_id: int) -> int
+  get_option_keyboard(note_idx: str) -> list
+  show_preview_page(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, cur_page_token: str | None) -> None
+}
+class "RequestNotionDBConversation" as SmartNoteAssistant.bot.telegram.conversation.notion_request.request_notion_db_conversation.RequestNotionDBConversation #99DDFF {
+  NOTION_REQ_DB : int
+  client
+  receive_user_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "RequestNotionPageConversation" as SmartNoteAssistant.bot.telegram.conversation.notion_request.request_page_conversation.RequestNotionPageConversation #99DDFF {
+  NOTION_REQ_PAGE : int
+  client
+  receive_user_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "ServiceType" as SmartNoteAssistant.pkg.model.authz.ServiceType #AAAA00 {
+  name
+}
+class "SessionInterface" as flask.sessions.SessionInterface #FFAABB {
+  null_session_class
+  pickle_based : bool
+  get_cookie_domain(app: Flask) -> str | None
+  get_cookie_httponly(app: Flask) -> bool
+  get_cookie_name(app: Flask) -> str
+  get_cookie_path(app: Flask) -> str
+  get_cookie_samesite(app: Flask) -> str | None
+  get_cookie_secure(app: Flask) -> bool
+  get_expiration_time(app: Flask, session: SessionMixin) -> datetime | None
+  is_null_session(obj: object) -> bool
+  make_null_session(app: Flask) -> NullSession
+  {abstract}open_session(app: Flask, request: Request) -> SessionMixin | None
+  {abstract}save_session(app: Flask, session: SessionMixin, response: Response) -> None
+  should_set_cookie(app: Flask, session: SessionMixin) -> bool
+}
+class "Task" as SmartNoteAssistant.pkg.google_task_api.model.Task #AAAA00 {
+  completed : Optional[str]
+  deleted : Optional[bool]
+  due : Optional[str]
+  etag : Optional[str]
+  hidden : Optional[bool]
+  id : Optional[str]
+  kind : Optional[str]
+  links : Optional[List[dict]]
+  notes : Optional[str]
+  parent : Optional[str]
+  position : Optional[str]
+  selfLink : Optional[str]
+  start : Optional[str]
+  status : Optional[str]
+  timezone : Optional[str]
+  title : Optional[str]
+  updated : Optional[str]
+  webViewLink : Optional[str]
+}
+class "Telebot" as SmartNoteAssistant.bot.telegram._telebot.Telebot #99DDFF {
+  application
+  client
+  conservation_controller
+  init_conversation_controller(client: TelegramClient) -> None
+  init_google_authorization_command() -> None
+  init_help_command() -> None
+  init_notion_authorization_command() -> None
+  init_notion_register_page() -> None
+  init_show_time_command() -> None
+  init_start_command() -> None
+  init_test_routine_notification() -> None
+  run_polling() -> None
+}
+class "TextField" as django.db.models.fields.TextField #DDDDDD {
+  db_collation : NoneType
+  description
+  check()
+  db_parameters(connection)
+  deconstruct()
+  formfield()
+  get_internal_type()
+  get_prep_value(value)
+  to_python(value)
+}
+class "TimezoneRequestConversation" as SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation.TimezoneRequestConversation #99DDFF {
+  TIMEZONE_REQ : int
+  client
+  client_receive_user_timezone_from_text(update, context: ContextTypes.DEFAULT_TYPE) -> int
+  receive_user_location_from_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+  start_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
+}
+class "TrackingDict" as telegram.ext._utils.trackingdict.TrackingDict #77AADD {
+  DELETED
+  clear() -> None
+  mark_as_accessed(key: _KT) -> None
+  pop(key: _KT, default: _VT) -> _VT
+  pop_accessed_keys() -> Set[_KT]
+  pop_accessed_write_items() -> List[Tuple[_KT, _VT]]
+  setdefault(key: _KT, default: Optional[_T]) -> _T
+  update_no_track(mapping: Mapping[_KT, _VT]) -> None
+}
+class "WebApplicationClient" as oauthlib.oauth2.rfc6749.clients.web_application.WebApplicationClient #AAAA00 {
+  access_token
+  client_id
+  code : NoneType
+  grant_type : str
+  token
+  parse_request_uri_response(uri, state)
+  prepare_request_body(code, redirect_uri, body, include_client_id, code_verifier)
+  prepare_request_uri(uri, redirect_uri, scope, state, code_challenge, code_challenge_method)
+}
+class "__proxy__" as django.utils.functional.lazy.__proxy__ #EEDD88 {
+}
+SmartNoteAssistant.bot.telegram.conversation._prompting_conversation.PromptingConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation.TimezoneRequestConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_notion_db_conversation.RequestNotionDBConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_page_conversation.RequestNotionPageConversation --|> SmartNoteAssistant.bot.telegram.conversation._command_conversation.CommandConversation
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages.ReminderPages --|> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages.NotePages
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2.ReminderPages --|> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2.NotePages
+SmartNoteAssistant.bot.telegram.conversation._prompting_conversation.PromptingConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : prompting_conversation
+SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation.TimezoneRequestConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : timezone_request_conversation
+SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController --* SmartNoteAssistant.bot.telegram._telebot.Telebot : conservation_controller
+SmartNoteAssistant.bot.telegram.conversation.controller._note_conversation_controller.NoteConversationController --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : note_conversation_controller
+SmartNoteAssistant.bot.telegram.conversation.controller._reminder_conversation_controller.ReminderConversationController --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : reminder_conversation_controller
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_notion_db_conversation.RequestNotionDBConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : notion_db_request_conversation
+SmartNoteAssistant.bot.telegram.conversation.notion_request.request_page_conversation.RequestNotionPageConversation --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : notion_page_request_conversation
+SmartNoteAssistant.pkg.google_task_api.authorization_client.Authorization_client --* SmartNoteAssistant.pkg.google_task_api.client.GoogleTaskClient : authorization_client
+SmartNoteAssistant.pkg.notion_api.authorization_client.Authorization_client --* SmartNoteAssistant.pkg.notion_api.client.NotionClient : auth_client
+django.db.models.fields.BigIntegerField --* SmartNoteAssistant.pkg.model.authz.Authz : chat_id
+django.db.models.fields.BigIntegerField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : chat_id
+django.db.models.fields.CharField --* SmartNoteAssistant.pkg.model.authz.Authz : service_type
+django.db.models.fields.DateTimeField --* SmartNoteAssistant.pkg.model.authz.Authz : created_at
+django.db.models.fields.DateTimeField --* SmartNoteAssistant.pkg.model.authz.Authz : updated_at
+django.db.models.fields.DateTimeField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : due
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : current_state
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : token
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : refresh_token
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : client_id
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : client_secret
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : reminder_id
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : title
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : description
+django.utils.functional.lazy.__proxy__ --* django.db.models.fields.BigIntegerField : description
+django.utils.functional.lazy.__proxy__ --* django.db.models.fields.BooleanField : description
+django.utils.functional.lazy.__proxy__ --* django.db.models.fields.DateTimeField : description
+django.utils.functional.lazy.__proxy__ --* django.db.models.fields.TextField : description
+flask.app.Flask --* SmartNoteAssistant.pkg.google_task_api.authorization_server.App : app
+flask.app.Flask --* SmartNoteAssistant.pkg.notion_api.authorization_server.App : app
+flask.cli.AppGroup --* flask.app.Flask : cli
+flask.sessions.NullSession --* flask.sessions.SessionInterface : null_session_class
+flask.sessions.SessionInterface --* flask.app.Flask : session_interface
+google_auth_oauthlib.flow.Flow --* SmartNoteAssistant.pkg.google_task_api.authorization_client.Authorization_client : flow
+oauthlib.oauth2.rfc6749.clients.web_application.WebApplicationClient --* requests_oauthlib.oauth2_session.OAuth2Session : _client
+oauthlib.oauth2.rfc6749.tokens.OAuth2Token --* requests_oauthlib.oauth2_session.OAuth2Session : token
+oauthlib.oauth2.rfc6749.tokens.OAuth2Token --* requests_oauthlib.oauth2_session.OAuth2Session : token
+oauthlib.oauth2.rfc6749.tokens.OAuth2Token --* requests_oauthlib.oauth2_session.OAuth2Session : token
+requests_oauthlib.oauth2_session.OAuth2Session --* SmartNoteAssistant.pkg.notion_api.authorization_client.Authorization_client : flow
+telegram.ext._handlers.conversationhandler.ConversationHandler --* SmartNoteAssistant.bot.telegram.conversation.controller._conversation_center_controller.ConversationCenterController : conversation_handler
+telegram.ext._utils.trackingdict.TrackingDict --* telegram.ext._handlers.conversationhandler.ConversationHandler : _conversations
+werkzeug.datastructures.structures.ImmutableDict --* flask.app.Flask : default_config
+@enduml

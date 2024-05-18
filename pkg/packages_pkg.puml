@@ -1,0 +1,37 @@
+@startuml packages_pkg
+set namespaceSeparator none
+package "SmartNoteAssistant.pkg.google_task_api.authorization_client" as SmartNoteAssistant.pkg.google_task_api.authorization_client #77AADD {
+}
+package "SmartNoteAssistant.pkg.google_task_api.authorization_server" as SmartNoteAssistant.pkg.google_task_api.authorization_server #77AADD {
+}
+package "SmartNoteAssistant.pkg.google_task_api.client" as SmartNoteAssistant.pkg.google_task_api.client #77AADD {
+}
+package "SmartNoteAssistant.pkg.google_task_api.model" as SmartNoteAssistant.pkg.google_task_api.model #77AADD {
+}
+package "SmartNoteAssistant.pkg.google_task_api.utils" as SmartNoteAssistant.pkg.google_task_api.utils #77AADD {
+}
+package "SmartNoteAssistant.pkg.model" as SmartNoteAssistant.pkg.model #77AADD {
+}
+package "SmartNoteAssistant.pkg.model.authz" as SmartNoteAssistant.pkg.model.authz #77AADD {
+}
+package "SmartNoteAssistant.pkg.model.reminder_cele_task" as SmartNoteAssistant.pkg.model.reminder_cele_task #77AADD {
+}
+package "SmartNoteAssistant.pkg.model.setup_django_orm" as SmartNoteAssistant.pkg.model.setup_django_orm #77AADD {
+}
+package "SmartNoteAssistant.pkg.notion_api.authorization_client" as SmartNoteAssistant.pkg.notion_api.authorization_client #77AADD {
+}
+package "SmartNoteAssistant.pkg.notion_api.client" as SmartNoteAssistant.pkg.notion_api.client #77AADD {
+}
+package "SmartNoteAssistant.pkg.notion_api.utils" as SmartNoteAssistant.pkg.notion_api.utils #77AADD {
+}
+SmartNoteAssistant.pkg.google_task_api.authorization_client --> SmartNoteAssistant.pkg.google_task_api.utils
+SmartNoteAssistant.pkg.google_task_api.authorization_server --> SmartNoteAssistant.pkg.google_task_api.utils
+SmartNoteAssistant.pkg.google_task_api.client --> SmartNoteAssistant.pkg.google_task_api.authorization_client
+SmartNoteAssistant.pkg.google_task_api.client --> SmartNoteAssistant.pkg.google_task_api.model
+SmartNoteAssistant.pkg.google_task_api.client --> SmartNoteAssistant.pkg.google_task_api.utils
+SmartNoteAssistant.pkg.model --> SmartNoteAssistant.pkg.model.authz
+SmartNoteAssistant.pkg.model --> SmartNoteAssistant.pkg.model.reminder_cele_task
+SmartNoteAssistant.pkg.model --> SmartNoteAssistant.pkg.model.setup_django_orm
+SmartNoteAssistant.pkg.notion_api.client --> SmartNoteAssistant.pkg.notion_api.authorization_client
+SmartNoteAssistant.pkg.notion_api.client --> SmartNoteAssistant.pkg.notion_api.utils
+@enduml

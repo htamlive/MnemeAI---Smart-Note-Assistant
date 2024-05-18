@@ -1,0 +1,322 @@
+@startuml classes_pkg
+set namespaceSeparator none
+class "App" as SmartNoteAssistant.pkg.notion_api.authorization_server.App #77AADD {
+  app
+  run_server(host: str, port: int, debug: bool)
+}
+class "App" as SmartNoteAssistant.pkg.google_task_api.authorization_server.App #77AADD {
+  app
+  run(host: str, port: int, debug: bool)
+}
+class "Attachment" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Attachment #77AADD {
+  fileId : Optional[str]
+  fileUrl : Optional[str]
+  iconLink : Optional[str]
+  mimeType : Optional[str]
+  title : Optional[str]
+}
+class "Authorization_client" as SmartNoteAssistant.pkg.notion_api.authorization_client.Authorization_client #77AADD {
+  flow
+  service_type
+  create_flow() -> OAuth2Session
+  get_auth_url(chat_id: int) -> str
+  get_credentials(chat_id: int) -> str | None
+}
+class "Authorization_client" as SmartNoteAssistant.pkg.google_task_api.authorization_client.Authorization_client #77AADD {
+  flow
+  service_type
+  create_flow() -> google_auth_oauthlib.flow.Flow
+  get_auth_url(chat_id: int) -> str
+  get_credentials(chat_id: int) -> google.oauth2.credentials.Credentials | None
+  revoke_credentials(chat_id: int)
+}
+class "Authz" as SmartNoteAssistant.pkg.model.authz.Authz #77AADD {
+  chat_id
+  client_id
+  client_secret
+  created_at
+  current_state
+  refresh_token
+  service_type
+  token
+  updated_at
+}
+class "BigIntegerField" as django.db.models.fields.BigIntegerField #99DDFF {
+  MAX_BIGINT : int
+  description : __proxy__
+  formfield()
+  get_internal_type()
+}
+class "CalendarEvent" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent #77AADD {
+  anyoneCanAddSelf : Optional[bool]
+  attachments
+  attendees : Optional[List[Attendee]]
+  attendeesOmitted : Optional[bool]
+  colorId : Optional[str]
+  conferenceData : Optional[ConferenceData]
+  created : Optional[str]
+  creator : Optional[Person]
+  description : Optional[str]
+  end : Optional[DateTime]
+  endTimeUnspecified : Optional[bool]
+  etag : Optional[str]
+  eventType : Optional[str]
+  extendedProperties : Optional[ExtendedProperties]
+  focusTimeProperties : Optional[FocusTimeProperties]
+  gadget : Optional[Gadget]
+  guestsCanInviteOthers : Optional[bool]
+  guestsCanModify : Optional[bool]
+  guestsCanSeeOtherGuests : Optional[bool]
+  hangoutLink : Optional[str]
+  htmlLink : Optional[str]
+  iCalUID : Optional[str]
+  id : Optional[str]
+  kind : Optional[str]
+  location : Optional[str]
+  locked : Optional[bool]
+  organizer : Optional[Person]
+  originalStartTime : Optional[DateTime]
+  outOfOfficeProperties : Optional[OutOfOfficeProperties]
+  privateCopy : Optional[bool]
+  recurrence : Optional[List[str]]
+  recurringEventId : Optional[str]
+  reminders : Optional[Dict[str, Union[bool, List[Reminder]]]]
+  sequence : Optional[int]
+  source : Optional[Source]
+  start : Optional[DateTime]
+  status : Optional[str]
+  summary : Optional[str]
+  transparency : Optional[str]
+  updated : Optional[str]
+  visibility : Optional[str]
+  workingLocationProperties : Optional[WorkingLocationProperties]
+}
+class "CalendarEventList" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList #77AADD {
+  accessRole : Optional[str]
+  defaultReminders
+  description : Optional[str]
+  etag : Optional[str]
+  items
+  kind : Optional[str]
+  nextPageToken : Optional[str]
+  nextSyncToken : Optional[str]
+  summary : Optional[str]
+  timeZone : Optional[str]
+  updated : Optional[str]
+}
+class "CharField" as django.db.models.fields.CharField #99DDFF {
+  db_collation : NoneType
+  description
+  cast_db_type(connection)
+  check()
+  db_parameters(connection)
+  deconstruct()
+  formfield()
+  get_internal_type()
+  get_prep_value(value)
+  to_python(value)
+}
+class "DateTimeField" as django.db.models.fields.DateTimeField #99DDFF {
+  default_error_messages : dict
+  description : __proxy__
+  empty_strings_allowed : bool
+  formfield()
+  get_db_prep_value(value, connection, prepared)
+  get_internal_type()
+  get_prep_value(value)
+  pre_save(model_instance, add)
+  to_python(value)
+  value_to_string(obj)
+}
+class "Flask" as flask.app.Flask #44BB99 {
+  cli : AppGroup
+  debug
+  default_config : ImmutableDict
+  request_class : type[Request]
+  response_class : type[Response]
+  secret_key : str
+  session_interface : SessionInterface
+  app_context() -> AppContext
+  async_to_sync(func: t.Callable[..., t.Coroutine[t.Any, t.Any, t.Any]]) -> t.Callable[..., t.Any]
+  create_jinja_environment() -> Environment
+  create_url_adapter(request: Request | None) -> MapAdapter | None
+  dispatch_request() -> ft.ResponseReturnValue
+  do_teardown_appcontext(exc: BaseException | None) -> None
+  do_teardown_request(exc: BaseException | None) -> None
+  ensure_sync(func: t.Callable[..., t.Any]) -> t.Callable[..., t.Any]
+  finalize_request(rv: ft.ResponseReturnValue | HTTPException, from_error_handler: bool) -> Response
+  full_dispatch_request() -> Response
+  get_send_file_max_age(filename: str | None) -> int | None
+  handle_exception(e: Exception) -> Response
+  handle_http_exception(e: HTTPException) -> HTTPException | ft.ResponseReturnValue
+  handle_user_exception(e: Exception) -> HTTPException | ft.ResponseReturnValue
+  log_exception(exc_info: tuple[type, BaseException, TracebackType] | tuple[None, None, None]) -> None
+  make_default_options_response() -> Response
+  make_response(rv: ft.ResponseReturnValue) -> Response
+  make_shell_context() -> dict[str, t.Any]
+  open_instance_resource(resource: str, mode: str) -> t.IO[t.AnyStr]
+  open_resource(resource: str, mode: str) -> t.IO[t.AnyStr]
+  preprocess_request() -> ft.ResponseReturnValue | None
+  process_response(response: Response) -> Response
+  raise_routing_exception(request: Request) -> t.NoReturn
+  request_context(environ: WSGIEnvironment) -> RequestContext
+  run(host: str | None, port: int | None, debug: bool | None, load_dotenv: bool) -> None
+  send_static_file(filename: str) -> Response
+  test_cli_runner() -> FlaskCliRunner
+  test_client(use_cookies: bool) -> FlaskClient
+  test_request_context() -> RequestContext
+  update_template_context(context: dict[str, t.Any]) -> None
+  url_for() -> str
+  wsgi_app(environ: WSGIEnvironment, start_response: StartResponse) -> cabc.Iterable[bytes]
+}
+class "Flow" as google_auth_oauthlib.flow.Flow #BBCC33 {
+  autogenerate_code_verifier : bool
+  client_config
+  client_type
+  code_verifier : NoneType, str
+  credentials
+  oauth2session
+  redirect_uri
+  authorization_url()
+  authorized_session()
+  fetch_token()
+  from_client_config(client_config, scopes)
+  from_client_secrets_file(client_secrets_file, scopes)
+}
+class "GoogleTaskClient" as SmartNoteAssistant.pkg.google_task_api.client.GoogleTaskClient #77AADD {
+  API_SERVICE_NAME : str
+  API_VERSION : str
+  SCOPES : list
+  authorization_client
+  build_service(chat_id: int)
+  check_auth(chat_id: int) -> bool
+  delete_task(chat_id: int, task_id: str) -> None
+  get_task(chat_id: int, task_id: str) -> Task | None
+  insert_task(chat_id: int, task: Task) -> Task | None
+  list_tasks(chat_id: int, completed_max: str, completed_min: str, due_max: str, due_min: str, max_results: int, page_token: str, show_completed: bool, show_deleted: bool, show_hidden: bool, updated_min: str) -> ListTask | None
+  update_task(chat_id: int, task_id: str, task: Task) -> Task | None
+}
+class "ListTask" as SmartNoteAssistant.pkg.google_task_api.model.ListTask #77AADD {
+  etag : str
+  items
+  kind : str
+  nextPageToken : Optional[str]
+}
+class "NotionClient" as SmartNoteAssistant.pkg.notion_api.client.NotionClient #77AADD {
+  auth_client
+  len : NoneType
+  alt_patch_notes(chat_id: int, resource_token: str, resource_name: str | None, resource_desc: str | None) -> dict | None
+  check_type(chat_id: int, resource_id: str) -> str
+  delete_all_notes(chat_id: int) -> bool
+  delete_notes(chat_id: int, resource_index: str, clear_all: bool) -> bool
+  extract_notion_id(url: str)
+  get_data(resource_id: str, resource_name: str, resource_desc: str)
+  get_database_id(chat_id: int)
+  get_header(chat_id: int) -> dict
+  get_len(chat_id: int)
+  get_note_content(chat_id, note_idx) -> str
+  get_notes(chat_id: int, resource_idx: str)
+  get_notes_list(chat_id: int, starting_point: str) -> ListNotes | None
+  get_user(chat_id: int)
+  patch_notes(chat_id: int, page_id: str, resource_name: str | None, resource_desc: str | None) -> dict | None
+  post_notes(chat_id: int, resource_name: str, resource_desc: str) -> dict | None
+  query(chat_id: int, prompt: str) -> Tuple[dict, List[str]] | None
+  register_database_id(chat_id: int, resource_id: str)
+  register_page_database(chat_id: int, page_id: str, title: str)
+}
+class "OAuth2Session" as requests_oauthlib.oauth2_session.OAuth2Session #AAAA00 {
+  access_token
+  auth
+  authorized
+  auto_refresh_kwargs : dict
+  auto_refresh_url : NoneType
+  client_id
+  compliance_hook : dict
+  redirect_uri : NoneType
+  scope
+  state
+  token
+  token_updater : NoneType
+  authorization_url(url, state)
+  fetch_token(token_url, code, authorization_response, body, auth, username, password, method, force_querystring, timeout, headers, verify, proxies, include_client_id, client_secret, cert)
+  new_state()
+  refresh_token(token_url, refresh_token, body, auth, timeout, headers, verify, proxies)
+  register_compliance_hook(hook_type, hook)
+  request(method, url, data, headers, withhold_token, client_id, client_secret, files)
+  token_from_fragment(authorization_response)
+}
+class "Reminder" as SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList.Reminder #77AADD {
+  method : Optional[str]
+  minutes : Optional[int]
+}
+class "ReminderCeleryTask" as SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask #77AADD {
+  PENDING : str
+  REVOKED : str
+  chat_id
+  choices : list
+  completed
+  description
+  due
+  reminder_id
+  state
+  title
+  is_cancelled() -> bool
+  mark_completed()
+  revoke()
+}
+class "Task" as SmartNoteAssistant.pkg.google_task_api.model.Task #77AADD {
+  completed : Optional[str]
+  deleted : Optional[bool]
+  due : Optional[str]
+  etag : Optional[str]
+  hidden : Optional[bool]
+  id : Optional[str]
+  kind : Optional[str]
+  links : Optional[List[dict]]
+  notes : Optional[str]
+  parent : Optional[str]
+  position : Optional[str]
+  selfLink : Optional[str]
+  start : Optional[str]
+  status : Optional[str]
+  timezone : Optional[str]
+  title : Optional[str]
+  updated : Optional[str]
+  webViewLink : Optional[str]
+}
+class "TextField" as django.db.models.fields.TextField #99DDFF {
+  db_collation : NoneType
+  description : __proxy__
+  check()
+  db_parameters(connection)
+  deconstruct()
+  formfield()
+  get_internal_type()
+  get_prep_value(value)
+  to_python(value)
+}
+SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent --* SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList : items
+SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent.Attachment --* SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEvent : attachments
+SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList.Reminder --* SmartNoteAssistant.pkg.google_calendar_api.model.CalendarEventList : defaultReminders
+SmartNoteAssistant.pkg.google_task_api.authorization_client.Authorization_client --* SmartNoteAssistant.pkg.google_task_api.client.GoogleTaskClient : authorization_client
+SmartNoteAssistant.pkg.google_task_api.model.Task --* SmartNoteAssistant.pkg.google_task_api.model.ListTask : items
+SmartNoteAssistant.pkg.notion_api.authorization_client.Authorization_client --* SmartNoteAssistant.pkg.notion_api.client.NotionClient : auth_client
+django.db.models.fields.BigIntegerField --* SmartNoteAssistant.pkg.model.authz.Authz : chat_id
+django.db.models.fields.BigIntegerField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : chat_id
+django.db.models.fields.CharField --* SmartNoteAssistant.pkg.model.authz.Authz : service_type
+django.db.models.fields.DateTimeField --* SmartNoteAssistant.pkg.model.authz.Authz : created_at
+django.db.models.fields.DateTimeField --* SmartNoteAssistant.pkg.model.authz.Authz : updated_at
+django.db.models.fields.DateTimeField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : due
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : current_state
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : token
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : refresh_token
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : client_id
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.authz.Authz : client_secret
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : reminder_id
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : title
+django.db.models.fields.TextField --* SmartNoteAssistant.pkg.model.reminder_cele_task.ReminderCeleryTask : description
+flask.app.Flask --* SmartNoteAssistant.pkg.google_task_api.authorization_server.App : app
+flask.app.Flask --* SmartNoteAssistant.pkg.notion_api.authorization_server.App : app
+google_auth_oauthlib.flow.Flow --* SmartNoteAssistant.pkg.google_task_api.authorization_client.Authorization_client : flow
+requests_oauthlib.oauth2_session.OAuth2Session --* SmartNoteAssistant.pkg.notion_api.authorization_client.Authorization_client : flow
+@enduml

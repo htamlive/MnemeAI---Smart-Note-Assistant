@@ -1,0 +1,38 @@
+@startuml packages_bot
+set namespaceSeparator none
+package "SmartNoteAssistant.bot" as SmartNoteAssistant.bot #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram" as SmartNoteAssistant.bot.telegram #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram._telebot" as SmartNoteAssistant.bot.telegram._telebot #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.conversation" as SmartNoteAssistant.bot.telegram.conversation #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.conversation._command_conversation" as SmartNoteAssistant.bot.telegram.conversation._command_conversation #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.conversation._prompting_conversation" as SmartNoteAssistant.bot.telegram.conversation._prompting_conversation #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation" as SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages" as SmartNoteAssistant.bot.telegram.telegram_pages #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._note_pages" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2 #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2 #77AADD {
+}
+package "SmartNoteAssistant.bot.telegram.ui_templates" as SmartNoteAssistant.bot.telegram.ui_templates #77AADD {
+}
+SmartNoteAssistant.bot.telegram --> SmartNoteAssistant.bot.telegram._telebot
+SmartNoteAssistant.bot.telegram --> SmartNoteAssistant.bot.telegram.ui_templates
+SmartNoteAssistant.bot.telegram._telebot --> SmartNoteAssistant.bot.telegram.conversation
+SmartNoteAssistant.bot.telegram.conversation._prompting_conversation --> SmartNoteAssistant.bot.telegram.conversation._command_conversation
+SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation --> SmartNoteAssistant.bot.telegram.conversation._command_conversation
+SmartNoteAssistant.bot.telegram.telegram_pages --> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2
+SmartNoteAssistant.bot.telegram.telegram_pages --> SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages --> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2 --> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2
+@enduml

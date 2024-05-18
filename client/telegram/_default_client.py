@@ -11,6 +11,8 @@ import pytz
 # import datetime
 from bot.telegram.ui_templates import render_html_note_detail
 from llm.prompt_template import prompt_query_knowledge_payload
+from llm.tools_interface import retrieve_knowledge_from_notes
+from pkg.google_calendar_api.client import GoogleCalendarApi
 from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
@@ -32,14 +34,15 @@ import time
 
 from llm.llm import LLM
 from llm._tools import (
-    save_task_title, 
-    save_task_detail, 
-    delete_task, 
-    register_database_id, 
+    save_task_title,
+    save_task_detail,
+    delete_task,
+    update_note,
+    register_database_id,
     delete_notes,
     save_notes_detail,
     save_notes_title,
-    retrieve_knowledge_from_notes
+
     )
 from llm.models import UserData
 
@@ -62,7 +65,7 @@ class DefaultClient:
 
         self.API_BASE_URL = f"https://api.telegram.org/bot{self.TELEBOT_TOKEN}/"
         # https://core.telegram.org/bots/api
-        self.google_task_client = GoogleTaskClient()
+        self.google_task_client = GoogleCalendarApi()
         self.authorization_client = Authorization_client()
         self.notion_client = NotionClient()
         self.llm = LLM()
@@ -86,7 +89,7 @@ class DefaultClient:
 
     async def save_note_detail(self, chat_id, note_idx, detail_text):
         return await save_notes_detail(UserData(chat_id=chat_id, note_token=note_idx), detail_text, client=self.notion_client)
-    
+
 
     async def delete_notes(self, chat_id, note_token) -> str:
         return await delete_notes(UserData(chat_id=chat_id, note_token=note_token), client=self.notion_client)
@@ -99,15 +102,15 @@ class DefaultClient:
 
         # this is 1-based index -> 0-based index
         return int(note_idx_text) - 1
-    
-    async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes: 
+
+    async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes:
         return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
 
     async def get_note_content(self, chat_id, note_token) -> str:
         notes: Notes = await sync_to_async(self.notion_client.get_notes)(chat_id, note_token)
 
         return render_html_note_detail(notes.title, notes.notes)
-            
+
 
 
     @deprecated
@@ -145,10 +148,10 @@ class DefaultClient:
 
     async def delete_reminder(self, chat_id, token) -> str:
         return await delete_task(UserData(chat_id=chat_id, reminder_token=token), google_task_client=self.google_task_client)
-    
+
     async def save_reminder_title(self, chat_id: int, reminder_token: str, title_text: str) -> str:
         return await save_task_title(UserData(chat_id=chat_id, reminder_token=reminder_token), title_text, google_task_client=self.google_task_client)
-    
+
     async def save_reminder_detail(self, chat_id: int, reminder_token: str, detail_text: str) -> str:
         return await save_task_detail(UserData(chat_id=chat_id, reminder_token=reminder_token), detail_text, google_task_client=self.google_task_client)
 
@@ -157,7 +160,7 @@ class DefaultClient:
         return await self.llm.save_task_time(user_data, prompt)
 
     async def get_reminder_page_content(self, chat_id, page_token) -> ListTask | None:
-        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
+        return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token)
 
 
     @deprecated
@@ -181,7 +184,7 @@ class DefaultClient:
         if tasks is None:
             return 0
         return len(tasks.items)
-    
+
 
     # ================= Other =================
 
@@ -199,7 +202,7 @@ class DefaultClient:
 
     async def receive_user_timezone_from_text(self, user_data: UserData, timezone_text: str) -> str:
         return await self.llm.update_timezone(user_data, f'Update timezone with the given offset: {timezone_text}')
-    
+
     async def receive_prompt_for_knowledge_retrieval(self, user_data: UserData, prompt_text: str) -> str:
         prompt = prompt_query_knowledge_payload(prompt_text)
         return await retrieve_knowledge_from_notes(user_data, prompt, self.notion_client)
@@ -217,7 +220,7 @@ class DefaultClient:
     async def get_google_authorization_url(self, chat_id: int) -> str:
         url = await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
-    
+
     async def check_google_authorization(self, chat_id: int) -> bool:
 
         credential = await sync_to_async(self.authorization_client.get_credentials)(
