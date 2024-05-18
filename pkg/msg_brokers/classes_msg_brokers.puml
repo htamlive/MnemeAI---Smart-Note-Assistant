@@ -1,0 +1,3 @@
+@startuml classes_msg_brokers
+set namespaceSeparator none
+@enduml

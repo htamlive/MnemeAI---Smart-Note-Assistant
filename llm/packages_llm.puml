@@ -1,0 +1,25 @@
+@startuml packages_llm
+set namespaceSeparator none
+package "SmartNoteAssistant.llm" as SmartNoteAssistant.llm #77AADD {
+}
+package "SmartNoteAssistant.llm._tools" as SmartNoteAssistant.llm._tools #77AADD {
+}
+package "SmartNoteAssistant.llm._tools_manager" as SmartNoteAssistant.llm._tools_manager #77AADD {
+}
+package "SmartNoteAssistant.llm.llm" as SmartNoteAssistant.llm.llm #77AADD {
+}
+package "SmartNoteAssistant.llm.models" as SmartNoteAssistant.llm.models #77AADD {
+}
+package "SmartNoteAssistant.llm.prompt_template" as SmartNoteAssistant.llm.prompt_template #77AADD {
+}
+package "SmartNoteAssistant.llm.tool_executor" as SmartNoteAssistant.llm.tool_executor #77AADD {
+}
+package "SmartNoteAssistant.llm.tools_interface" as SmartNoteAssistant.llm.tools_interface #77AADD {
+}
+package "SmartNoteAssistant.llm.underdeveloping_interface" as SmartNoteAssistant.llm.underdeveloping_interface #77AADD {
+}
+SmartNoteAssistant.llm._tools_manager --> SmartNoteAssistant.llm._tools
+SmartNoteAssistant.llm.llm --> SmartNoteAssistant.llm._tools_manager
+SmartNoteAssistant.llm.llm --> SmartNoteAssistant.llm.models
+SmartNoteAssistant.llm.llm --> SmartNoteAssistant.llm.tool_executor
+@enduml

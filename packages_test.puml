@@ -1,0 +1,145 @@
+@startuml packages_test
+set namespaceSeparator none
+package "SmartNoteAssistant" as SmartNoteAssistant #77AADD {
+}
+package "SmartNoteAssistant.bot" as SmartNoteAssistant.bot #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram" as SmartNoteAssistant.bot.telegram #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram._telebot" as SmartNoteAssistant.bot.telegram._telebot #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.conversation" as SmartNoteAssistant.bot.telegram.conversation #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.conversation._command_conversation" as SmartNoteAssistant.bot.telegram.conversation._command_conversation #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.conversation._prompting_conversation" as SmartNoteAssistant.bot.telegram.conversation._prompting_conversation #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation" as SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages" as SmartNoteAssistant.bot.telegram.telegram_pages #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._note_pages" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2" as SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2 #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2" as SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2 #99DDFF {
+}
+package "SmartNoteAssistant.bot.telegram.ui_templates" as SmartNoteAssistant.bot.telegram.ui_templates #99DDFF {
+}
+package "SmartNoteAssistant.client" as SmartNoteAssistant.client #44BB99 {
+}
+package "SmartNoteAssistant.client.telegram" as SmartNoteAssistant.client.telegram #44BB99 {
+}
+package "SmartNoteAssistant.client.telegram._default_client" as SmartNoteAssistant.client.telegram._default_client #44BB99 {
+}
+package "SmartNoteAssistant.config" as SmartNoteAssistant.config #BBCC33 {
+}
+package "SmartNoteAssistant.config._config_custom_google_api" as SmartNoteAssistant.config._config_custom_google_api #BBCC33 {
+}
+package "SmartNoteAssistant.config._conversation_config" as SmartNoteAssistant.config._conversation_config #BBCC33 {
+}
+package "SmartNoteAssistant.config.config" as SmartNoteAssistant.config.config #BBCC33 {
+}
+package "SmartNoteAssistant.deprecatedFunction" as SmartNoteAssistant.deprecatedFunction #77AADD {
+}
+package "SmartNoteAssistant.get_methods" as SmartNoteAssistant.get_methods #77AADD {
+}
+package "SmartNoteAssistant.pkg" as SmartNoteAssistant.pkg #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.google_task_api" as SmartNoteAssistant.pkg.google_task_api #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.google_task_api.authorization_client" as SmartNoteAssistant.pkg.google_task_api.authorization_client #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.google_task_api.authorization_server" as SmartNoteAssistant.pkg.google_task_api.authorization_server #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.google_task_api.client" as SmartNoteAssistant.pkg.google_task_api.client #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.google_task_api.model" as SmartNoteAssistant.pkg.google_task_api.model #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.google_task_api.utils" as SmartNoteAssistant.pkg.google_task_api.utils #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.model" as SmartNoteAssistant.pkg.model #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.model.authz" as SmartNoteAssistant.pkg.model.authz #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.model.reminder_cele_task" as SmartNoteAssistant.pkg.model.reminder_cele_task #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.model.setup_django_orm" as SmartNoteAssistant.pkg.model.setup_django_orm #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.notion_api" as SmartNoteAssistant.pkg.notion_api #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.notion_api.authorization_client" as SmartNoteAssistant.pkg.notion_api.authorization_client #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.notion_api.authorization_server" as SmartNoteAssistant.pkg.notion_api.authorization_server #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.notion_api.client" as SmartNoteAssistant.pkg.notion_api.client #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.notion_api.model" as SmartNoteAssistant.pkg.notion_api.model #AAAA00 {
+}
+package "SmartNoteAssistant.pkg.notion_api.utils" as SmartNoteAssistant.pkg.notion_api.utils #AAAA00 {
+}
+package "SmartNoteAssistant.run_telebot" as SmartNoteAssistant.run_telebot #77AADD {
+}
+package "SmartNoteAssistant.server" as SmartNoteAssistant.server #EEDD88 {
+}
+package "SmartNoteAssistant.server._server_responses" as SmartNoteAssistant.server._server_responses #EEDD88 {
+}
+package "SmartNoteAssistant.test" as SmartNoteAssistant.test #EE8866 {
+}
+package "SmartNoteAssistant.test._pagination_test_data" as SmartNoteAssistant.test._pagination_test_data #EE8866 {
+}
+package "SmartNoteAssistant.test_authorization_client" as SmartNoteAssistant.test_authorization_client #77AADD {
+}
+package "SmartNoteAssistant.test_authorization_server" as SmartNoteAssistant.test_authorization_server #77AADD {
+}
+package "SmartNoteAssistant.test_google_api_client" as SmartNoteAssistant.test_google_api_client #77AADD {
+}
+package "SmartNoteAssistant.test_google_auth_server" as SmartNoteAssistant.test_google_auth_server #77AADD {
+}
+package "SmartNoteAssistant.test_llm" as SmartNoteAssistant.test_llm #77AADD {
+}
+package "SmartNoteAssistant.test_notion_api_client" as SmartNoteAssistant.test_notion_api_client #77AADD {
+}
+package "SmartNoteAssistant.test_notion_auth_server" as SmartNoteAssistant.test_notion_auth_server #77AADD {
+}
+package "SmartNoteAssistant.test_telebot_api" as SmartNoteAssistant.test_telebot_api #77AADD {
+}
+SmartNoteAssistant.bot.telegram --> SmartNoteAssistant.bot.telegram._telebot
+SmartNoteAssistant.bot.telegram --> SmartNoteAssistant.bot.telegram.ui_templates
+SmartNoteAssistant.bot.telegram._telebot --> SmartNoteAssistant.bot.telegram.conversation
+SmartNoteAssistant.bot.telegram.conversation._prompting_conversation --> SmartNoteAssistant.bot.telegram.conversation._command_conversation
+SmartNoteAssistant.bot.telegram.conversation._timezone_request_conversation --> SmartNoteAssistant.bot.telegram.conversation._command_conversation
+SmartNoteAssistant.bot.telegram.telegram_pages --> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2
+SmartNoteAssistant.bot.telegram.telegram_pages --> SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages --> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages
+SmartNoteAssistant.bot.telegram.telegram_pages._reminder_pages_v2 --> SmartNoteAssistant.bot.telegram.telegram_pages._note_pages_v2
+SmartNoteAssistant.client --> SmartNoteAssistant.client.telegram
+SmartNoteAssistant.client.telegram --> SmartNoteAssistant.client.telegram._default_client
+SmartNoteAssistant.config --> SmartNoteAssistant.config._config_custom_google_api
+SmartNoteAssistant.config --> SmartNoteAssistant.config._conversation_config
+SmartNoteAssistant.pkg.google_task_api.authorization_client --> SmartNoteAssistant.pkg.google_task_api.utils
+SmartNoteAssistant.pkg.google_task_api.authorization_server --> SmartNoteAssistant.pkg.google_task_api.utils
+SmartNoteAssistant.pkg.google_task_api.client --> SmartNoteAssistant.pkg.google_task_api.authorization_client
+SmartNoteAssistant.pkg.google_task_api.client --> SmartNoteAssistant.pkg.google_task_api.model
+SmartNoteAssistant.pkg.google_task_api.client --> SmartNoteAssistant.pkg.google_task_api.utils
+SmartNoteAssistant.pkg.model --> SmartNoteAssistant.pkg.model.authz
+SmartNoteAssistant.pkg.model --> SmartNoteAssistant.pkg.model.reminder_cele_task
+SmartNoteAssistant.pkg.model --> SmartNoteAssistant.pkg.model.setup_django_orm
+SmartNoteAssistant.pkg.notion_api.client --> SmartNoteAssistant.pkg.notion_api.authorization_client
+SmartNoteAssistant.pkg.notion_api.client --> SmartNoteAssistant.pkg.notion_api.utils
+SmartNoteAssistant.run_telebot --> SmartNoteAssistant.bot.telegram
+SmartNoteAssistant.run_telebot --> SmartNoteAssistant.client
+SmartNoteAssistant.server --> SmartNoteAssistant.server._server_responses
+SmartNoteAssistant.test --> SmartNoteAssistant.test._pagination_test_data
+SmartNoteAssistant.test_authorization_client --> SmartNoteAssistant.pkg.google_task_api.authorization_client
+SmartNoteAssistant.test_authorization_server --> SmartNoteAssistant.pkg.google_task_api.authorization_server
+SmartNoteAssistant.test_google_api_client --> SmartNoteAssistant.pkg.google_task_api.client
+SmartNoteAssistant.test_google_api_client --> SmartNoteAssistant.pkg.google_task_api.model
+SmartNoteAssistant.test_google_auth_server --> SmartNoteAssistant.pkg.google_task_api.authorization_server
+SmartNoteAssistant.test_notion_api_client --> SmartNoteAssistant.pkg.notion_api.client
+SmartNoteAssistant.test_notion_auth_server --> SmartNoteAssistant.pkg.notion_api.authorization_server
+SmartNoteAssistant.test_telebot_api --> SmartNoteAssistant.server
+SmartNoteAssistant.test_telebot_api --> SmartNoteAssistant.test
+@enduml

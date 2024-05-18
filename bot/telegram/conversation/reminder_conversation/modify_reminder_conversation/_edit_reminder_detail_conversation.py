@@ -7,9 +7,8 @@ class EditReminderDetailConversation(EditNoteDetailConversation):
     def __init__(self, EDIT_DETAIL: int, client: TelegramClient, debug: bool = True) -> None:
         super().__init__(EDIT_DETAIL, client, debug)
 
-    def check_data_requirement(self, context: CallbackContext.DEFAULT_TYPE) -> tuple:
+    def check_data_requirement(self, context) -> tuple:
         return check_data_requirement(context)
 
     async def client_save_detail(self, chat_id: int, token: str, detail_text: str) -> str:
         return await self.client.save_reminder_detail(chat_id, token, detail_text)
-    

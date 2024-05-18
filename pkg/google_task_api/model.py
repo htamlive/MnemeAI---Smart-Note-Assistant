@@ -19,6 +19,9 @@ class Task:
     due: Optional[str] = None
     completed: Optional[str] = None
     links: List[dict] = None
+    # Updated: add timezone
+    timezone: Optional[str] = None
+    start: Optional[str] = None
 
 @dataclass
 class ListTask:

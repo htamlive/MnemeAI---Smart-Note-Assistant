@@ -1,0 +1,62 @@
+@startuml classes_llm
+set namespaceSeparator none
+class "ChatOpenAI" as langchain_openai.chat_models.base.ChatOpenAI #99DDFF {
+  lc_attributes
+  lc_secrets
+  get_lc_namespace() -> List[str]
+  is_lc_serializable() -> bool
+}
+class "ChatPromptTemplate" as langchain_core.prompts.chat.ChatPromptTemplate #44BB99 {
+  input_variables : List[str]
+  messages : List[MessageLike]
+  validate_template : bool
+  aformat_messages() -> List[BaseMessage]
+  append(message: MessageLikeRepresentation) -> None
+  extend(messages: Sequence[MessageLikeRepresentation]) -> None
+  format_messages() -> List[BaseMessage]
+  from_messages(messages: Sequence[MessageLikeRepresentation], template_format: Literal['f-string', 'mustache']) -> ChatPromptTemplate
+  from_role_strings(string_messages: List[Tuple[str, str]]) -> ChatPromptTemplate
+  from_strings(string_messages: List[Tuple[Type[BaseMessagePromptTemplate], str]]) -> ChatPromptTemplate
+  from_template(template: str) -> ChatPromptTemplate
+  get_lc_namespace() -> List[str]
+  partial() -> ChatPromptTemplate
+  pretty_repr(html: bool) -> str
+  {abstract}save(file_path: Union[Path, str]) -> None
+  validate_input_variables(values: dict) -> dict
+}
+class "LLM" as SmartNoteAssistant.llm.llm.LLM #77AADD {
+  model
+  prompt_template_1
+  prompt_template_2
+  tool_executor
+  tool_manager
+  add_note(user_data: UserData, note_text: str) -> str | None
+  add_task(user_data: UserData, task_text: str) -> str | None
+  execute_prompting(user_data: UserData, user_request: str) -> str | None
+  get_current_datetime(timezone: str) -> str
+  save_task_time(user_data: UserData, time_text: str) -> str | None
+  update_timezone(user_data: UserData, timezone_text: str) -> str | None
+}
+class "ToolExecutor" as SmartNoteAssistant.llm.tool_executor.ToolExecutor #77AADD {
+  execute_from_string(user_data, raw_str, function_map: dict[str, callable]) -> str
+}
+class "ToolManager" as SmartNoteAssistant.llm._tools_manager.ToolManager #77AADD {
+  function_interfaces : dict
+  function_map : dict[ToolType, callable]
+  tool_type_lookup : dict[str, ToolType]
+  get_tools(tool_types: List[ToolType]) -> Tuple[dict[str, callable], str]
+}
+class "ToolType" as SmartNoteAssistant.llm._tools_manager.ToolType #77AADD {
+  name
+}
+class "UserData" as SmartNoteAssistant.llm.models.UserData #77AADD {
+  chat_id : int | None
+  note_token : str | None
+  reminder_token : str | None
+  timezone : str | None
+}
+SmartNoteAssistant.llm._tools_manager.ToolManager --* SmartNoteAssistant.llm.llm.LLM : tool_manager
+SmartNoteAssistant.llm.tool_executor.ToolExecutor --* SmartNoteAssistant.llm.llm.LLM : tool_executor
+langchain_core.prompts.chat.ChatPromptTemplate --* SmartNoteAssistant.llm.llm.LLM : prompt_template_2
+langchain_openai.chat_models.base.ChatOpenAI --* SmartNoteAssistant.llm.llm.LLM : model
+@enduml

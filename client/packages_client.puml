@@ -1,0 +1,11 @@
+@startuml packages_client
+set namespaceSeparator none
+package "SmartNoteAssistant.client" as SmartNoteAssistant.client #77AADD {
+}
+package "SmartNoteAssistant.client.telegram" as SmartNoteAssistant.client.telegram #77AADD {
+}
+package "SmartNoteAssistant.client.telegram._default_client" as SmartNoteAssistant.client.telegram._default_client #77AADD {
+}
+SmartNoteAssistant.client --> SmartNoteAssistant.client.telegram
+SmartNoteAssistant.client.telegram --> SmartNoteAssistant.client.telegram._default_client
+@enduml
