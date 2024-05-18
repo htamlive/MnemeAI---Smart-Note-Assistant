@@ -1,6 +1,3 @@
-# from torch import Tensor
-# from transformers import AutoTokenizer, AutoModel
-# from torch import no_grad
 from typing import List
 from config import config
 import requests
