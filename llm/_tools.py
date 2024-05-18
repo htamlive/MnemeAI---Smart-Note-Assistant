@@ -149,6 +149,7 @@ async def show_task_list(
     user_data: UserData, google_task_client: GoogleCalendarApi | None = None
 ) -> str:
     chat_id = user_data.chat_id
+    timezone = user_data.timezone.zone
 
     if chat_id is None:
         return "Error: Cannot show the list."
