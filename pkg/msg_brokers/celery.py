@@ -1,14 +1,11 @@
-import os
 from celery import Celery
 import requests
-import dotenv
-
+from config import config
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 
 app = Celery(
-    "tasks", broker="redis://localhost:6379/tcp", broker_connection_retry_on_startup=True
+    "tasks", broker=config.REDIS_URL, broker_connection_retry_on_startup=True
 )
-
 
 @app.task(
     autoretry_for=(requests.HTTPError,),
@@ -19,12 +16,11 @@ def send_notification(
     chat_id: int,
     idx: str,
 ):
-    dotenv.load_dotenv()
     reminder = ReminderCeleryTask.objects.get(chat_id=chat_id, reminder_id=idx)
     if reminder.is_cancelled():
         print("Reminder is cancelled")
         return
-    telebot_token = os.getenv("TELEBOT_TOKEN")
+    telebot_token = config.TELEBOT_TOKEN
     endpoint = f"https://api.telegram.org/bot{telebot_token}/sendMessage"
     print(reminder.title)
     payload = {
