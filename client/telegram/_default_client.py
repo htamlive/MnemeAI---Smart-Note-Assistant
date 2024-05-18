@@ -106,7 +106,9 @@ class DefaultClient:
     async def get_note_page_content(self, chat_id: int, starting_point: str | None = None) -> ListNotes:
         return await sync_to_async(self.notion_client.get_notes_list)(chat_id, starting_point)
 
-    async def get_note_content(self, chat_id, note_token) -> str:
+    async def get_note_content(self, user_data) -> str:
+        chat_id = user_data.chat_id
+        note_token = user_data.note_token
         notes: Notes = await sync_to_async(self.notion_client.get_notes)(chat_id, note_token)
 
         return render_html_note_detail(notes.title, notes.notes)
@@ -132,6 +134,7 @@ class DefaultClient:
         client = self.google_task_client
         chat_id = user_data.chat_id
         reminder_token = user_data.reminder_token
+        timezone = user_data.timezone
         task = await sync_to_async(client.get_task)(chat_id=chat_id, task_id=reminder_token)
 
         tz: str = task.timezone
@@ -166,7 +169,7 @@ class DefaultClient:
         prompt = f"Set reminder time: {time_text}"
         return await self.llm.save_task_time(user_data, prompt)
 
-    async def get_reminder_page_content(self, chat_id, page_token) -> ListTask | None:
+    async def get_reminder_page_content(self, chat_id, page_token, timezone) -> ListTask | None:
         return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token)
 
 

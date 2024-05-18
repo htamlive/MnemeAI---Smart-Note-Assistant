@@ -1,5 +1,7 @@
 
 from typing import List
+
+from bot.telegram.utils import check_data_requirement
 from ._note_pages_v3 import NotePages
 
 from client import TelegramClient
@@ -31,12 +33,22 @@ class ReminderPages(NotePages):
     async def client_get_total_pages(self, chat_id: int) -> int:
         return await self.client.get_total_reminder_pages(chat_id)
     
-    async def client_get_page_content(self, chat_id, page_token):
-        return await self.client.get_reminder_page_content(chat_id, page_token)
+    async def client_get_page_content(self, chat_id, page_token, timezone):
+        
+        return await self.client.get_reminder_page_content(chat_id, page_token, timezone)
 
     async def show_preview_page(self, query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, cur_page_token: str | None = None) -> None:
+        
+        success, message_text = check_data_requirement(context)
+
+        if not success:
+            await query.message.reply_text(message_text)
+            return
+        
+        timezone = context.user_data['user_system_data'].timezone
+        
         chat_id = query.message.chat_id
-        page_content: ListTask | None = await self.client_get_page_content(chat_id, cur_page_token)
+        page_content: ListTask | None = await self.client_get_page_content(chat_id, cur_page_token, timezone)
 
         items: List[Task] = page_content.items
 
