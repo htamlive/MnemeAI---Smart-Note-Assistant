@@ -21,11 +21,11 @@ class EditReminderTimeConversation(ModifyNoteConversation):
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         success, message = self.check_data_requirement(context)
 
+        query: CallbackQuery = update.callback_query
         if not success:
-            await update.message.reply_text(message)
+            await query.message.reply_text(message)
             return ConversationHandler.END
 
-        query: CallbackQuery = update.callback_query
         await query.answer()
         reminder_idx = super().extract_hidden_token(query)
 
