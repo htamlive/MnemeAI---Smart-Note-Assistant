@@ -1,21 +1,38 @@
-from torch import Tensor
-from transformers import AutoTokenizer, AutoModel
-from torch import no_grad
+# from torch import Tensor
+# from transformers import AutoTokenizer, AutoModel
+# from torch import no_grad
 from typing import List
+from config import config
+import requests
 
-def average_pool(last_hidden_states: Tensor,
-                 attention_mask: Tensor) -> Tensor:
-    last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
-    return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
+def generate_embeddings(prompt:str | List[str]) -> List[List[float]] | None:    
+    # Set your API key
+    api_key = config.OPENAI_API_KEY
+    
+    # Define the endpoint and headers
+    url = "https://api.openai.com/v1/embeddings"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
 
-tokenizer = AutoTokenizer.from_pretrained("Supabase/gte-small")
-model = AutoModel.from_pretrained("Supabase/gte-small")
+    # Define the payload
+    payload = {
+        "input": prompt,
+        "model": "text-embedding-ada-002"
+    }
+
+    # Make the POST request
+    response = requests.post(url, headers=headers, json=payload)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        data = response.json()
+        # Extract the embeddings from the response
+        embeddings = [item['embedding'] for item in data['data']]
         
-def generate_embeddings(prompt:str | List[str]) -> List[List[float]] | None:
-    batch_dict = tokenizer(prompt, max_length=512, padding=True, truncation=True, return_tensors='pt')
-
-    with no_grad():
-        outputs = model(**batch_dict)
-        embeddings = average_pool(outputs.last_hidden_state, batch_dict['attention_mask'])
-        
-    return embeddings.tolist()
+        return embeddings
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.text)
+        return []
