@@ -11,6 +11,7 @@ from ..notion_request.request_page_conversation import RequestNotionPageConversa
 
 from .._prompting_conversation import PromptingConversation
 from .._timezone_request_conversation import TimezoneRequestConversation
+from .._query_knowledge_conversation import QueryKnowledgeConversation
 
 from client import TelegramClient
 
@@ -27,6 +28,7 @@ class ConversationCenterController:
         self.notion_db_request_conversation = RequestNotionDBConversation(NOTION_REQ_DB, self.client)
         self.notion_page_request_conversation = RequestNotionPageConversation(NOTION_REQ_PAGE, self.client)
         
+        self.query_knowledge_conversation = QueryKnowledgeConversation(QUERY_KNOWLEDGE, self.client)
 
         self.prompting_conversation = PromptingConversation(PROMPTING, self.client)
 
@@ -40,12 +42,14 @@ class ConversationCenterController:
                 CommandHandler(Commands.PROMPTING.value, self.prompting_conversation.start_conversation),
                 CommandHandler(Commands.TIMEZONE_REQ.value, self.timezone_request_conversation.start_conversation),
                 # CommandHandler(Commands.NOTION_REQ_DB.value, self.notion_db_request_conversation.start_conversation),
-                CommandHandler(Commands.NOTION_REQ_PAGE.value, self.notion_page_request_conversation.start_conversation)
+                CommandHandler(Commands.NOTION_REQ_PAGE.value, self.notion_page_request_conversation.start_conversation),
+                CommandHandler(Commands.QUERY_KNOWLEDGE.value, self.query_knowledge_conversation.start_conversation),
             ] + self.note_conversation_controller.get_entry_points() + self.reminder_conversation_controller.get_entry_points(),
             states = {
                 # NOTION_REQ_DB: [command_handler] + self.notion_db_request_conversation.states,
                 NOTION_REQ_PAGE: [command_handler] + self.notion_page_request_conversation.states,
                 TIMEZONE_REQ: [command_handler] + self.timezone_request_conversation.states,
+                QUERY_KNOWLEDGE: [command_handler] + self.query_knowledge_conversation.states
 
             } | self.note_conversation_controller.get_states_dict(command_handler)
               | self.reminder_conversation_controller.get_states_dict(command_handler),
@@ -63,6 +67,8 @@ class ConversationCenterController:
 
     async def check_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         command = update.message.text
+
+        print(command)
         if command.startswith('/'+Commands.NOTE.value):
             context.args = re.split(r'\s+', command)[1:]
             return await self.note_conversation_controller.factory[NOTE_TEXT].start_conversation(update, context)
@@ -91,6 +97,11 @@ class ConversationCenterController:
         
         if command.startswith('/'+Commands.NOTION_REQ_PAGE.value):
             return await self.notion_page_request_conversation.start_conversation(update, context)
+        
+        
+        if command.startswith('/'+Commands.QUERY_KNOWLEDGE.value):
+            context.args = re.split(r'\s+', command)[1:]
+            return await self.query_knowledge_conversation.start_conversation(update, context)
         
         return ConversationHandler.END
 

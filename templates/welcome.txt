@@ -3,7 +3,7 @@
 
 <b>Let's get started:</b>
 
-
+<b>IMPORTANT!!</b> Please do all the steps before using them.
 1. Set Your Timezone:
 - 📍 Use /timezone to set your timezone. This is <b>crucial</b> for accurate reminders and scheduling.
 

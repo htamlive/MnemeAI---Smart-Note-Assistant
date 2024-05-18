@@ -234,3 +234,7 @@ def render_html_note_detail(title: str, content: str) -> str:
         f"\n🖊️ <i>Content</i>:\n{content}\n"\
         # f"\n🗓️ Date Recorded:\n{date.strftime('%Y-%m-%d %H:%M')}"
     return html_render
+
+def render_html_timezone_instructions():
+    return "Please press the button to share your location or type your location.\n"\
+    "For example: You are in <b>GMT+7</b>. Type <b>+7</b>."

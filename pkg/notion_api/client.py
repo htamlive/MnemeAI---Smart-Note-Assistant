@@ -375,11 +375,11 @@ class NotionClient:
     def delete_all_notes(self, chat_id: int) -> bool:
         return self.delete_notes(chat_id, clear_all=True)
     
-    def query(self, chat_id: int, prompt:str) -> Tuple[dict, List[str]] | None:
+    def query(self, chat_id: int, prompt:str) -> dict | None:
         resource_id = self.get_database_id(chat_id)
         embeddings = generate_embeddings(prompt)
         
-        resp = supabase.rpc('match_documents', {
+        resp = supabase.rpc('match_documents_v2', {
             "chat_id": chat_id,
             "database_id": resource_id,
             "query_embedding": embeddings[0], 
@@ -387,9 +387,8 @@ class NotionClient:
             "match_count": 10,
         }).execute()
         
-        prompt = f"Please answer this question, provided the question and context here, don't use your own knowledge unless specified\n\nQuestion: {prompt}\n\nContext:\n"
-        for query in resp.data:
-            prompt+=query['content']+"\n"
+
+        prompt += "\n".join(resp.data)
         print(prompt)
         
         headers = {
@@ -401,5 +400,8 @@ class NotionClient:
             "model": "Meta-Llama-3-8B-Instruct",
             "prompt": prompt,
         })
+
         
-        return resp.json(), [query['content'] for query in resp.data]
+        res = resp.json()
+
+        return res

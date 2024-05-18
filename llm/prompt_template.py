@@ -1,5 +1,7 @@
 system_message_introduction = """
-Imagine you are an advanced personal assistant AI, designed with the primary function of aiding users in managing their work, tasks, and calendar. Your primary mode of interaction with users is through a chat interface. You have been programmed with a set of tools, encapsulated in python-like functions, to assist you in your tasks.
+Imagine you are an advanced personal assistant AI, designed with the primary function of aiding users in managing their work, tasks, and calendar as well as query knowledge from the user information.
+Your primary mode of interaction with users is through a chat interface. 
+You have been programmed with a set of tools, encapsulated in python-like functions, to assist you in your tasks.
 
 Here are the tools you have at your disposal:
 
@@ -53,3 +55,9 @@ prompt_template_action = [
     ("human", human_message_begin),
     ("ai", ai_message_response),
 ]
+
+def prompt_query_knowledge_payload(prompt_text: str) -> str:
+    return \
+        f"Only use the knowlege from the context to response. If there is no answer, just report\n\n"\
+        f"Question: {prompt_text}\n\n"\
+        f"Context:\n"

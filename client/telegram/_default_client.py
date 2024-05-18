@@ -9,7 +9,8 @@ import dotenv
 import pytz
 
 # import datetime
-from bot.telegram.ui_templates import render_html_note_detail, show_notes_list_template
+from bot.telegram.ui_templates import render_html_note_detail
+from llm.prompt_template import prompt_query_knowledge_payload
 from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
@@ -34,12 +35,11 @@ from llm._tools import (
     save_task_title, 
     save_task_detail, 
     delete_task, 
-    update_note, 
     register_database_id, 
     delete_notes,
     save_notes_detail,
     save_notes_title,
-    
+    retrieve_knowledge_from_notes
     )
 from llm.models import UserData
 
@@ -159,6 +159,7 @@ class DefaultClient:
     async def get_reminder_page_content(self, chat_id, page_token) -> ListTask | None:
         return await sync_to_async(self.google_task_client.list_tasks)(chat_id=chat_id, page_token=page_token) 
 
+
     @deprecated
     async def remove_task(self, chat_id: int, token: str) -> None:
         client = self.google_task_client
@@ -198,6 +199,10 @@ class DefaultClient:
 
     async def receive_user_timezone_from_text(self, user_data: UserData, timezone_text: str) -> str:
         return await self.llm.update_timezone(user_data, f'Update timezone with the given offset: {timezone_text}')
+    
+    async def receive_prompt_for_knowledge_retrieval(self, user_data: UserData, prompt_text: str) -> str:
+        prompt = prompt_query_knowledge_payload(prompt_text)
+        return await retrieve_knowledge_from_notes(user_data, prompt, self.notion_client)
 
     def get_jobs_from_start(self, update: Update) -> list:
         async def notify_assignees(context: CallbackContext) -> None:

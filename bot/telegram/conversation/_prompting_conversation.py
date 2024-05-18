@@ -4,7 +4,7 @@ from telegram.ext import (
 )
 
 from llm.models import UserData
-from llm._tools import show_notes_list, update_timezone_utc
+from llm._tools import show_notes_list, retrieve_knowledge_from_notes
 from ._command_conversation import CommandConversation
 from client import TelegramClient
 
@@ -20,7 +20,6 @@ class PromptingConversation(CommandConversation):
 
 
         if(context.args):
-            chat_id = update.message.chat_id
             prompt_text = ' '.join(context.args)
 
             user_data: UserData = context.user_data.get('user_system_data', None)
@@ -43,12 +42,15 @@ class PromptingConversation(CommandConversation):
             #print location
             # print(update.message.location)
             # print(await update_timezone_utc(user_data, 7))
+            # res = await retrieve_knowledge_from_notes(user_data, prompt="Get everything about Julia")
             # return ConversationHandler.END
+
+            message = await update.message.reply_text("Got it! Please wait a moment.")
             
             response_text, next_state = await self.client.process_prompt(user_data, prompt_text)
 
             if(self.debug):
-                await update.message.reply_text(response_text)
+                await message.edit_text(response_text)
 
             # print(f'Next state: {next_state}')
             return next_state

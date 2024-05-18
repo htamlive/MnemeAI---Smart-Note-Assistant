@@ -280,4 +280,15 @@ def update_timezone_utc(offset: int) -> str:
     >>> update_timezone_utc(-5)
     """
     pass
+#
+def retrieve_knowledge_from_notes(prompt: str) -> str:
+    """
+    Retrieves knowledge or insights from the user's notes by inputing the prompt of the user.
 
+    Returns:
+    (str): a message indicating the knowledge or insights retrieved from the notes.
+
+    Example:
+    >>> retrieve_knowledge_from_notes("Show the projects related to Julia")
+    """
+    pass

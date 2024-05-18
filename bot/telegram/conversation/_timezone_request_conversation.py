@@ -5,6 +5,7 @@ from telegram.ext import (
 )
 from timezonefinder import TimezoneFinder
 
+from bot.telegram.ui_templates import render_html_timezone_instructions
 from llm.models import UserData
 from ._command_conversation import CommandConversation
 from client import TelegramClient
@@ -31,8 +32,7 @@ class TimezoneRequestConversation(CommandConversation):
 
 
         await update.message.reply_text(
-            "Please press the button to share your location or type your location.\n"\
-            "For example: You are in <b>GMT+7</b>. Type <b>+7</b>.",
+            render_html_timezone_instructions(),
             reply_markup=ReplyKeyboardMarkup(
                 [[KeyboardButton("Share Location", request_location=True)]], 
                 one_time_keyboard=True),
@@ -47,9 +47,12 @@ class TimezoneRequestConversation(CommandConversation):
             await update.message.reply_text("Please use /start command to start the bot.")
             return
         
+
         timezone_text = update.message.text
 
         user_data = context.user_data['user_system_data']
+
+        message = await update.message.reply_text("Got it! Please wait a moment.")
         
         response =  await self.client.receive_user_timezone_from_text(user_data, timezone_text)
 
@@ -57,7 +60,7 @@ class TimezoneRequestConversation(CommandConversation):
 
         # print(user_data.timezone)
 
-        await update.message.reply_text(response)
+        await message.edit_text(response)
 
         return ConversationHandler.END
 
@@ -90,7 +93,10 @@ class TimezoneRequestConversation(CommandConversation):
         offset = timezone.utcoffset(datetime.now()).total_seconds() / 3600
         offset = round(offset)
 
-        user_data.timezone = pytz.timezone(f'Etc/GMT-{abs(offset)}')
+        if(offset > 0):
+            user_data.timezone = pytz.timezone(f'Etc/GMT-{abs(offset)}')
+        else:
+            user_data.timezone = pytz.timezone(f'Etc/GMT+{abs(offset)}')
 
         context.user_data['timezone'] = timezone
         current_time = datetime.now(timezone).strftime("%H:%M")

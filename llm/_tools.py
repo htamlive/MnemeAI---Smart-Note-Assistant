@@ -387,3 +387,30 @@ async def check_type(user_data: UserData, content_id: str, client: NotionClient 
     resp = await sync_to_async(client.check_type)(chat_id, content_id)
     
     return resp
+
+async def retrieve_knowledge_from_notes(user_data: UserData, prompt, client: NotionClient = NotionClient()) -> str:
+    chat_id = user_data.chat_id
+    json_obj = await sync_to_async(client.query)(chat_id, prompt)
+
+    if json_obj is None:
+        return "There is some error in retrieving the content"
+    
+    choices = json_obj['choices']
+
+    content = '\n\n'.join(map(lambda x: x['text'], choices))
+
+    endpoint = TELEGRAM_SEND_ENDPOINT
+
+    payload = {
+        'chat_id': chat_id,
+        'text': content,
+        'parse_mode': 'Markdown',
+    }
+
+    response = requests.post(endpoint, json=payload)
+
+    if(response.status_code != 200):
+        return "Error: Cannot show the content."
+
+
+    return 'Content has been retrieved'

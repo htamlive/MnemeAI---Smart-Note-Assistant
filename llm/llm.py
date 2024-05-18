@@ -56,8 +56,14 @@ class LLM:
     async def update_timezone(self, user_data: UserData, timezone_text: str) -> str | None:
         function_map, tool_interfaces = self.tool_manager.get_tools([ToolType.UPDATE_TIMEZONE_UTC])
         return await self._llm_invoke(user_data, timezone_text, function_map, tool_interfaces, update_timezone=True)
+    
+    async def retrieve_knowledge_from_notes(self, user_data: UserData, prompt: str) -> str | None:
+        function_map, tool_interfaces = self.tool_manager.get_tools([ToolType.RETRIEVE_KNOWLEDGE_FROM_NOTES])
+        return await self._llm_invoke(user_data, prompt, function_map, tool_interfaces)
 
     async def _llm_invoke(self, user_data: UserData, user_request: str, function_map: dict[str, callable], tool_interfaces: str, update_timezone=False) -> str | None:        
+        
+        
         timezone = user_data.timezone
 
         

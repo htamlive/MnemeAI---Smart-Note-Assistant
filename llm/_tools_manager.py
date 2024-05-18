@@ -20,6 +20,7 @@ class ToolType(enum.Enum):
     SHOW_NOTES_DETAIL = "show_notes_detail"
 
     UPDATE_TIMEZONE_UTC = "update_timezone_utc"
+    RETRIEVE_KNOWLEDGE_FROM_NOTES = "retrieve_knowledge_from_notes"
 
 class ToolManager():
     def __init__(self):
@@ -39,7 +40,8 @@ class ToolManager():
             ToolType.SHOW_NOTES_LIST: show_notes_list,
             ToolType.SHOW_NOTES_DETAIL: show_notes_detail,
 
-            ToolType.UPDATE_TIMEZONE_UTC: update_timezone_utc
+            ToolType.UPDATE_TIMEZONE_UTC: update_timezone_utc,
+            ToolType.RETRIEVE_KNOWLEDGE_FROM_NOTES: retrieve_knowledge_from_notes
         }
 
 
