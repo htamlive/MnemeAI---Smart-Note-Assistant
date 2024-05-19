@@ -2,6 +2,7 @@ import os
 import requests
 import dotenv
 
+from llm.prompt_template import query_knowledge_model_context
 from pkg.notion_api.model import ListNotes, Notes
 from .utils import generate_embeddings
 from ..database.client import supabase
@@ -37,6 +38,10 @@ class NotionClient:
 
         # If none of the above, it's an unknown type or invalid ID
         return "unknown"
+    
+    def check_auth(self, chat_id: int) -> bool:
+        access_token = self.auth_client.get_credentials(chat_id)
+        return access_token is not None
     
     def extract_notion_id(self, url: str):
         # Regex pattern to match Notion ID
@@ -379,29 +384,42 @@ class NotionClient:
         resource_id = self.get_database_id(chat_id)
         embeddings = generate_embeddings(prompt)
         
-        resp = supabase.rpc('match_documents_v4', {
+        resp = supabase.rpc('match_documents_v7', {
             "chat_id": chat_id,
             "database_id": resource_id,
             "query_embedding": embeddings[0], 
             "match_threshold": 0.78,
             "match_count": 10,
         }).execute()
-        
 
-        prompt += "\n".join(resp.data)
-        print(prompt)
+        items = resp.data
+        print(items)
+
+        if(len(items) == 0):
+           prompt += "\nNo matching documents found"
+        else:
+            prompt += '\n' + "\n".join([f'{idx}) Title: {item["title"]}\n Description: {item["description"]}' for idx, item in enumerate(items)])
         
+        print(prompt)
+
         headers = {
-                'Authorization': f'Bearer {config.AWAN_KEY}',
+                'Authorization': f'Bearer {config.OPENAI_API_KEY}',
                 'Content-Type': 'application/json'
         }
         
-        resp = requests.post("https://api.awanllm.com/v1/completions", headers=headers, json={
-            "model": "Meta-Llama-3-8B-Instruct",
-            "prompt": prompt,
+        resp = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json={
+            "messages": [
+                {
+                    "role": "system", 
+                    "content": query_knowledge_model_context()
+                    },
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 1000,
+            "model": "gpt-3.5-turbo"
         })
 
-        
         res = resp.json()
 
         return res

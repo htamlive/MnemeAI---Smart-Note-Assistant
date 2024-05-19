@@ -32,7 +32,14 @@ class Authorization_client:
 
     # load the credentials from the database
     def get_credentials(self, chat_id: int) -> str | None:
-        authz = Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value)
-        if authz:
-            return authz.token
-        return None
+        try:
+            authorization = Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value)
+            return authorization.token
+        except Authz.DoesNotExist:
+            return None
+    
+    def revoke_credentials(self, chat_id: int) -> str | None:
+        try:
+            Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value).delete()
+        except Authz.DoesNotExist:
+            return None

@@ -58,6 +58,9 @@ prompt_template_action = [
 
 def prompt_query_knowledge_payload(prompt_text: str) -> str:
     return \
-        f"Only use the knowlege from the context to response. If there is no answer, just report\n\n"\
         f"Question: {prompt_text}\n\n"\
         f"Context:\n"
+
+
+def query_knowledge_model_context() -> str:
+    return "You are an assistant helping a user find the relevant document from the user's database. Show the detail to the user and analyze the relevancy of the result. If there is no answer, just report."

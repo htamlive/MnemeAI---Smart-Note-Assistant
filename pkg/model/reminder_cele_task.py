@@ -15,6 +15,7 @@ class ReminderCeleryTask(models.Model):
     state = models.TextField(null=True)
     completed = models.BooleanField(default=False)
     due = models.DateTimeField(null=True)
+    timezone = models.TextField(null=True)
 
     def is_cancelled(self) -> bool:
         return not self.completed and self.state == self.REVOKED
