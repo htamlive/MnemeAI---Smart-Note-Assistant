@@ -5,6 +5,7 @@ from telegram.ext import (
     Application, CommandHandler, ContextTypes, CallbackQueryHandler, CallbackContext
 )
 
+from bot.telegram.utils import check_data_requirement
 from llm.models import UserData
 from .conversation import ConversationCenterController
 from client import TelegramClient
@@ -94,22 +95,21 @@ class Telebot:
     def init_show_time_command(self) -> None:
         async def show_time(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             
-            user_data = context.user_data.get('user_system_data', None)
+            sucess, message = check_data_requirement(context, check_timezone=True)
 
-            if not user_data:
-                await update.message.reply_text("Please use /start command to start the bot.")
-                return
-
-            timezone = user_data.timezone
-            if timezone:
+            if(not sucess):
                 await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=message
+                )
+                return
+            
+            user_data : UserData = context.user_data['user_system_data']
+            timezone = user_data.timezone
+
+            await context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     text=f'The current time is {datetime.now(timezone).strftime("%H:%M")}'
-                )
-            else:
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text='Please set your timezone first by using /timezone'
                 )
         self.application.add_handler(CommandHandler('show_time', show_time))
 

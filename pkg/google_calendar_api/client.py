@@ -8,6 +8,8 @@ from pkg.google_calendar_api.model import CalendarEvent, CalendarEventList
 from pkg.google_task_api.authorization_client import Authorization_client
 from pkg.google_task_api.model import ListTask, Task
 
+from config import MAX_RESULTS
+
 
 class GoogleCalendarApi:
     def __init__(self) -> None:
@@ -56,7 +58,7 @@ class GoogleCalendarApi:
                 calendarId="primary",
                 pageToken=page_token,
                 timeMin=now,
-                maxResults=20,
+                maxResults=MAX_RESULTS,
                 singleEvents=True,
                 orderBy="startTime",
             )

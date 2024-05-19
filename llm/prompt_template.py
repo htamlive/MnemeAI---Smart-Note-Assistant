@@ -63,5 +63,4 @@ def prompt_query_knowledge_payload(prompt_text: str) -> str:
 
 
 def query_knowledge_model_context() -> str:
-
     return "You are an assistant helping a user find the relevant document from the user's database. Show the detail to the user and analyze the relevancy of the result. If there is no answer, just report."
