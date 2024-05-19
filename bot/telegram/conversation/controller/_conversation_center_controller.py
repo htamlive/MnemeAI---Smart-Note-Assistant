@@ -41,13 +41,13 @@ class ConversationCenterController:
             entry_points=[
                 CommandHandler(Commands.PROMPTING.value, self.prompting_conversation.start_conversation),
                 CommandHandler(Commands.TIMEZONE_REQ.value, self.timezone_request_conversation.start_conversation),
-                # CommandHandler(Commands.NOTION_REQ_DB.value, self.notion_db_request_conversation.start_conversation),
-                CommandHandler(Commands.NOTION_REQ_PAGE.value, self.notion_page_request_conversation.start_conversation),
+                CommandHandler(Commands.NOTION_REQ_DB.value, self.notion_db_request_conversation.start_conversation),
+                # CommandHandler(Commands.NOTION_REQ_PAGE.value, self.notion_page_request_conversation.start_conversation),
                 CommandHandler(Commands.QUERY_KNOWLEDGE.value, self.query_knowledge_conversation.start_conversation),
             ] + self.note_conversation_controller.get_entry_points() + self.reminder_conversation_controller.get_entry_points(),
             states = {
-                # NOTION_REQ_DB: [command_handler] + self.notion_db_request_conversation.states,
-                NOTION_REQ_PAGE: [command_handler] + self.notion_page_request_conversation.states,
+                NOTION_REQ_DB: [command_handler] + self.notion_db_request_conversation.states,
+                # NOTION_REQ_PAGE: [command_handler] + self.notion_page_request_conversation.states,
                 TIMEZONE_REQ: [command_handler] + self.timezone_request_conversation.states,
                 QUERY_KNOWLEDGE: [command_handler] + self.query_knowledge_conversation.states
 
@@ -92,11 +92,11 @@ class ConversationCenterController:
         if command.startswith('/'+Commands.TIMEZONE_REQ.value):
             return await self.timezone_request_conversation.start_conversation(update, context)
         
-        # if command.startswith('/'+Commands.NOTION_REQ_DB.value):
-        #     return await self.notion_db_request_conversation.start_conversation(update, context)
+        if command.startswith('/'+Commands.NOTION_REQ_DB.value):
+            return await self.notion_db_request_conversation.start_conversation(update, context)
         
-        if command.startswith('/'+Commands.NOTION_REQ_PAGE.value):
-            return await self.notion_page_request_conversation.start_conversation(update, context)
+        # if command.startswith('/'+Commands.NOTION_REQ_PAGE.value):
+        #     return await self.notion_page_request_conversation.start_conversation(update, context)
         
         
         if command.startswith('/'+Commands.QUERY_KNOWLEDGE.value):
