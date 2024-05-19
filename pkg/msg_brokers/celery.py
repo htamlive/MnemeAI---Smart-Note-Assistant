@@ -1,5 +1,6 @@
 from celery import Celery
 import requests
+
 from config import config
 from pkg.model.reminder_cele_task import ReminderCeleryTask
 
@@ -23,9 +24,10 @@ def send_notification(
     telebot_token = config.TELEBOT_TOKEN
     endpoint = f"https://api.telegram.org/bot{telebot_token}/sendMessage"
     print(reminder.title)
+    from bot.telegram.ui_templates import render_html_task_notification
     payload = {
         "chat_id": chat_id,
-        "text": "Hey, remember to do this task: " + reminder.title,
+        "text": render_html_task_notification(reminder),
     }
     response = requests.post(endpoint, json=payload)
     response.raise_for_status()

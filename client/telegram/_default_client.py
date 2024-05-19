@@ -17,9 +17,7 @@ from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
 from telegram.ext import CallbackContext
 from telegram import Update
-from pkg.msg_brokers.celery import send_notification
 from pkg.notion_api.model import ListNotes, Notes
-from test import pagination_test_data
 from config import *
 from urllib.parse import quote
 from pkg.google_task_api.client import GoogleTaskClient as GoogleTaskClient, Task
@@ -27,7 +25,6 @@ from pkg.google_task_api.authorization_client import Authorization_client
 from pkg.notion_api.client import NotionClient
 from asgiref.sync import sync_to_async
 import datetime
-import time
 
 
 # from pkg.reminder.task_queues import queue_task
