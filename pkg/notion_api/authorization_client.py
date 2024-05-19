@@ -38,8 +38,9 @@ class Authorization_client:
         except Authz.DoesNotExist:
             return None
     
-    def revoke_credentials(self, chat_id: int) -> str | None:
+    def revoke_credentials(self, chat_id: int) -> str:
         try:
             Authz.objects.get(chat_id=chat_id, service_type=self.service_type.value).delete()
+            return "Authorization has been revoked"
         except Authz.DoesNotExist:
-            return None
+            return "Authorization not found"

@@ -19,7 +19,7 @@ class NotionClient:
     
     def check_type(self, chat_id: int, resource_id: str) -> str:
         headers = self.get_header(chat_id)
-        resource_id = self.extract_notion_id(resource_id)
+        resource_id = self._extract_notion_id(resource_id)
         
         # Check if it's a database
         resp = requests.get(f"https://api.notion.com/v1/databases/{resource_id}", headers=headers)
@@ -43,7 +43,7 @@ class NotionClient:
         access_token = self.auth_client.get_credentials(chat_id)
         return access_token is not None
     
-    def extract_notion_id(self, url: str):
+    def _extract_notion_id(self, url: str):
         # Regex pattern to match Notion ID
         pattern = re.compile(r'[a-f0-9]{32}(?:[a-f0-9]{0,6}|)')
         
@@ -78,7 +78,10 @@ class NotionClient:
     
     def get_database_id(self, chat_id: int):
         resp = supabase.from_("notion_database_id").select("id, database_id").eq("id", chat_id).execute()
-        assert len(resp.data) > 0
+        
+        if len(resp.data) == 0:
+            return None
+
         data = resp.data
         return data[0]['database_id']
     
@@ -86,7 +89,7 @@ class NotionClient:
         return len(self.get_notes_list(chat_id))
     
     def register_database_id(self, chat_id: int, resource_id: str):
-        resource_id = self.extract_notion_id(resource_id)
+        resource_id = self._extract_notion_id(resource_id)
         resp = supabase.from_("notion_database_id").upsert({
             "id": chat_id,
             "database_id": resource_id
@@ -96,7 +99,7 @@ class NotionClient:
         return resp.data
         
     def register_page_database(self, chat_id: int, page_id: str, title: str = "New Database"):
-        page_id = self.extract_notion_id(page_id)
+        page_id = self._extract_notion_id(page_id)
         headers = self.get_header(chat_id)
         data = {
             "parent": { "page_id": page_id },

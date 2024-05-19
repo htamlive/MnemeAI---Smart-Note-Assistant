@@ -30,6 +30,7 @@ class Telebot:
         self.init_test_routine_notification()
         self.init_show_time_command()
         self.init_revoke_google_auth()
+        self.init_revoke_notion_auth()
 
 
     def init_test_routine_notification(self) -> None:
