@@ -37,10 +37,16 @@ class NoteConversation(CommandConversation):
         return ConversationHandler.END
     
     async def handle_receive_note_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE, note_text: str) -> None:
-        chat_id = update.message.chat_id
+        
+        user_data = context.user_data['user_system_data']
+        chat_id = update.effective_chat.id
+
         message = await update.message.reply_text("Got it! Please wait a moment.")
         response_text = await self.client.save_note(
-            user_data=UserData(chat_id=chat_id, timezone=context.user_data.get('timezone', None)),
+            user_data=UserData(
+                chat_id=chat_id,
+                timezone=user_data.timezone
+                ),
             note_text=note_text
             )
         await message.edit_text(response_text)
