@@ -167,6 +167,16 @@ class Telebot:
 
         self.application.add_handler(CommandHandler('revoke_google_auth', revoke_google_auth))
 
+    def init_revoke_notion_auth(self) -> None:
+        async def revoke_notion_auth(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            message_text = await self.client.revoke_notion_authorization(update.effective_chat.id)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=message_text,
+            )
+
+        self.application.add_handler(CommandHandler('revoke_notion_auth', revoke_notion_auth))
+
 
     def init_google_authorization_command(self) -> None:
 
