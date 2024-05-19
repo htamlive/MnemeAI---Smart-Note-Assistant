@@ -111,9 +111,12 @@ class DefaultClient:
     async def get_note_page_content(
         self, chat_id: int, starting_point: str | None = None
     ) -> ListNotes:
-        return await sync_to_async(self.notion_client.get_notes_list)(
-            chat_id, starting_point
-        )
+        try:
+            return await sync_to_async(self.notion_client.get_notes_list)(
+                chat_id, starting_point
+            )
+        except:
+            return None
 
     async def get_note_content(self, user_data) -> str:
         chat_id = user_data.chat_id
