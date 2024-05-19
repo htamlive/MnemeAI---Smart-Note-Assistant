@@ -400,7 +400,7 @@ class NotionClient:
             "prompt": prompt,
             "temperature": 0.7,
             "max_tokens": 1000,
-            "model": "text-davinci-002"  # Select the engine you want to use
+            "model": "text-davinci-003"  # Select the engine you want to use
         })
 
         res = resp.json()
