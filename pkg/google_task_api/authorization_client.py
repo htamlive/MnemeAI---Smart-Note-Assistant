@@ -40,7 +40,7 @@ class Authorization_client:
             print("Authz:", authz)
         except Authz.DoesNotExist:
             authz = None
-        if authz:
+        if authz and authz.token:
             return google.oauth2.credentials.Credentials(
                 token=authz.token,
                 refresh_token=authz.refresh_token,
@@ -55,16 +55,16 @@ class Authorization_client:
         credentials = self.get_credentials(chat_id)
 
         if credentials:
-            revoke = requests.post('https://oauth2.googleapis.com/revoke',
+            resp = requests.post('https://oauth2.googleapis.com/revoke',
             params={'token': credentials.token},
             headers = {'content-type': 'application/x-www-form-urlencoded'})
 
-            status_code = getattr(revoke, 'status_code')
+            status_code = resp.status_code
             if status_code == 200:
                 Authz.objects.filter(chat_id=chat_id, service_type=self.service_type.value).delete()
 
                 return('Credentials successfully revoked.')
             else:
-                return revoke.text
+                return resp.text
         
         return('No credentials found.')
