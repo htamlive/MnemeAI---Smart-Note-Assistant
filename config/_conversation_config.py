@@ -19,8 +19,8 @@ class Commands(Enum):
     VIEW_NOTES = "view_notes"
     VIEW_REMINDERS = "view_reminders"
     PROMPTING = "ah"
-    NOTION_REQ_DB = "notion_db"
-    NOTION_REQ_PAGE = "notion_page"
+    NOTION_REQ_DB = "notion_page"
+    NOTION_REQ_PAGE = "notion_db"
     TIMEZONE_REQ = "timezone"
     QUERY_KNOWLEDGE = "query_knowledge"
 
