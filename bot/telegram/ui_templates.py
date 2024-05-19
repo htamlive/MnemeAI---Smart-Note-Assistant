@@ -138,13 +138,13 @@ def show_reminders_list_v2(chat_id: int, titles: list, reminder_tokens: list, ne
 
     if cur_page_token is None:
         if count_items > 1:
-            content += 'Here are your reminders:\n'
+            content += 'Your reminders:\n'
         elif count_items == 1:
-            content += 'Here is your reminder:\n'
+            content += 'Your reminder:\n'
         elif count_items == 0:
-            content += 'There is no reminder yet'
+            content += 'Oops. No reminder yet'
     else:
-        content += 'Here are more of your reminders:\n'
+        content += 'More of your reminders:\n'
 
     return {
         'chat_id': chat_id,
@@ -201,13 +201,16 @@ def show_notes_list_template_v2(chat_id: int, titles: list, note_tokens: list, s
         keyboards.append([InlineKeyboardButton('show more', callback_data=f'{NOTE_PAGE_CHAR}{PAGE_DELIMITER}{count_items}')])
 
 
-    text = 'Here are your notes:\n'
-    if count_items > 1:
-        text = 'Here are your notes:\n'
-    elif count_items == 1:
-        text = 'Here is your note:\n'
-    elif count_items == 0:
-        text = 'There is no note yet'
+    text = 'Your notes:\n'
+    if starting_point is None:
+        if count_items > 1:
+            text = 'Your notes:\n'
+        elif count_items == 1:
+            text = 'Your note:\n'
+        elif count_items == 0:
+            text = 'Oops. There is no note yet'
+    else:
+        text = 'More of your notes:\n'
 
     content += text
 
