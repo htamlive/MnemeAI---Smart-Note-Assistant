@@ -18,7 +18,7 @@ class RequestNotionDBConversation(CommandConversation):
             remind_text = ' '.join(context.args)
             await self._handle_receive_data(update, context, remind_text)
             return ConversationHandler.END
-        await update.message.reply_text("Please send me the database URL or database ID.")
+        await update.message.reply_text("Please send me the URL or the ID of the shared workspace.")
         return self.NOTION_REQ_DB
     
     async def receive_user_data(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
