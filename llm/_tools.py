@@ -80,6 +80,7 @@ async def create_task(
         description=body,
         chat_id=chat_id,
         reminder_id=result.id,
+        due=datetime.fromisoformat(result.start),
         state=ReminderCeleryTask.PENDING,
     )
     # Setting up the Celery task
@@ -121,17 +122,13 @@ async def show_task_detail(
 
     title, detail = task.title, task.notes
 
-    reminder = await sync_to_async(ReminderCeleryTask.objects.get)(
-        chat_id=chat_id, reminder_id=task_token
-    )
-
-    due = dj_timezone.localtime(reminder.due).strftime("Due time: %H:%M %A %d %B %Y")
+    start_reminding_time = dj_timezone.localtime(task.start).strftime("Due time: %H:%M %A %d %B %Y")
 
     endpoint = TELEGRAM_SEND_ENDPOINT
 
     payload = {
         "chat_id": chat_id,
-        "text": render_html_reminder_detail(due, title, detail),
+        "text": render_html_reminder_detail(start_reminding_time, title, detail),
         "parse_mode": "HTML",
         "reply_markup": InlineKeyboardMarkup(
             get_reminder_option_keyboard(task_token)

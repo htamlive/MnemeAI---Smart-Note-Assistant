@@ -379,17 +379,17 @@ class NotionClient:
         resource_id = self.get_database_id(chat_id)
         embeddings = generate_embeddings(prompt)
         
-        resp = supabase.rpc('match_documents_v4', {
+        resp = supabase.rpc('match_documents_v7', {
             "chat_id": chat_id,
             "database_id": resource_id,
             "query_embedding": embeddings[0], 
             "match_threshold": 0.78,
             "match_count": 10,
         }).execute()
-        
 
-        prompt += "\n".join(resp.data)
-        print(prompt)
+        items = resp.data
+
+        prompt += "\n".join([f'{idx}) Title: {item["title"]}\n Description: {item["description"]}' for idx, item in enumerate(items)])
         
         headers = {
                 'Authorization': f'Bearer {config.OPENAI_API_KEY}',
