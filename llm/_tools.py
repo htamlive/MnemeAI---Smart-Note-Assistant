@@ -29,13 +29,21 @@ from asgiref.sync import sync_to_async
 from pkg.notion_api.model import ListNotes, Notes
 
 
-async def check_google_task_auth(
-    user_data: UserData, google_task_client: GoogleTaskClient | None = None
+async def check_google_calendar_auth(
+    user_data: UserData, google_task_client: GoogleTaskClient = GoogleTaskClient()
 ) -> bool:
     chat_id = user_data.chat_id
     if google_task_client is None:
         google_task_client = GoogleTaskClient()
     return await sync_to_async(google_task_client.check_auth)(chat_id)
+
+async def check_notion_auth(
+    user_data: UserData, client: NotionClient = NotionClient()
+) -> bool:
+    chat_id = user_data.chat_id
+    return await sync_to_async(client.check_auth)(chat_id)
+
+
 
 
 async def update_timezone_utc(user_data: UserData, offset: int = 0) -> str:
@@ -59,7 +67,7 @@ async def create_task(
     google_task_client: GoogleCalendarApi | None = None,
 ) -> str:
 
-    authorized = await check_google_task_auth(
+    authorized = await check_google_calendar_auth(
         user_data, google_task_client=google_task_client
     )
 
@@ -97,6 +105,7 @@ async def create_task(
 async def show_task_detail(
     user_data: UserData, google_task_client: GoogleCalendarApi | None = None
 ):
+
     task_token = user_data.reminder_token
     chat_id = user_data.chat_id
 
@@ -109,7 +118,7 @@ async def show_task_detail(
     if google_task_client is None:
         google_task_client = GoogleCalendarApi()
 
-    if not await check_google_task_auth(
+    if not await check_google_calendar_auth(
         user_data, google_task_client=google_task_client
     ):
         return "Error: Not authorized to create a task."
@@ -155,7 +164,7 @@ async def show_task_list(
     if google_task_client is None:
         google_task_client = GoogleCalendarApi()
 
-    if not await check_google_task_auth(
+    if not await check_google_calendar_auth(
         user_data, google_task_client=google_task_client
     ):
         return "Error: Not authorized to create a task."
@@ -193,7 +202,7 @@ async def save_task_title(
     google_task_client: GoogleCalendarApi | None = None,
 ) -> str:
 
-    authorized = await check_google_task_auth(
+    authorized = await check_google_calendar_auth(
         user_data, google_task_client=google_task_client
     )
 
@@ -230,7 +239,7 @@ async def save_task_detail(
     google_task_client: GoogleCalendarApi | None = None,
 ) -> str:
 
-    authorized = await check_google_task_auth(
+    authorized = await check_google_calendar_auth(
         user_data, google_task_client=google_task_client
     )
 
@@ -266,7 +275,7 @@ async def save_task_time(
     google_task_client: GoogleCalendarApi | None = None,
 ) -> str:
 
-    authorized = await check_google_task_auth(
+    authorized = await check_google_calendar_auth(
         user_data, google_task_client=google_task_client
     )
 
@@ -306,7 +315,7 @@ async def delete_task(
     google_task_client: GoogleCalendarApi | None = None,
 ) -> str:
 
-    authorized = await check_google_task_auth(
+    authorized = await check_google_calendar_auth(
         user_data, google_task_client=google_task_client
     )
 
@@ -338,9 +347,15 @@ async def delete_task(
 
 
 async def create_notes(
-    user_data: UserData, title: str, content: str, client: NotionClient = NotionClient()
+    user_data: UserData, title: str, content: str, client: NotionClient | None = None
 ) -> str:
     chat_id = user_data.chat_id
+
+    if client is None:
+        client = NotionClient()
+
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to create a note."
 
     resp = await sync_to_async(client.post_notes)(chat_id, title, content)
 
@@ -350,12 +365,14 @@ async def create_notes(
 async def save_notes_title(
     user_data: UserData, title: str, client: NotionClient = NotionClient()
 ) -> str:
+
     return await update_note(user_data, title=title, client=client)
 
 
 async def save_notes_detail(
     user_data: UserData, content: str, client: NotionClient = NotionClient()
 ) -> str:
+    
     return await update_note(user_data, content=content, client=client)
 
 
@@ -367,6 +384,11 @@ async def update_note(
 ) -> str:
     chat_id = user_data.chat_id
     note_id = user_data.note_token
+
+
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to update a note."
+
     try:
         resp = await sync_to_async(client.patch_notes)(chat_id, note_id, title, content)
     except Exception as e:
@@ -380,6 +402,10 @@ async def show_notes_detail(
 ) -> str:
     note_id = user_data.note_token
     chat_id = user_data.chat_id
+
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to view a note."
+
     try:
         notes = await sync_to_async(client.get_notes)(chat_id, note_id)
     except Exception as e:
@@ -413,6 +439,9 @@ async def show_notes_list(
     starting_point: str | None = None,
 ) -> str:
     chat_id = user_data.chat_id
+
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to view a note."
 
     list_notes: ListNotes = await sync_to_async(client.get_notes_list)(
         chat_id, starting_point
@@ -450,6 +479,9 @@ async def delete_notes(
     chat_id = user_data.chat_id
     note_id = user_data.note_token
 
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to delete a note."
+
     notes: Notes = await sync_to_async(client.get_notes)(chat_id, note_id)
 
     title = notes.title
@@ -465,6 +497,9 @@ async def delete_all_notes(
 ) -> str:
     chat_id = user_data.chat_id
 
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to delete a note."
+
     await sync_to_async(client.delete_all_notes)(chat_id)
 
     return "Deleted all notes"
@@ -475,6 +510,10 @@ async def register_database_id(
 ) -> str:
     chat_id = user_data.chat_id
     type = client.check_type(chat_id, database_id)
+
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to register a database."
+
     if type == "database":
         resp = await sync_to_async(client.register_database_id)(chat_id, database_id)
 
@@ -512,6 +551,10 @@ async def retrieve_knowledge_from_notes(
     user_data: UserData, prompt, client: NotionClient = NotionClient()
 ) -> str:
     chat_id = user_data.chat_id
+
+    if not await check_notion_auth(user_data, client=client):
+        return "Error: Not authorized to retrieve knowledge from notes."
+
     json_obj = await sync_to_async(client.query)(chat_id, prompt)
 
     print(json_obj)

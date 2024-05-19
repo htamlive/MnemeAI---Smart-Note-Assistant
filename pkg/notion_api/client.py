@@ -39,6 +39,10 @@ class NotionClient:
         # If none of the above, it's an unknown type or invalid ID
         return "unknown"
     
+    def check_auth(self, chat_id: int) -> bool:
+        access_token = self.auth_client.get_credentials(chat_id)
+        return access_token is not None
+    
     def extract_notion_id(self, url: str):
         # Regex pattern to match Notion ID
         pattern = re.compile(r'[a-f0-9]{32}(?:[a-f0-9]{0,6}|)')
