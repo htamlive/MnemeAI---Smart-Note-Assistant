@@ -514,12 +514,13 @@ async def retrieve_knowledge_from_notes(
     chat_id = user_data.chat_id
     json_obj = await sync_to_async(client.query)(chat_id, prompt)
 
+    print(json_obj)
     if json_obj is None:
         return "There is some error in retrieving the content"
 
     choices = json_obj["choices"]
 
-    content = "\n\n".join(map(lambda x: x["text"], choices))
+    content = "\n\n".join(map(lambda x: x["message"]['content'], choices))
 
     endpoint = TELEGRAM_SEND_ENDPOINT
 
