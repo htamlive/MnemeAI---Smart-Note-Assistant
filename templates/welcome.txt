@@ -7,13 +7,12 @@
 1. Set Your Timezone:
 - 📍 Use /timezone to set your timezone. This is <b>crucial</b> for accurate reminders and scheduling.
 
-2. Taking Notes:
+2. Taking Notes Feature:
 - 🔗 Connect your Notion account with /notion_authorization.
-- 📄 Select a Notion page to save your notes.
+- 📄 Select a Notion page to save your notes. Tick the box of the page you want to use.
 - 🔍 Use /notion_page and paste the URL of your chosen Notion page.
 
-3. Add Reminders:
+3. Add Reminders Feature:
 - 🔗 Connect your Google account with /google_authorization.
-- 🌍 Use /share_location to share your location. This helps set the correct timezone for reminders.
 
 For a full list of commands, type /help.

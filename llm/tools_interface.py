@@ -104,7 +104,7 @@ def save_task_detail(detail_text: str) -> str:
     """
     pass
 #
-def save_task_time(time: str) -> str:
+def save_task_time(time: str) -> str:   
     """
     Saves the due date and time of a task.
 

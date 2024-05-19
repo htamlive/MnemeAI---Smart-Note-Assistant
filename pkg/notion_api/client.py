@@ -2,6 +2,7 @@ import os
 import requests
 import dotenv
 
+from llm.prompt_template import query_knowledge_model_context
 from pkg.notion_api.model import ListNotes, Notes
 from .utils import generate_embeddings
 from ..database.client import supabase
@@ -37,6 +38,10 @@ class NotionClient:
 
         # If none of the above, it's an unknown type or invalid ID
         return "unknown"
+    
+    def check_auth(self, chat_id: int) -> bool:
+        access_token = self.auth_client.get_credentials(chat_id)
+        return access_token is not None
     
     def extract_notion_id(self, url: str):
         # Regex pattern to match Notion ID
@@ -388,19 +393,31 @@ class NotionClient:
         }).execute()
 
         items = resp.data
+        print(items)
 
-        prompt += "\n".join([f'{idx}) Title: {item["title"]}\n Description: {item["description"]}' for idx, item in enumerate(items)])
+        if(len(items) == 0):
+           prompt += "\nNo matching documents found"
+        else:
+            prompt += '\n' + "\n".join([f'{idx}) Title: {item["title"]}\n Description: {item["description"]}' for idx, item in enumerate(items)])
         
+        print(prompt)
+
         headers = {
                 'Authorization': f'Bearer {config.OPENAI_API_KEY}',
                 'Content-Type': 'application/json'
         }
         
-        resp = requests.post("https://api.openai.com/v1/completions", headers=headers, json={
-            "prompt": prompt,
+        resp = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json={
+            "messages": [
+                {
+                    "role": "system", 
+                    "content": query_knowledge_model_context()
+                    },
+                {"role": "user", "content": prompt}
+            ],
             "temperature": 0.7,
             "max_tokens": 1000,
-            "model": "text-davinci-003"  # Select the engine you want to use
+            "model": "gpt-3.5-turbo"
         })
 
         res = resp.json()

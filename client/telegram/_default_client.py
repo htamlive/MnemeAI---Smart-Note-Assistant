@@ -273,6 +273,9 @@ class DefaultClient:
 
     async def revoke_google_authorization(self, chat_id: int) -> str:
         return await sync_to_async(self.authorization_client.revoke_credentials)(chat_id)
+    
+    async def revoke_notion_authorization(self, chat_id: int) -> str:
+        return await sync_to_async(self.notion_client.auth_client.revoke_credentials)(chat_id)
 
     async def check_google_authorization(self, chat_id: int) -> bool:
 
