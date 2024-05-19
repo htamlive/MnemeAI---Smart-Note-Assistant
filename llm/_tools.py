@@ -44,8 +44,6 @@ async def check_notion_auth(
     return await sync_to_async(client.check_auth)(chat_id)
 
 
-
-
 async def update_timezone_utc(user_data: UserData, offset: int = 0) -> str:
     if offset == 0:
         user_data.timezone = pytz.timezone("Etc/GMT")
@@ -89,15 +87,17 @@ async def create_task(
         chat_id=chat_id,
         reminder_id=result.id,
         due=datetime.fromisoformat(result.start),
+        timezone=timezone,
         state=ReminderCeleryTask.PENDING,
     )
     # Setting up the Celery task
     timezone_info = pytz.timezone(timezone)
     countdown = datetime.fromisoformat(result.start) - datetime.now(timezone_info)
+    countdown_sec_round_down = max(countdown.total_seconds() // 60, 1) * 60
     await sync_to_async(send_notification.apply_async)(
         args=(chat_id, result.id),
-        countdown=countdown.total_seconds(),
-        expires=countdown.total_seconds() + 5 * 60,
+        countdown=countdown_sec_round_down,
+        expires=countdown_sec_round_down + 5 * 60,
     )
     return f"Created task: {title}, Body: {body}, Due: {due}"
 
@@ -131,7 +131,9 @@ async def show_task_detail(
 
     title, detail = task.title, task.notes
 
-    start_reminding_time = dj_timezone.localtime(task.start).strftime("Due time: %H:%M %A %d %B %Y")
+    start_reminding_time = dj_timezone.localtime(task.start).strftime(
+        "Due time: %H:%M %A %d %B %Y"
+    )
 
     endpoint = TELEGRAM_SEND_ENDPOINT
 
@@ -372,7 +374,7 @@ async def save_notes_title(
 async def save_notes_detail(
     user_data: UserData, content: str, client: NotionClient = NotionClient()
 ) -> str:
-    
+
     return await update_note(user_data, content=content, client=client)
 
 
@@ -384,7 +386,6 @@ async def update_note(
 ) -> str:
     chat_id = user_data.chat_id
     note_id = user_data.note_token
-
 
     if not await check_notion_auth(user_data, client=client):
         return "Error: Not authorized to update a note."
@@ -563,7 +564,7 @@ async def retrieve_knowledge_from_notes(
 
     choices = json_obj["choices"]
 
-    content = "\n\n".join(map(lambda x: x["message"]['content'], choices))
+    content = "\n\n".join(map(lambda x: x["message"]["content"], choices))
 
     endpoint = TELEGRAM_SEND_ENDPOINT
 

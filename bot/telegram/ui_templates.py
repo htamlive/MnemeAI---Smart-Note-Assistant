@@ -1,4 +1,5 @@
 import datetime
+import pytz
 from telegram_bot_pagination import InlineKeyboardPaginator
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import base64
@@ -91,7 +92,7 @@ def show_reminders_list(chat_id: int, titles: list, reminder_tokens: list, next_
     keyboards = []
     for title, token in zip(titles, reminder_tokens):
         keyboards.append([InlineKeyboardButton(title, callback_data=f'{DETAIL_REMINDER_CHAR}{PAGE_DELIMITER}{token}')])
-    
+
     if next_page_token:
         keyboards.append([InlineKeyboardButton('Show more', callback_data=f'{REMINDER_PAGE_CHAR}{PAGE_DELIMITER}{next_page_token}')])
 
@@ -242,7 +243,9 @@ def render_html_timezone_instructions():
 
 @staticmethod
 def render_html_task_notification(reminder: ReminderCeleryTask):
+    tz = pytz.timezone(reminder.timezone)
+    actual_due = reminder.due.astimezone(tz) if reminder.due else None
     return f"🔔 <b>REMINDER:</b>\n"\
         f"📌 <i>{reminder.title}</i>\n\n"\
         f"📝 {reminder.description}\n\n\n"+\
-        (f"⏰ {reminder.due.strftime('%Y-%m-%d %H:%M')}" if reminder.due else "")
+        (f"⏰ {actual_due.strftime('%Y-%m-%d %H:%M')}" if actual_due else "")
