@@ -1,6 +1,7 @@
 from typing import Any
 from django.db import models
 
+
 class ReminderCeleryTask(models.Model):
     REVOKED = "revoked"
     PENDING = "pending"

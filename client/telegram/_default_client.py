@@ -150,19 +150,19 @@ class DefaultClient:
         )
 
         tz: str = task.timezone
-        due_str: str = task.due
+        start_str: str = task.start
 
         # use due_str and tz to get the due time
-        due = "No due time"
-        if due_str:
+        start_reminding_time = "No due time"
+        if start_str:
             # 2024-05-18T20:13:00+07:00
-            due = datetime.datetime.strptime(due_str, "%Y-%m-%dT%H:%M:%S%z")
-            due = due.astimezone(pytz.timezone(tz))
-            due = due.strftime("%Y-%m-%d %H:%M")
+            start_reminding_time = datetime.datetime.strptime(start_str, "%Y-%m-%dT%H:%M:%S%z")
+            start_reminding_time = start_reminding_time.astimezone(pytz.timezone(tz))
+            start_reminding_time = start_reminding_time.strftime("%Y-%m-%d %H:%M")
 
         title, description = task.title, task.notes
 
-        return title, description, due
+        return title, description, start_reminding_time
         # return f'{title} ' + '<a href="href="tg://bot_command?command=start" onclick="execBotCommand(this)">edit</a>' + '{time}{description}'
 
     @deprecated

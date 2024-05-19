@@ -3,6 +3,7 @@ import requests
 
 from config import config
 from pkg.model.reminder_cele_task import ReminderCeleryTask
+from .outside_module import render_html_task_notification
 
 app = Celery(
     "tasks", broker=config.REDIS_URL, broker_connection_retry_on_startup=True
@@ -12,6 +13,7 @@ app = Celery(
     autoretry_for=(requests.HTTPError,),
     retry_kwargs={"max_retries": 5},
     default_retry_delay=60,  # 1 minute
+
 )
 def send_notification(
     chat_id: int,
@@ -24,10 +26,11 @@ def send_notification(
     telebot_token = config.TELEBOT_TOKEN
     endpoint = f"https://api.telegram.org/bot{telebot_token}/sendMessage"
     print(reminder.title)
-    from bot.telegram.ui_templates import render_html_task_notification
+    
     payload = {
         "chat_id": chat_id,
         "text": render_html_task_notification(reminder),
+        "parse_mode": "HTML",
     }
     response = requests.post(endpoint, json=payload)
     response.raise_for_status()

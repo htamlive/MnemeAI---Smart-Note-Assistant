@@ -217,13 +217,13 @@ def show_notes_list_template_v2(chat_id: int, titles: list, note_tokens: list, s
         'parse_mode': 'HTML'
     }
 
-def render_html_reminder_detail(due: datetime, title: str, description: str) -> str:
+def render_html_reminder_detail(start_reminding_time: datetime, title: str, description: str) -> str:
     html_render = \
         "<b>📌 YOUR REMINDERS:</b>\n" \
         "✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦\n\n<b>"\
         f"🔹 <i>{title}</i></b>\n"\
         f"\n📝\n{description}\n"\
-        f"\n⏰\n{due}"
+        f"\n⏰\n{start_reminding_time}"
 
     return html_render
 
@@ -240,9 +240,9 @@ def render_html_timezone_instructions():
     return "Please press the button to share your location or type your location.\n"\
     "For example: You are in <b>GMT+7</b>. Type <b>+7</b>."
 
-
+@staticmethod
 def render_html_task_notification(reminder: ReminderCeleryTask):
     return f"🔔 <b>REMINDER:</b>\n"\
-        f"📌 <i>{reminder.title}</i>\n"\
-        f"📝 {reminder.description}\n"\
-        f"⏰ {reminder.due}\n"
+        f"📌 <i>{reminder.title}</i>\n\n"\
+        f"📝 {reminder.description}\n\n\n"+\
+        (f"⏰ {reminder.due.strftime('%Y-%m-%d %H:%M')}" if reminder.due else "")
