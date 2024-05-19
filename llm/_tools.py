@@ -9,7 +9,7 @@ from bot.telegram.ui_templates import (
     get_reminder_option_keyboard,
     render_html_note_detail,
     render_html_reminder_detail,
-    show_notes_list_template,
+    show_notes_list_template_v2 as show_notes_list_template,
     show_reminders_list_v2 as show_reminders_list,
 )
 from config.config import TELEGRAM_SEND_ENDPOINT

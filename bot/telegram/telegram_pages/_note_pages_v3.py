@@ -39,7 +39,7 @@ class NotePages:
         query = update.callback_query
         await query.answer()
         if self.check_match_pattern(query):
-            page_token = extract_hidden_tokens(query.message.entities)
+            page_token = extract_hidden_tokens(query.message.entities)[-1]
             await self.show_preview_page(query, context, page_token)
 
     async def show_preview_page(self, query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, starting_point: str | None = None) -> None:
@@ -66,7 +66,7 @@ class NotePages:
         
         else:   
 
-            template = show_notes_list_template(chat_id, titles, notes_tokens, starting_point)
+            template = show_notes_list_template(chat_id, titles, notes_tokens, list_notes.startingPoint)
 
             message = await query.message.reply_text(
                 text=template['text'],
