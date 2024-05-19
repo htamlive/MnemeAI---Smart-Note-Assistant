@@ -11,7 +11,7 @@ import pytz
 # import datetime
 from bot.telegram.ui_templates import render_html_note_detail
 from llm.prompt_template import prompt_query_knowledge_payload
-from llm.tools_interface import retrieve_knowledge_from_notes
+from llm._tools import retrieve_knowledge_from_notes
 from pkg.google_calendar_api.client import GoogleCalendarApi
 from pkg.google_task_api.model import ListTask
 from pkg.model import ReminderCeleryTask
