@@ -28,6 +28,7 @@ class Telebot:
         self.init_help_command()
         self.init_test_routine_notification()
         self.init_show_time_command()
+        self.init_revoke_google_auth()
 
 
     def init_test_routine_notification(self) -> None:
@@ -156,17 +157,32 @@ class Telebot:
         self.application.add_handler(CommandHandler('normal_notion_register', notion_register_page_normal))
         self.application.add_handler(CommandHandler('advance_notion_register', notion_register_page_advance))
 
+    def init_revoke_google_auth(self) -> None:
+        async def revoke_google_auth(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            message_text = await self.client.revoke_google_authorization(update.effective_chat.id)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=message_text,
+            )
+
+        self.application.add_handler(CommandHandler('revoke_google_auth', revoke_google_auth))
+
 
     def init_google_authorization_command(self) -> None:
 
         async def google_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            
+            force = False
+            if(context.args):
+                if(context.args[0] == 'force'):
+                    force = True
 
             # url = await self.client.get_google_authorization_url(update.effective_chat.id)
             is_authorized = await self.client.check_google_authorization(update.effective_chat.id)
 
             reply_markup = None
 
-            if(not is_authorized):
+            if(not is_authorized or force):
                 text = f'Click the button to authorize with Google'
                 url = await self.client.get_google_authorization_url(update.effective_chat.id)
                 reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Authorize', url=url)]])

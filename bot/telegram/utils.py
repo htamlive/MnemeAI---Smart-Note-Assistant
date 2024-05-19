@@ -30,6 +30,6 @@ def check_data_requirement(context, check_timezone = True) ->Tuple[bool, str]:
     user_data : UserData = context.user_data['user_system_data']
 
     if(check_timezone and not user_data.timezone):
-        return False, 'Please set your timezone first with /set_timezone'
+        return False, 'Please set your timezone first with /timezone'
     
     return True, 'OK'

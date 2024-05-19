@@ -274,6 +274,9 @@ class DefaultClient:
         url = await sync_to_async(self.authorization_client.get_auth_url)(chat_id)
         return url
 
+    async def revoke_google_authorization(self, chat_id: int) -> str:
+        return await sync_to_async(self.authorization_client.revoke_credentials)(chat_id)
+
     async def check_google_authorization(self, chat_id: int) -> bool:
 
         credential = await sync_to_async(self.authorization_client.get_credentials)(
