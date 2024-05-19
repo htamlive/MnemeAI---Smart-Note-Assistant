@@ -448,6 +448,9 @@ async def show_notes_list(
         chat_id, starting_point
     )
 
+    if list_notes is None:
+        return "There is no note to show."
+
     titles = []
     notes_tokens = []
 
