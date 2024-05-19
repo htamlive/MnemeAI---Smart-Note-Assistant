@@ -392,16 +392,17 @@ class NotionClient:
         print(prompt)
         
         headers = {
-                'Authorization': f'Bearer {config.AWAN_KEY}',
+                'Authorization': f'Bearer {config.OPENAI_API_KEY}',
                 'Content-Type': 'application/json'
         }
         
-        resp = requests.post("https://api.awanllm.com/v1/completions", headers=headers, json={
-            "model": "Meta-Llama-3-8B-Instruct",
+        resp = requests.post("https://api.openai.com/v1/completions", headers=headers, json={
             "prompt": prompt,
+            "temperature": 0.7,
+            "max_tokens": 50,
+            "model": "text-davinci-002"  # Select the engine you want to use
         })
 
-        
         res = resp.json()
 
         return res
