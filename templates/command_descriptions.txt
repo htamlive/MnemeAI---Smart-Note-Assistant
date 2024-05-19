@@ -5,6 +5,7 @@ note - Add a note
 remind - Set a reminder
 view_notes - View all notes
 view_reminders - View all reminders
+notion_db - Set Notion page to store notes database
 timezone - Set your timezone
 query_knowledge - Query knowledge base from notes
 revoke_google_auth - Revoke Google authentication

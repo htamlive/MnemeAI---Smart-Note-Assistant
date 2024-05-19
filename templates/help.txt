@@ -21,7 +21,7 @@
 - /google_authorization - <i>Connect with your Google account</i>
 
 <b>🔗 Connect to Notion 🔗</b>
-- /notion_page - <i>Link to your Notion page</i>
+- /notion_db - <i>Link to your Notion page to create the notes database</i>
 
 <b>⏰ Time and Timezone Commands ⏰</b>
 - /show_time - <i>Display current time in your timezone</i>
