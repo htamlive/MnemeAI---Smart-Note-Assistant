@@ -510,7 +510,7 @@ async def register_database_id(
     user_data: UserData, database_id: str, client: NotionClient = NotionClient()
 ) -> str:
     chat_id = user_data.chat_id
-    type = client.check_type(chat_id, database_id)
+    type = await sync_to_async(client.check_type)(chat_id, database_id)
 
     if not await check_notion_auth(user_data, client=client):
         return "Error: Not authorized to register a database."
@@ -518,12 +518,16 @@ async def register_database_id(
     if type == "database":
         resp = await sync_to_async(client.register_database_id)(chat_id, database_id)
 
-        return f"Registered database {database_id} to user {chat_id}"
+        # return f"Registered database {database_id} to user {chat_id}"
+        return "Registered database to user"
     elif type == "page":
         page_id = database_id
         resp = await sync_to_async(client.register_page_database)(chat_id, page_id)
 
-        return f"Registered database {resp['id']} in page {page_id} to user {chat_id}"
+        print(resp)
+
+        # return f"Registered database {resp['id']} in page {page_id} to user {chat_id}"
+        return "Registered database in page to user"
     else:
         return f"This is a {type} object, try again"
 
