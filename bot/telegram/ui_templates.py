@@ -5,6 +5,7 @@ import base64
 from deprecatedFunction import deprecated
 
 from config import Patterns, REMINDER_PAGE_CHAR, NOTE_PAGE_CHAR, PAGE_DELIMITER, DETAIL_REMINDER_CHAR, DETAIL_NOTE_CHAR
+from pkg.model.reminder_cele_task import ReminderCeleryTask
 
 def create_preview_pages(num_pages: int, page_idx: int, pattern = NOTE_PAGE_CHAR + '#{page}') -> InlineKeyboardPaginator:
     return InlineKeyboardPaginator(
@@ -238,3 +239,10 @@ def render_html_note_detail(title: str, content: str) -> str:
 def render_html_timezone_instructions():
     return "Please press the button to share your location or type your location.\n"\
     "For example: You are in <b>GMT+7</b>. Type <b>+7</b>."
+
+
+def render_html_task_notification(reminder: ReminderCeleryTask):
+    return f"🔔 <b>REMINDER:</b>\n"\
+        f"📌 <i>{reminder.title}</i>\n"\
+        f"📝 {reminder.description}\n"\
+        f"⏰ {reminder.due}\n"
