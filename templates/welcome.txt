@@ -10,7 +10,7 @@
 2. Taking Notes Feature:
 - 🔗 Connect your Notion account with /notion_authorization.
 - 📄 Select a Notion page to save your notes. Tick the box of the page you want to use.
-- 🔍 Use /notion_db and paste the URL of your chosen Notion page to store notes database.
+- 🔍 Use /notion_share_url and paste the URL of your chosen Notion page to store notes database.
 
 3. Add Reminders Feature:
 - 🔗 Connect your Google account with /google_authorization.
