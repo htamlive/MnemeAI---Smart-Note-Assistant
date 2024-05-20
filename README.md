@@ -1,5 +1,3 @@
-Here is a more detailed and corrected version of your README for the Smart-Note-Assistant:
-
 # Smart-Note-Assistant
 
 ## Introduction
