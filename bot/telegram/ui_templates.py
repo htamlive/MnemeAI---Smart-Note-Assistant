@@ -202,15 +202,13 @@ def show_notes_list_template_v2(chat_id: int, titles: list, note_tokens: list, s
 
 
     text = 'Your notes:\n'
-    if starting_point is None:
-        if count_items > 1:
-            text = 'Your notes:\n'
-        elif count_items == 1:
-            text = 'Your note:\n'
-        elif count_items == 0:
-            text = 'Oops. There is no note yet'
-    else:
-        text = 'More of your notes:\n'
+    if count_items > 1:
+        text = 'Your notes:\n'
+    elif count_items == 1:
+        text = 'Your note:\n'
+    elif count_items == 0:
+        text = 'Oops. There is no note yet'
+
 
     content += text
 
