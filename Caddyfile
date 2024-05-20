@@ -1,0 +1,11 @@
+notion.18.140.43.172.nip.io {
+	reverse_proxy localhost:5000
+}
+
+googletask.18.140.43.172.nip.io {
+	reverse_proxy localhost:8080
+}
+
+telebot.18.140.43.172.nip.io {
+	reverse_proxy localhost:8081
+}
