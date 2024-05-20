@@ -4,6 +4,8 @@
 
 Smart-Note-Assistant is a web application designed to assist users with note-taking, task management, and calendar integration. It leverages various APIs to provide a seamless user experience.
 
+[Documentation](https://docs.google.com/document/d/1s-PCBP9Gy_LqdBJMIXq9yLylK9HWw8iIbncAuSw35Eo/edit?usp=sharing)
+
 ## Prerequisites
 
 To run this application locally, you need to have the following installed on your machine:
