@@ -97,7 +97,7 @@ If you encounter any issues, here are some common solutions:
 
 ## Contributing
 
-The project is not open to contribution, but do reach out for suggestions!
+The project is open to contribution, do reach out for suggestions!
 
 ## License
 
