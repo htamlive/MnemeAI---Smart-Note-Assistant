@@ -41,7 +41,7 @@ async def check_notion_auth(
     user_data: UserData, client: NotionClient = NotionClient()
 ) -> bool:
     chat_id = user_data.chat_id
-    return await sync_to_async(client.check_auth)(chat_id) and (await sync_to_async(client.get_database_id)(chat_id) is not None)
+    return await sync_to_async(client.check_auth)(chat_id)
 
 
 async def update_timezone_utc(user_data: UserData, offset: int = 0) -> str:
