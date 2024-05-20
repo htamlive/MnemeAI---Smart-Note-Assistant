@@ -18,7 +18,9 @@
 
 <b>🔑 Authorization Commands 🔑</b>
 - /notion_authorization - <i>Authorize your Notion account</i>
+- /revoke_notion_auth - <i>Unauthorize your Notion account</i>
 - /google_authorization - <i>Connect with your Google account</i>
+- /revoke_google_auth - <i>Disconnect with your Google account</i>
 
 <b>🔗 Connect to Notion 🔗</b>
 - /notion_share_url - <i>Link to your Notion page to create the notes database</i>

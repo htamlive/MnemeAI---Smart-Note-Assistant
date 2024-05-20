@@ -9,6 +9,7 @@ notion_share_url - Set Notion page to store notes database
 timezone - Set your timezone
 query_knowledge - Query knowledge base from notes
 revoke_google_auth - Revoke Google authentication
+revoke_notion_auth - Revoke Notion authentication
 google_authorization - Authorize Google account
 notion_authorization - Authorize Notion account
 cancel - Cancel the current operation
