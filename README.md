@@ -6,6 +6,15 @@ Smart-Note-Assistant is a web application designed to assist users with note-tak
 
 [Documentation](https://docs.google.com/document/d/1s-PCBP9Gy_LqdBJMIXq9yLylK9HWw8iIbncAuSw35Eo/edit?usp=sharing)
 
+## Demo
+
+[![MnemeAI](http://img.youtube.com/vi/uMbhrg6nwH4/0.jpg)](http://www.youtube.com/watch?v=uMbhrg6nwH4)
+
+## Usage
+
+You can try MnemeAI-bot here
+[https://t.me/mnemeai_bot](https://t.me/mnemeai_bot)
+
 ## Prerequisites
 
 To run this application locally, you need to have the following installed on your machine:
